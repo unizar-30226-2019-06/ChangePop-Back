@@ -1,1 +1,1 @@
-web: gunicorn webapp:changepop
+flask run
