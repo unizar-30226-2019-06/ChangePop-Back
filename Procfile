@@ -1,1 +1,1 @@
-web: gunicorn webapp::ChangePop
+web: gunicorn webapp:app
