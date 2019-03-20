@@ -1,0 +1,35 @@
+language: python
+
+python:
+    - 3.7.2
+    
+# install dependencies
+install: 
+  -pip install -r requirements/dev.txt
+  
+# check style
+script:
+    - pylint --output-format=text ChangePop/__init__.py
+    
+# install dependencies
+install:
+  - pip install codecov
+
+# run scripts
+script:
+  - coverage erase
+  - coverage run ChangePop/__init__.py && coverage html
+
+after_success:
+  - codecov
+  
+# Deployment to Heroku
+branches:
+  only:
+    - master
+
+deploy:
+  - provider: heroku
+    api_key:
+      secure: adc12bfe-bcdd-4690-bfcf-5d8b62da16fd
+    app: changepop
