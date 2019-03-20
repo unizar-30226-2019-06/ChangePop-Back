@@ -15,6 +15,4 @@ def create_app():
     def show2(subpath):
         return render_template(subpath+'.html')
 
-    app.add_url_rule('/index', endpoint='index')
-
     return app

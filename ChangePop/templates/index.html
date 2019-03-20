@@ -1,13 +1,16 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+  <! -- Cosas especificas -->
+{% endblock %}
+{% block content %}
+  <h1>My First Heading</h1>
+	<p>My first paragraph.</p>
+	
+	<p><img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Italian Trulli"></p>
 
-<h1>My First Heading</h1>
-<p>My first paragraph.</p>
-
-<a href="./page">Ir a una pagina en el mismo directorio (./page)</a>
-<br>
-<a href="./dir/index">Ir a una pagina en otro directorio (./dir/index)</a>
-
-</body>
-</html>
+	<a href="./page">Ir a una pagina en el mismo directorio (./page)</a>
+	<br>
+	<a href="./dir/index">Ir a una pagina en otro directorio (./dir/index)</a>
+{% endblock %}

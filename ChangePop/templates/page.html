@@ -1,11 +1,14 @@
- <!DOCTYPE html>
-<html>
-<body>
+{% extends "layout.html" %}
+{% block title %}Pagina{% endblock %}
+{% block head %}
+  {{ super() }}
+  <! -- Cosas especificas -->
+{% endblock %}
+{% block content %}
 
 <h1>Esta es otra pagina</h1>
 <p>My first paragraph.</p>
 
 <a href="javascript:history.back()"> Volver Atrás</a>
 
-</body>
-</html>
+{% endblock %}
