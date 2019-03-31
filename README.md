@@ -1,4 +1,6 @@
-# ChangePop
+# ChangePop [![Build Status](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web.svg?branch=master)](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web) [![codecov](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Web/branch/master/graph/badge.svg)](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Web)
+
+
 Repositorio destinado a la asignatura Proyecto Software 2019 UNIZAR: portal de compra/venta e intercambio de productos de segunda mano, con funcionalidades varias interesantes para los compradores y vendedores de productos
 
 ## Instalación
