@@ -1,30 +1,24 @@
 language: python
-
 python: 3.6
-
 install:
 - pip install -r requirements/dev.txt
 - pip install codecov
-
 script:
 - python -m unittest discover
 - coverage erase
 - coverage run --source=ChangePop test_webapp.py
 - ls
 - coverage html
-
 after_success:
 - codecov
-
 branches:
   only:
   - master
   - develop
-  
 deploy:
   - provider: heroku
     api_key:
-      secure: TlBK8NNyK29lUSgPtNH96tJZPNSIRPvFBDb8pEN+dhOdHgKl85aaCo1t1gN5e0eXPVwWA7HHA8uFWhHCxpOkwLrZs2DQk3FbOxa5Det130m3zqtW8NlsBzzIxsuu30irTAJ2bbVqc63jOoY32XkJX1N9qUZAF3gtc5wqoqIP0HaR3a+vh/yFOhnFWORmrH/9JoR3d0R7nDCO8cGX74BZQ3OhAY+4ZIkdlwtfO7upNpfgREdKKcJAyFBB2w3FOoP+npQNm/qckJgusMrnsbuVEl2u4MKnQTgKfGAsNBJvI0mEnEEyYAX35Kh9OTrvBLJddD0K8ELbB9/l60YgLVzhRWMtGyt+ivSrSGB/o+yEJaL3aJs271IQrtdZfwFjvct4BmGInDKLVuNbi9hFm30EzHc5NzPu592Xp2Ab4kfQ/PvfLhGlQs13lxyCLcfiUKrBcBMoLl3q4S0RRlrQ2VlGJfZw2DlUkxfSSd36nXcOocE4l9mkyCafw0jhW0tuFd/JOqoXsvCKFJJEtBdyqH/CMfGHuo3eZ/M5p1YIJppmlZfeDIHyVSAKogh1+4Lw9qyNRcQ/qcTFBOi7eR9qBOUorw7z+9tAiE4ChQIDqvgsYVhHoOkxeW+r/ckyWM1Sv6RfBLLh26as7QkmniSAz9yLFCg/Bf/0SKPmMJNj6CxL7zI=
+      secure: LfJD4hLONFKySwSUlzqGAVlwD4nsAytc3UcQ7SSom/aZ6ioRhAoL2/yMQekZeHBYKVo/i9vreCsFrK6l7ESIwYhbXf5AfJbYrMfQ9ygSMiSe5+/MIFEIEHVDZKUZq5PZxXy9xmTccn8V36x7AWRR72gmlD+nc9lfS/FH4X8+QMYGxvw/UZWYVRls2IdMBW+gsW/p5/v0XghkDi82et2HrZCOhbykPIjGf9YorrKAzbndqKySIx3UhvmAH6acHQBY8gRUMdKHRwJbR7A6O++4UBHpS62HyYi7vH1zDlaSM38f48HEl4F/LopFlsWQs6jd506U0sUVImy6e+9jYBYPN+wd/S1va8LJGrjBEmb0ry8dkangcAMKPszkg5FW5rlFoqvzWfKU3tvaKc85JJlr5xQg56SZtZ4GgCztj89XTAU4a4Z9hAusKfXIg//DobetSuJZpjbf1EFrfg1tqcqOzbdKZbPCK5v5WB3SgzX5IqRSFIz7NpsE9GmI0ciWvQ+4zuEyRkMP3XYFwHm/nKJePo56tqY/gBW3PS1U7FOAK2S414+qY+jZtNZnsQK7JlRKU7OKGAQZu1xUnZNqrZu3k1LZIIeUMJHEjHRx0/ObniSUOXEuvrw5mQaT3ewhbgK7oEY17eyNuUGr1NetgXGg/srs2AFced2oZhpwRrW3wUw=
     app: kelpa-api
     on:
       python: 3.6
