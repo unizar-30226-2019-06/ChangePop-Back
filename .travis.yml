@@ -25,7 +25,7 @@ deploy:
   api_key:
     secure: kuiBS79fOOjbvYsGbaouO+jdwCEJ0Yb7YRL+fKMnow93oSdFYv0AMn6aN8yynRKENgDGvPVtAnuVMYBI6fqZh8aDFk1aFWoHXx66UkQDU094hwWxcTyh8Ku+XS9z00l7UWFexOn4kTu/lw/I5+rIiKg5dL3vc3Q7aaj/IsTHB1mqYTyO/qHuzjwwzQTVRcBp/wdP1DkT5Z0ZzXTEtMzL/iDt9kkIY2yLEO/uw6530Jfwil7q/uAhNF8Q1Cx4PnSfrgkpyEuKUShqbNkzD6gdhoH20eHvNwQs6V4RQ8xR95sUuyWeM+0Ukzh7D0uUcVKP2JaFyzVVZBjw2j6OB16hghgImEaes2OseQ51HD8atyY5CnCx/7wiFT9Zqo6tdVUzsFWTdPscHVFwC+DsFhoC2KlGa25Bqx0q+IhGgiqa35ibudb5GiXNd5Z9gQPva9AmXVD4lquotPsrZRGZCQn/BAK6IlmxtlkViKmEs9BVslo+duvSIQTry5q7S49s8yPkYO18ngUj4s4ACZ4NWA91RRf+wkO5ReWg4WSq9ZxjPjnPSVeVQpMNq649Mn3IUKYC8oK7x4D2GcqGQ1EUL8hKt5XsuVWsoieirJREWyNMUTbf/hbDR/GEqRf2wly5PCMqDK6HXHfNupOFdeXS3Cxq2+YtfgCRpUE8sHbDqsScOxo=
   app: kelpa-api
-    on:
-      python: 3.6
-      branch: master
+  on:
+    python: 3.6
+    branch: master
       
