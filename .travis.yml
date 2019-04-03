@@ -10,7 +10,6 @@ script:
 - python -m unittest discover
 - coverage erase
 - coverage run --source=ChangePop test_webapp.py
-- ls
 - coverage html
 
 after_success:
