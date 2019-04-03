@@ -22,12 +22,10 @@ branches:
   - develop
   
 deploy:
-  matrix:
   - provider: heroku
     api_key:
-      secure: GxXEHkHqdAAO7GiLsHyESxT3HseZeZJiOn/KiqBjekfmz2KxXmupGPSvyl+m21awJup8xBq2133b99Ih0uwMs2UGeos4WlSGFJzYwZegkdzIpjsS9m/75ZtK3wQqfnj1ssPZDUNzjIzHpcL3SOwWOcNTNVcdN+DiymtdskrxYezDIhCW7MdjSaA6XNdrIKntlPUkwYF34HEKKy2W48qT4IqSmi1HgDhcgDjUqbsOZVnSfM02fMO3fBUDACqXYuRgbHvcLDhPzmp0oMgHZI6BYam7WBuLjjhLmPu5guxCkMdfupo2mga6C2hWggJ5DEixPqE/1EUFlXs00knsvo7z7MwNv5hSD6YlbbaU/idf+ZXT2UgJooF/k01k1ZVM2sdQfF2q9mwn/q9eqqaofclvZHHE/2V29RIzPyOfh/HYbCt+0kiFa8w9Z5EozMRdhjjME5W+lJlIYBrnMBZLqcnbHUvQ4oN3Br12qUsuk0Mqtt5YtWhoxxfjmItFygeEctDHzLIC9Rh+UhHsYS7x+Ebp978OkUxDF40XZE2i3OCYMRxQm3YNWjRbU55p/RRhrF7J8chPVHVTkoWqQCmQ9bpErxn5+VyE37HdTFix0ySSax2iTHBaW8/1o1ykttwAtoX0wZdTDEfiKlVn1ReXZqpDnG/nUWTA7ZSfK3emC24Fz3I=
-    app: changepop-fw
+      secure: TlBK8NNyK29lUSgPtNH96tJZPNSIRPvFBDb8pEN+dhOdHgKl85aaCo1t1gN5e0eXPVwWA7HHA8uFWhHCxpOkwLrZs2DQk3FbOxa5Det130m3zqtW8NlsBzzIxsuu30irTAJ2bbVqc63jOoY32XkJX1N9qUZAF3gtc5wqoqIP0HaR3a+vh/yFOhnFWORmrH/9JoR3d0R7nDCO8cGX74BZQ3OhAY+4ZIkdlwtfO7upNpfgREdKKcJAyFBB2w3FOoP+npQNm/qckJgusMrnsbuVEl2u4MKnQTgKfGAsNBJvI0mEnEEyYAX35Kh9OTrvBLJddD0K8ELbB9/l60YgLVzhRWMtGyt+ivSrSGB/o+yEJaL3aJs271IQrtdZfwFjvct4BmGInDKLVuNbi9hFm30EzHc5NzPu592Xp2Ab4kfQ/PvfLhGlQs13lxyCLcfiUKrBcBMoLl3q4S0RRlrQ2VlGJfZw2DlUkxfSSd36nXcOocE4l9mkyCafw0jhW0tuFd/JOqoXsvCKFJJEtBdyqH/CMfGHuo3eZ/M5p1YIJppmlZfeDIHyVSAKogh1+4Lw9qyNRcQ/qcTFBOi7eR9qBOUorw7z+9tAiE4ChQIDqvgsYVhHoOkxeW+r/ckyWM1Sv6RfBLLh26as7QkmniSAz9yLFCg/Bf/0SKPmMJNj6CxL7zI=
+    app: kelpa-api
     on:
       python: 3.6
       branch: master
-    
