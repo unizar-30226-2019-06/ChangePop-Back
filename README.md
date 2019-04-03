@@ -1,4 +1,4 @@
-# ChangePop [![Build Status](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web.svg?branch=master)](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web) [![codecov](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back/branch/master/graph/badge.svg)](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back)
+# ChangePop [![Build Status](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Back.svg?branch=master)](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Back) [![codecov](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back/branch/master/graph/badge.svg)](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back)
 
 
 
