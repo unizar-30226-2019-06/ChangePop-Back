@@ -1,4 +1,13 @@
-# ChangePop [![Build Status](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web.svg?branch=master)](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web) [![codecov](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Web/branch/master/graph/badge.svg)](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Web)
+# ChangePop [![Build Status](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web.svg?branch=master)](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Web) [![codecov](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back/branch/master/graph/badge.svg)](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back)
+
+
+
+Master: [![Build Status](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Back.svg?branch=master)](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Back) [![codecov](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back/branch/master/graph/badge.svg)](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back)
+
+
+Develop: [![Build Status](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Back.svg?branch=develop)](https://travis-ci.org/unizar-30226-2019-06/ChangePop-Back) [![codecov](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back/branch/develop/graph/badge.svg)](https://codecov.io/gh/unizar-30226-2019-06/ChangePop-Back)
+
+
 
 
 Repositorio destinado a la asignatura Proyecto Software 2019 UNIZAR: portal de compra/venta e intercambio de productos de segunda mano, con funcionalidades varias interesantes para los compradores y vendedores de productos
