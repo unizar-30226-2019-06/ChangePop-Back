@@ -12,3 +12,7 @@ pytest-runner==3.0
 pytest-cov==2.5.1
 behave==1.2.5
 WebTest==2.0.29
+flask_sqlalchemy
+flask_migrate
+flask_login
+flask_wtf
