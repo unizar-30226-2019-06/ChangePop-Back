@@ -1,9 +1,9 @@
 from flask import Blueprint
 
-user = Blueprint('user', __name__)
+bp = Blueprint('user', __name__)
 
 
-@user.route('/user/<int:id>')
+@bp.route('/user/<int:id>')
 def get_info(id):
     """This function does something.
 
