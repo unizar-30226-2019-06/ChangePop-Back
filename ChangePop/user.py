@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional, Any
 
-from flask import Blueprint, request, json
+from flask import Blueprint, request, json, Response
 
 bp = Blueprint('user', __name__)
 
@@ -39,8 +39,7 @@ def create_user():
             "type": "error",
             "message": "No JSON found"}
 
-    return json.dumps(resp)
-
+    return Response(json.dumps(resp), status=0, mimetype='application/json')
 
 
 @bp.route('/user/<int:id>')
