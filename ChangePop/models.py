@@ -37,6 +37,14 @@ class Users(UserMixin, db.Model):
     ts_edit = db.Column(db.DateTime)
 
     def set_password(self, password):
+        """ This funcion set a password to a user after encrypt it
+
+            :param self: The user itself
+            :param password: The password to be encrypted
+            :type password: str.
+            :returns:  str -- Hashed password
+
+            """
         self.pass_hash = generate_password_hash(password)
 
     def check_password(self, password):

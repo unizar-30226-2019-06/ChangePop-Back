@@ -17,7 +17,7 @@ db.create_all()
 migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
-CsrfProtect(app)
+#CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
 
 app.register_blueprint(user.bp)
