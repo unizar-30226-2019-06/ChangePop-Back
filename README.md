@@ -32,7 +32,7 @@ Repositorio destinado a la asignatura Proyecto Software 2019 UNIZAR: portal de c
   - $> ```setprojectdir .```
   - $> ```pip install .```
   - $> ```set FLASK_DEBUG=true```
-  - $> ```set FLASK_APP=ChangePop```
+  - $> ```set FLASK_APP=webapp.py```
   - $> ```set FLASK_ENV=development```
 4) para acabar $> ```flask run```
 7) Ya tienes el servidor funcionando en http://127.0.0.1:5000/
@@ -43,8 +43,8 @@ Repositorio destinado a la asignatura Proyecto Software 2019 UNIZAR: portal de c
 3) En el terminal de pycharm (la de python no) escribir ```pip install .```
 4) Ir a Run > Edit Configuration...
 5) Añadir (+) > Flask, Comletar con la siguiente Configuración
-  - Target Type: Module Name
-  - Target: "ChangePop"
+  - Target Type: Script path
+  - Target: Direccion a el fichero webapp.py
   - FLASK_ENV: "development"
   - FLASK_DEBUG: check
   - Environment
