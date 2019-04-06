@@ -1,10 +1,11 @@
-from sqlalchemy import func
+import datetime
 
 from ChangePop import db
 from ChangePop import login
 from flask_login import UserMixin
 
 from werkzeug.security import generate_password_hash, check_password_hash
+
 
 # A ver, esto es un poco una locura, las funciones que tengan que ver con cada clase
 # hay que ponerlas dentro de esa clase, es decir, la api, pero bueno, esto se va rellenando
@@ -13,6 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class Categories(db.Model):
+    __tablename__ = 'Categories'
     cat_name = db.Column(db.String(255), primary_key=True, index=True, nullable=False)
 
     def __repr__(self):
@@ -20,13 +22,15 @@ class Categories(db.Model):
 
 
 class Users(UserMixin, db.Model):
+    __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     last_name = db.Column(db.String(255), unique=False, nullable=False)
     nick = db.Column(db.String(255), index=True, unique=True, nullable=False)
     first_name = db.Column(db.String(255), unique=False, nullable=False)
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
     points = db.Column(db.Float, unique=False, nullable=False)
-    email = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    phone = db.Column(db.Integer, unique=True, nullable=False)
+    mail = db.Column(db.String(255), index=True, unique=True, nullable=False)
     is_mod = db.Column(db.Boolean, unique=False, nullable=False)
     dni = db.Column(db.String(255), index=True, unique=True, nullable=False)
     avatar = db.Column(db.String(255), unique=False, nullable=False)
@@ -35,8 +39,11 @@ class Users(UserMixin, db.Model):
     pass_hash = db.Column(db.String(255), nullable=False)
     token = db.Column(db.String(255))
     time_token = db.Column(db.DateTime(timezone=True))
-    ts_create = db.Column(db.DateTime(timezone=True), default=func.now())
-    ts_edit = db.Column(db.DateTime(timezone=True), onupdate=func.now())
+    ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), onupdate=datetime.datetime.utcnow())
+
+    def get_id(self):
+        return self.id
 
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
@@ -52,24 +59,18 @@ class Users(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.pass_hash, password)
 
-    def new_user(self, nick, last_name, first_name, phone, dni, place, pass_hash):
-        u = Users(nick=nick, last_name=last_name, first_name=first_name, phone=phone,
-                         dni=dni, place=place);
-        u.set_password(pass_hash)
-        db.session.add(u)
-        db.session.commit()
-
-# esto es si no le dices nada, muestra esto de salida al hacer una consulta a esta clase
+    # esto es si no le dices nada, muestra esto de salida al hacer una consulta a esta clase
     def __repr__(self):
-        return '{}, {}, {}, {}'.format(self.id, self.nick, self.email, self.first_name)
+        return '{}, {}, {}, {}'.format(self.id, self.nick, self.mail, self.first_name)
 
 
 class Products(db.Model):
+    __tablename__ = 'Products'
     id = db.Column(db.Integer, primary_key=True, unique=True, index=True, nullable=False, autoincrement=True)
     tittle = db.Column(db.String(255), unique=False, index=True, nullable=False)
     descript = db.Column(db.String(255), unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
-    publish_date = db.Column(db.Date, unique=False, nullable=False, default=func.now())
+    publish_date = db.Column(db.Date, unique=False, nullable=False, default=datetime.datetime.utcnow())
     ban_reason = db.Column(db.String(255), unique=False, nullable=False)
     bid_dat = db.Column(db.Date, unique=False, nullable=True)
     num_visits = db.Column(db.Integer, unique=False, nullable=False)
@@ -77,7 +78,7 @@ class Products(db.Model):
     followers = db.Column(db.Integer, unique=False, nullable=False)
     is_removed = db.Column(db.Boolean, unique=False, nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
-    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, onupdate=func.now())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, onupdate=datetime.datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
     def __repr__(self):
@@ -85,6 +86,7 @@ class Products(db.Model):
 
 
 class Images(db.Model):
+    __tablename__ = 'Images'
     products_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
     image_url = db.Column(db.String(255), primary_key=True, index=True, nullable=False)
 
@@ -93,19 +95,21 @@ class Images(db.Model):
 
 
 class Reports(db.Model):
+    __tablename__ = 'Reports'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
     reason = db.Column(db.String(255), unique=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
-    report_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=True, default=func.now())
+    report_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=True, default=datetime.datetime.utcnow())
 
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.reason, self.user_id, self.product_id)
 
 
 class Payments(db.Model):
+    __tablename__ = 'Payments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    pay_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=func.now())
+    pay_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=datetime.datetime.utcnow())
     amount = db.Column(db.Float, unique=False, nullable=False)
     iban = db.Column(db.String(255), unique=False, nullable=False)
     boost_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True)
@@ -116,8 +120,9 @@ class Payments(db.Model):
 
 
 class Coments(db.Model):
+    __tablename__ = 'Coments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    publish_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=func.now())
+    publish_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=datetime.datetime.utcnow())
     body = db.Column(db.String(255), unique=False, nullable=False)
     user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
@@ -127,6 +132,7 @@ class Coments(db.Model):
 
 
 class CatProducts(db.Model):
+    __tablename__ = 'CatProducts'
     cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
 
@@ -135,57 +141,63 @@ class CatProducts(db.Model):
 
 
 class Interest(db.Model):
+    __tablename__ = 'Interest'
     cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('User.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
 
     def __repr__(self):
         return '{},{}'.format(self.cat_name, self.user_id)
 
 
 class Follows(db.Model):
+    __tablename__ = 'Follows'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('User.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
 
     def __repr__(self):
         return '{},{}'.format(self.product_id, self.user_id)
 
 
 class Bids(db.Model):
+    __tablename__ = 'Bids'
     bid = db.Column(db.Float, unique=False, nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('User.id'), primary_key=True)
-    ts_create = db.Column(db.DateTime(timezone=True), default=func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
+    ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
 
     def __repr__(self):
         return '{},{},{}'.format(self.product_id, self.user_id, self.bid)
 
 
 class Trades(db.Model):
+    __tablename__ = 'Trades'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
-    user_sell = db.Column(db.Integer, db.ForeignKey('User.id'))
-    user_buy = db.Column(db.Integer, db.ForeignKey('User.id'))
+    user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'))
     closed = db.Column(db.Boolean, unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
-    ts_create = db.Column(db.DateTime(timezone=True), default=func.now())
+    ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_sell, self.user_buy, self.product_id, self.price)
 
 
 class Messages(db.Model):
+    __tablename__ = 'Messages'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
     trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'))
-    user_to = db.Column(db.Integer, db.ForeignKey('User.id'))
-    user_from = db.Column(db.Integer, db.ForeignKey('User.id'))
+    user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
     body = db.Column(db.String(255), unique=False, nullable=False)
-    msg_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True, default=func.now())
+    msg_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True, default=datetime.datetime.utcnow())
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_to, self.user_from, self.trade_id, self.body)
 
 
 class TradesOffers(db.Model):
+    __tablename__ = 'TradesOffers'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
     trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'), primary_key=True)
 
@@ -198,5 +210,20 @@ def load_user(id):
     return Users.query.get(int(id))
 
 
-
+def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
+    u = Users(nick=nick,
+              last_name=last_name,
+              first_name=first_name,
+              phone=phone,
+              place=place,
+              dni=dni,
+              points=0,
+              fnac=fnac,
+              is_mod=False,
+              mail=mail,
+              avatar="http://127.0.0.1:5000/static/images/logo.jpg"
+              )
+    u.set_password(pass_hash)
+    db.session.add(u)
+    db.session.commit()
 

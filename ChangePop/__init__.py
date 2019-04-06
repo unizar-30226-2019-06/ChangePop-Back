@@ -10,15 +10,19 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_object(Config)
 
 db = SQLAlchemy(app)
+login = LoginManager(app)
+login.login_view = 'login'
+
+from ChangePop import models
+
 db.drop_all()
 db.create_all()
 
 migrate = Migrate(app, db)
-login = LoginManager(app)
-login.login_view = 'login'
+
 #CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
-from ChangePop import routes, models
+from ChangePop import routes
 
 def get_app():
     return app
