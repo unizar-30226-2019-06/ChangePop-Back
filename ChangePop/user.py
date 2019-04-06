@@ -2,8 +2,6 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
-from flask_login import current_user, login_user, logout_user
-from ChangePop.models import Users
 
 bp = Blueprint('user', __name__)
 
@@ -19,7 +17,7 @@ def create_user():
     content = request.get_json()
     print(content)
     if request.is_json:
-        nick = content["nick"]
+        nick: str = content["nick"]
         first_name = content["first_name"]
         last_name = content["mail"]
         pass_hash = content["pass_hash"]
@@ -27,11 +25,9 @@ def create_user():
         fnac = datetime.datetime.strptime( content["fnac"], "%Y-%m-%d" )
         dni = int(content["dni"])
         place = content["place"]
-        u = models.Users(nick=nick, last_name=last_name, first_name=first_name,phone=phone,
-                           dni=dni, place=place);
-        u.set_password(pass_hash)
-        db.session.add(u)
-        db.session.commit()
+
+        from ChangePop.models import Users
+        Users.new_user(Users, nick, last_name, first_name, phone, dni, place, pass_hash)
 
         print("Creating this following user:\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
 

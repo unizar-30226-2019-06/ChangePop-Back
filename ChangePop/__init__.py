@@ -1,6 +1,5 @@
 from flask import render_template
 from flask import Flask
-from ChangePop import user
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -19,19 +18,7 @@ login = LoginManager(app)
 login.login_view = 'login'
 #CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
-
-app.register_blueprint(user.bp)
-
-
-@app.route('/')
-def show():
-    return render_template('index.html')
-
-
-@app.route('/<path:subpath>')
-def show2(subpath):
-    return render_template(subpath+'.html')
-
+from ChangePop import routes, models
 
 def get_app():
     return app

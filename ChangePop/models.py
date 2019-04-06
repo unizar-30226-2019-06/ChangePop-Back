@@ -1,3 +1,5 @@
+from sqlalchemy import func
+
 from ChangePop import db
 from ChangePop import login
 from flask_login import UserMixin
@@ -32,9 +34,9 @@ class Users(UserMixin, db.Model):
     place = db.Column(db.String(255), unique=False, nullable=False)
     pass_hash = db.Column(db.String(255), nullable=False)
     token = db.Column(db.String(255))
-    time_token = db.Column(db.DateTime)
-    ts_create = db.Column(db.DateTime)
-    ts_edit = db.Column(db.DateTime)
+    time_token = db.Column(db.DateTime(timezone=True))
+    ts_create = db.Column(db.DateTime(timezone=True), default=func.now())
+    ts_edit = db.Column(db.DateTime(timezone=True), onupdate=func.now())
 
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
@@ -50,6 +52,13 @@ class Users(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.pass_hash, password)
 
+    def new_user(self, nick, last_name, first_name, phone, dni, place, pass_hash):
+        u = Users(nick=nick, last_name=last_name, first_name=first_name, phone=phone,
+                         dni=dni, place=place);
+        u.set_password(pass_hash)
+        db.session.add(u)
+        db.session.commit()
+
 # esto es si no le dices nada, muestra esto de salida al hacer una consulta a esta clase
     def __repr__(self):
         return '{}, {}, {}, {}'.format(self.id, self.nick, self.email, self.first_name)
@@ -60,7 +69,7 @@ class Products(db.Model):
     tittle = db.Column(db.String(255), unique=False, index=True, nullable=False)
     descript = db.Column(db.String(255), unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
-    publish_date = db.Column(db.Date, unique=False, nullable=False)
+    publish_date = db.Column(db.Date, unique=False, nullable=False, default=func.now())
     ban_reason = db.Column(db.String(255), unique=False, nullable=False)
     bid_dat = db.Column(db.Date, unique=False, nullable=True)
     num_visits = db.Column(db.Integer, unique=False, nullable=False)
@@ -68,7 +77,7 @@ class Products(db.Model):
     followers = db.Column(db.Integer, unique=False, nullable=False)
     is_removed = db.Column(db.Boolean, unique=False, nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
-    ts_edit = db.Column(db.DateTime, unique=False, nullable=False)
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, onupdate=func.now())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
     def __repr__(self):
@@ -88,7 +97,7 @@ class Reports(db.Model):
     reason = db.Column(db.String(255), unique=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
-    report_date = db.Column(db.DateTime, index=True, unique=False, nullable=True)
+    report_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=True, default=func.now())
 
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.reason, self.user_id, self.product_id)
@@ -96,10 +105,10 @@ class Reports(db.Model):
 
 class Payments(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    pay_date = db.Column(db.DateTime, index=True, unique=False, nullable=False)
+    pay_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=func.now())
     amount = db.Column(db.Float, unique=False, nullable=False)
     iban = db.Column(db.String(255), unique=False, nullable=False)
-    boost_date = db.Column(db.DateTime, unique=False, nullable=True)
+    boost_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
 
     def __repr__(self):
@@ -108,7 +117,7 @@ class Payments(db.Model):
 
 class Coments(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    publish_date = db.Column(db.DateTime, index=True, unique=False, nullable=False)
+    publish_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=func.now())
     body = db.Column(db.String(255), unique=False, nullable=False)
     user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
@@ -145,8 +154,7 @@ class Bids(db.Model):
     bid = db.Column(db.Float, unique=False, nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'), primary_key=True)
-    ts_create = db.Column(db.DateTime, unique=False, nullable=True)
-    ts_create = db.Column(db.DateTime, unique=False, nullable=True)
+    ts_create = db.Column(db.DateTime(timezone=True), default=func.now())
 
     def __repr__(self):
         return '{},{},{}'.format(self.product_id, self.user_id, self.bid)
@@ -159,8 +167,7 @@ class Trades(db.Model):
     user_buy = db.Column(db.Integer, db.ForeignKey('User.id'))
     closed = db.Column(db.Boolean, unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
-    ts_create = db.Column(db.DateTime, unique=False, nullable=True)
-    ts_create = db.Column(db.DateTime, unique=False, nullable=True)
+    ts_create = db.Column(db.DateTime(timezone=True), default=func.now())
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_sell, self.user_buy, self.product_id, self.price)
@@ -172,7 +179,7 @@ class Messages(db.Model):
     user_to = db.Column(db.Integer, db.ForeignKey('User.id'))
     user_from = db.Column(db.Integer, db.ForeignKey('User.id'))
     body = db.Column(db.String(255), unique=False, nullable=False)
-    msg_date = db.Column(db.DateTime, unique=False, nullable=True)
+    msg_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True, default=func.now())
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_to, self.user_from, self.trade_id, self.body)
