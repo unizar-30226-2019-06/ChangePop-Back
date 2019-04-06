@@ -2,7 +2,7 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
-
+from ChangePop import models
 bp = Blueprint('user', __name__)
 
 """
@@ -25,16 +25,18 @@ def create_user():
         fnac = datetime.datetime.strptime( content["fnac"], "%Y-%m-%d" )
         dni = int(content["dni"])
         place = content["place"]
+        mail = content["place"]
 
-        from ChangePop.models import Users
-        Users.new_user(Users, nick, last_name, first_name, phone, dni, place, pass_hash)
+        models.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
 
         print("Creating this following user:\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
+
+        user = models.Users.query.filter_by(nick=nick).first()
 
         resp = {
             "code": "0",
             "type": "info",
-            "message": "ID DEL NUEVO USUARIO"}
+            "message": str(user.id)}
 
     else:
         resp = {
@@ -56,7 +58,23 @@ def get_info(id):
 
     """
 
+    user = models.Users.query.filter_by(id=id).first()
+
+    user_json = {
+          "id": str(user.id),
+          "nick": str(user.nick),
+          "first_name": str(user.first_name),
+          "last_name": str(user.last_name),
+          "mail": str(user.mail),
+          "pass_hash": str(user.pass_hash),
+          "phone": str(user.phone),
+          "avatar": str(user.avatar),
+          "fnac": str(user.fnac),
+          "dni": str(user.dni),
+          "place": str(user.place)
+        }
+
     # TODO
-    return 'Devolver datos en JSON del usuario' + str (id)
+    return Response(json.dumps(user_json), status=0, mimetype='application/json')
 
 
