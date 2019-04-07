@@ -52,13 +52,57 @@ class UserDataBase(unittest.TestCase):
             data_send = json.dumps(data)
             response = self.app.post('/user', data=data_send, mimetype='application/json')
 
-
             r_json = response.get_json()
             self.assertIn('info', str(response.get_json()))  # Check successful insertion
 
             user_id = r_json["message"]
+            ProductDataBase.user_id = user_id
             check = self.app.get('/user/' + str(user_id))
             self.assertIn('666999222', str(check.get_json()))  # Check get info
+
+
+class ProductDataBase(unittest.TestCase):
+    user_id: int = 1
+
+    def setUp(self):
+        self.app = webapp.app.test_client()
+        self.app.testing = True
+
+    def test_add_product(self):
+        data = {
+            "id": 0,
+            "descript": "This product is wonderful",
+            "user_id": self.user_id,
+            "price": 0,
+            "categories": [
+                "Moda"
+            ],
+            "title": "Producto Molongo",
+            "bid": "2019-04-07",
+            "boost_date": "2019-04-07",
+            "visits": 0,
+            "followers": 0,
+            "publish_date": "2019-04-07",
+            "photo_urls": [
+                "http://images.com/123af3"
+            ],
+            "place": "Zaragoza",
+            "is_removed": True,
+            "ban_reason": "Razon Baneo"
+        }
+
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            data_send = json.dumps(data)
+            response = self.app.post('/product', data=data_send, mimetype='application/json')
+
+            r_json = response.get_json()
+            self.assertIn('info', str(response.get_json()))  # Check successful insertion
+
+            product_id = r_json["message"]
+            check = self.app.get('/product/' + str(product_id))
+            self.assertIn('Zaragoza', str(check.get_json()))  # Check get info
 
 
 if __name__ == "__main__":

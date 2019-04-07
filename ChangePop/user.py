@@ -72,7 +72,7 @@ def get_info(id):
           "place": str(user.place)
         }
 
-    # TODO
+    # TODO: More Attributes
     return Response(json.dumps(user_json), status=0, mimetype='application/json')
 
 

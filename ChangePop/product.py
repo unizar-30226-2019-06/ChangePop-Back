@@ -62,21 +62,12 @@ def get_info(id):
 
     """
 
-    user = models.Users.query.get(id).first()
+    product = Products.query.get(int(id))
 
-    user_json = {
-        "id": str(user.id),
-        "nick": str(user.nick),
-        "first_name": str(user.first_name),
-        "last_name": str(user.last_name),
-        "mail": str(user.mail),
-        "pass_hash": str(user.pass_hash),
-        "phone": str(user.phone),
-        "avatar": str(user.avatar),
-        "fnac": str(user.fnac),
-        "dni": str(user.dni),
-        "place": str(user.place)
+    # TODO: More Attributes
+    product_json = {
+        "id": str(product.id),
+        "place": str(product.place)
     }
 
-    # TODO
-    return Response(json.dumps(user_json), status=0, mimetype='application/json')
+    return Response(json.dumps(product_json), status=0, mimetype='application/json')
