@@ -2,8 +2,9 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from ChangePop.models import Users
+
 bp = Blueprint('user', __name__)
 
 """
@@ -22,7 +23,7 @@ def create_user():
         last_name = content["mail"]
         pass_hash = content["pass_hash"]
         phone = int(content["phone"])
-        fnac = datetime.datetime.strptime( content["fnac"], "%Y-%m-%d" )
+        fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
         dni = int(content["dni"])
         place = content["place"]
         mail = content["place"]
@@ -30,7 +31,6 @@ def create_user():
         user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
 
         # print("Creating this following user:\nId: " + str(user_id) + "\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
-
 
         resp = {
             "code": "0",
@@ -46,7 +46,7 @@ def create_user():
     return Response(json.dumps(resp), status=0, mimetype='application/json')
 
 
-@bp.route('/user', methods=['GET', 'POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     content = request.get_json()
     if request.is_json:
@@ -76,6 +76,8 @@ def login():
             # ahora si haces current_user deberia ser el usuario que acaba de loggear
     return Response(json.dumps(resp), status=0, mimetype='application/json')
 
+
+@login_required
 @bp.route('/logout')
 def logout():
     # asi se sale y se accede a current user en una misma funcion
@@ -98,20 +100,18 @@ def get_info(id):
     user = Users.query.get(int(id))
 
     user_json = {
-          "id": str(user.id),
-          "nick": str(user.nick),
-          "first_name": str(user.first_name),
-          "last_name": str(user.last_name),
-          "mail": str(user.mail),
-          "pass_hash": str(user.pass_hash),
-          "phone": str(user.phone),
-          "avatar": str(user.avatar),
-          "fnac": str(user.fnac),
-          "dni": str(user.dni),
-          "place": str(user.place)
-        }
+        "id": str(user.id),
+        "nick": str(user.nick),
+        "first_name": str(user.first_name),
+        "last_name": str(user.last_name),
+        "mail": str(user.mail),
+        "pass_hash": str(user.pass_hash),
+        "phone": str(user.phone),
+        "avatar": str(user.avatar),
+        "fnac": str(user.fnac),
+        "dni": str(user.dni),
+        "place": str(user.place)
+    }
 
     # TODO: More Attributes
     return Response(json.dumps(user_json), status=0, mimetype='application/json')
-
-
