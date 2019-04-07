@@ -1,9 +1,9 @@
 import unittest
+import warnings
 
-from flask import json, Response
+from flask import json
 
 import webapp
-from ChangePop import models
 
 
 # from webapp import app
@@ -46,16 +46,19 @@ class UserDataBase(unittest.TestCase):
             "token": "2sf78gsf68hsf5asfh68afh68a58fha68f"
         }
 
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        data_send = json.dumps(data)
-        response = self.app.post('/user', data=data_send, mimetype='application/json')
+            data_send = json.dumps(data)
+            response = self.app.post('/user', data=data_send, mimetype='application/json')
 
-        r_json = response.get_json()
-        self.assertIn('info', str(response.get_json()))     # Check successful insertion
 
-        id = r_json["message"]
-        check = self.app.get('/user/' + str(id))
-        self.assertIn('666999222', str(check.get_json()))   # Check get info
+            r_json = response.get_json()
+            self.assertIn('info', str(response.get_json()))  # Check successful insertion
+
+            user_id = r_json["message"]
+            check = self.app.get('/user/' + str(user_id))
+            self.assertIn('666999222', str(check.get_json()))  # Check get info
 
 
 if __name__ == "__main__":
