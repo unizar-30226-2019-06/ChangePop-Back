@@ -17,7 +17,6 @@ curl -X POST "http://127.0.0.1:5000/product" -H  "accept: application/json" -H  
 @bp.route('/product', methods=['POST'])
 def create_product():
     content = request.get_json()
-    print(content)
     if request.is_json:
 
         title = content["title"]
@@ -29,7 +28,7 @@ def create_product():
         place = content["place"]
 
         product_id = Products.new_product(user_id, title, descript, price, place)
-        print("Created this product:\nId: " + str(product_id) + "\nTitle: " + title)
+        #print("Created this product:\nId: " + str(product_id) + "\nTitle: " + title)
 
         for cat in categories:
             Categories.add_cat(cat)

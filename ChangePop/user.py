@@ -15,7 +15,6 @@ curl -X POST "http://127.0.0.1:5000/user" -H  "accept: application/json" -H  "Co
 @bp.route('/user', methods=['POST'])
 def create_user():
     content = request.get_json()
-    print(content)
     if request.is_json:
         nick: str = content["nick"]
         first_name = content["first_name"]
@@ -29,7 +28,7 @@ def create_user():
 
         user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
 
-        print("Creating this following user:\nId: " + str(user_id) + "\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
+        # print("Creating this following user:\nId: " + str(user_id) + "\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
 
 
         resp = {
