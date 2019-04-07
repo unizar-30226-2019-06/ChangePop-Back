@@ -2,7 +2,7 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
-from ChangePop import models
+from ChangePop.models import Users
 bp = Blueprint('user', __name__)
 
 """
@@ -27,16 +27,15 @@ def create_user():
         place = content["place"]
         mail = content["place"]
 
-        models.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
+        user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
 
-        print("Creating this following user:\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
+        print("Creating this following user:\nId: " + str(user_id) + "\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
 
-        user = models.Users.query.filter_by(nick=nick).first()
 
         resp = {
             "code": "0",
             "type": "info",
-            "message": str(user.id)}
+            "message": str(user_id)}
 
     else:
         resp = {
@@ -58,7 +57,7 @@ def get_info(id):
 
     """
 
-    user = models.Users.query.filter_by(id=id).first()
+    user = Users.query.get(int(id))
 
     user_json = {
           "id": str(user.id),

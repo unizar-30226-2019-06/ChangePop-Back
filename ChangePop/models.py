@@ -17,10 +17,19 @@ class Categories(db.Model):
     __tablename__ = 'Categories'
     cat_name = db.Column(db.String(255), primary_key=True, index=True, nullable=False)
 
+    @staticmethod
+    def add_cat(cat_name):
+        c = Categories.query.get(cat_name)
+        if not (c is not None):
+            c = Categories(cat_name=cat_name)
+            db.session.add(c)
+            db.session.commit()
+
     def __repr__(self):
         return '{}'.format(self.cat_name)
 
 
+# noinspection PyArgumentList
 class Users(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -45,6 +54,27 @@ class Users(UserMixin, db.Model):
     def get_id(self):
         return self.id
 
+    @staticmethod
+    def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
+        u = Users(nick=nick,
+                  last_name=last_name,
+                  first_name=first_name,
+                  phone=phone,
+                  place=place,
+                  dni=dni,
+                  points=0,
+                  fnac=fnac,
+                  is_mod=False,
+                  mail=mail,
+                  avatar="http://127.0.0.1:5000/static/images/logo.jpg"
+                  )
+        u.set_password(pass_hash)
+        db.session.add(u)
+        db.session.commit()
+        db.session.flush()
+
+        return u.id
+
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
 
@@ -64,22 +94,40 @@ class Users(UserMixin, db.Model):
         return '{}, {}, {}, {}'.format(self.id, self.nick, self.mail, self.first_name)
 
 
+# noinspection PyArgumentList
 class Products(db.Model):
     __tablename__ = 'Products'
     id = db.Column(db.Integer, primary_key=True, unique=True, index=True, nullable=False, autoincrement=True)
-    tittle = db.Column(db.String(255), unique=False, index=True, nullable=False)
+    title = db.Column(db.String(255), unique=False, index=True, nullable=False)
     descript = db.Column(db.String(255), unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
     publish_date = db.Column(db.Date, unique=False, nullable=False, default=datetime.datetime.utcnow())
-    ban_reason = db.Column(db.String(255), unique=False, nullable=False)
-    bid_dat = db.Column(db.Date, unique=False, nullable=True)
-    num_visits = db.Column(db.Integer, unique=False, nullable=False)
+    ban_reason = db.Column(db.String(255), unique=False, nullable=True)
+    bid_date = db.Column(db.Date, unique=False, nullable=True)
+    visits = db.Column(db.Integer, unique=False, nullable=False)
     boost_date = db.Column(db.Date, unique=False, nullable=True)
     followers = db.Column(db.Integer, unique=False, nullable=False)
     is_removed = db.Column(db.Boolean, unique=False, nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
-    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, onupdate=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(), onupdate=datetime.datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+
+    @staticmethod
+    def new_product(user_id, title, descript, price, place):
+        p = Products(user_id=user_id,
+                     title=title,
+                     descript=descript,
+                     price=price,
+                     place=place,
+                     visits=0,
+                     followers=0,
+                     is_removed=False
+                     )
+        db.session.add(p)
+        db.session.commit()
+        db.session.flush()
+
+        return p.id
 
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
@@ -87,8 +135,14 @@ class Products(db.Model):
 
 class Images(db.Model):
     __tablename__ = 'Images'
-    products_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
     image_url = db.Column(db.String(255), primary_key=True, index=True, nullable=False)
+
+    @staticmethod
+    def add_photo(image_url, product_id):
+        pp = Images(image_url=image_url, product_id=product_id)
+        db.session.add(pp)
+        db.session.commit()
 
     def __repr__(self):
         return '{},{}'.format(self.products_id, self.image_url)
@@ -100,7 +154,8 @@ class Reports(db.Model):
     reason = db.Column(db.String(255), unique=False, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
-    report_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=True, default=datetime.datetime.utcnow())
+    report_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=True,
+                            default=datetime.datetime.utcnow())
 
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.reason, self.user_id, self.product_id)
@@ -109,7 +164,8 @@ class Reports(db.Model):
 class Payments(db.Model):
     __tablename__ = 'Payments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    pay_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=datetime.datetime.utcnow())
+    pay_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False,
+                         default=datetime.datetime.utcnow())
     amount = db.Column(db.Float, unique=False, nullable=False)
     iban = db.Column(db.String(255), unique=False, nullable=False)
     boost_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True)
@@ -122,7 +178,8 @@ class Payments(db.Model):
 class Coments(db.Model):
     __tablename__ = 'Coments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    publish_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False, default=datetime.datetime.utcnow())
+    publish_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False,
+                             default=datetime.datetime.utcnow())
     body = db.Column(db.String(255), unique=False, nullable=False)
     user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
@@ -135,6 +192,13 @@ class CatProducts(db.Model):
     __tablename__ = 'CatProducts'
     cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
+
+    @staticmethod
+    def add_prod(cat_name, product_id):
+        cp = CatProducts(cat_name=cat_name, product_id=product_id)
+        db.session.add(cp)
+        db.session.commit()
+
 
     def __repr__(self):
         return '{},{}'.format(self.cat_name, self.product_id)
@@ -208,22 +272,3 @@ class TradesOffers(db.Model):
 @login.user_loader
 def load_user(id):
     return Users.query.get(int(id))
-
-
-def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
-    u = Users(nick=nick,
-              last_name=last_name,
-              first_name=first_name,
-              phone=phone,
-              place=place,
-              dni=dni,
-              points=0,
-              fnac=fnac,
-              is_mod=False,
-              mail=mail,
-              avatar="http://127.0.0.1:5000/static/images/logo.jpg"
-              )
-    u.set_password(pass_hash)
-    db.session.add(u)
-    db.session.commit()
-
