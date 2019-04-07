@@ -76,7 +76,7 @@ def login():
             # ahora si haces current_user deberia ser el usuario que acaba de loggear
     return Response(json.dumps(resp), status=0, mimetype='application/json')
 
-@app.route('/logout')
+@bp.route('/logout')
 def logout():
     # asi se sale y se accede a current user en una misma funcion
     nick = current_user.nick
