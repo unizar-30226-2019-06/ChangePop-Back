@@ -45,6 +45,33 @@ def create_user():
     return Response(json.dumps(resp), status=0, mimetype='application/json')
 
 
+@bp.route('/user', methods=['GET', 'POST'] )
+def login():
+    content = request.get_json()
+    if request.is_json:
+        nick: str = content["nick"]
+        pass_hash = content["pass_hash"]
+        user = Users.query.filter_by(nick=nick).first()
+        if user is None or not user.check_password(pass_hash):
+            if user is None:
+                resp = {
+                    "code": "5",
+                    "type": "error",
+                    "message": "No user found"}
+            else:
+                resp = {
+                    "code": "6",
+                    "type": "error",
+                    "message": "Wrong password"}
+        else:
+            resp = {
+                "code": "0",
+                "type": "info",
+                "message": str(nick)}
+
+    return Response(json.dumps(resp), status=0, mimetype='application/json')
+
+
 @bp.route('/user/<int:id>')
 def get_info(id):
     """This function does something.
