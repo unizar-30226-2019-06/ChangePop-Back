@@ -43,7 +43,7 @@ def create_user():
             "type": "error",
             "message": "No JSON found"}
 
-    return Response(json.dumps(resp), status=0, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -74,7 +74,7 @@ def login():
             # esto te logea
             login_user(user, recordar);
             # ahora si haces current_user deberia ser el usuario que acaba de loggear
-    return Response(json.dumps(resp), status=0, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
 @login_required
@@ -83,7 +83,7 @@ def logout():
     # asi se sale y se accede a current user en una misma funcion
     nick = current_user.nick
     logout_user()
-    return Response(json.dumps(nick), status=0, mimetype='application/json')
+    return Response(json.dumps(nick), status=200, mimetype='application/json')
 
 
 @bp.route('/user/<int:id>')
@@ -114,4 +114,4 @@ def get_info(id):
     }
 
     # TODO: More Attributes
-    return Response(json.dumps(user_json), status=0, mimetype='application/json')
+    return Response(json.dumps(user_json), status=200, mimetype='application/json')

@@ -48,7 +48,7 @@ def create_product():
             "type": "error",
             "message": "No JSON found"}
 
-    return Response(json.dumps(resp), status=0, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
 @bp.route('/product/<int:id>')
@@ -70,4 +70,4 @@ def get_info(id):
         "place": str(product.place)
     }
 
-    return Response(json.dumps(product_json), status=0, mimetype='application/json')
+    return Response(json.dumps(product_json), status=200, mimetype='application/json')
