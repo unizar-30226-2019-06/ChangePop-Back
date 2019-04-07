@@ -2,6 +2,7 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
+from flask_login import current_user, login_user, logout_user
 from ChangePop.models import Users
 bp = Blueprint('user', __name__)
 
@@ -45,12 +46,14 @@ def create_user():
     return Response(json.dumps(resp), status=0, mimetype='application/json')
 
 
-@bp.route('/user', methods=['GET', 'POST'] )
+@bp.route('/user', methods=['GET', 'POST'])
 def login():
     content = request.get_json()
     if request.is_json:
         nick: str = content["nick"]
         pass_hash = content["pass_hash"]
+        # esto si no puede ser booleano pues se hace una comparacion y a correr
+        recordar = content["recordar_pass"]
         user = Users.query.filter_by(nick=nick).first()
         if user is None or not user.check_password(pass_hash):
             if user is None:
@@ -68,8 +71,17 @@ def login():
                 "code": "0",
                 "type": "info",
                 "message": str(nick)}
-
+            # esto te logea
+            login_user(user, recordar);
+            # ahora si haces current_user deberia ser el usuario que acaba de loggear
     return Response(json.dumps(resp), status=0, mimetype='application/json')
+
+@app.route('/logout')
+def logout():
+    # asi se sale y se accede a current user en una misma funcion
+    nick = current_user.nick
+    logout_user()
+    return Response(json.dumps(nick), status=0, mimetype='application/json')
 
 
 @bp.route('/user/<int:id>')
