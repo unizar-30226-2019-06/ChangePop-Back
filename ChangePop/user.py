@@ -4,7 +4,7 @@ from typing import Optional, Any
 from flask import Blueprint, request, json, Response
 from flask_login import current_user, login_user, logout_user, login_required
 
-from ChangePop.exeptions import JSONExceptionHandler
+from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException
 from ChangePop.models import Users
 from ChangePop.utils import api_resp
 
@@ -29,58 +29,89 @@ def create_user():
     content = request.get_json()
 
     if not request.is_json:
-        raise JSONExceptionHandler("No JSON found")
+        raise JSONExceptionHandler()
 
     nick: str = content["nick"]
     first_name = content["first_name"]
     last_name = content["mail"]
-    pass_hash = content["pass_hash"]
+    pass_ = content["pass"]
     phone = int(content["phone"])
     fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
     dni = int(content["dni"])
     place = content["place"]
     mail = content["place"]
 
-    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
+    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail)
 
     resp = api_resp(0, "info", user_id)
 
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
-@bp.route('/login', methods=['GET', 'POST'])
-def login():
-    content = request.get_json()
-    if request.is_json:
-        nick: str = content["nick"]
-        pass_hash = content["pass_hash"]
-        # esto si no puede ser booleano pues se hace una comparacion y a correr
-        recordar = content["recordar_pass"]
-        user = Users.query.filter_by(nick=nick).first()
-        if user is None or not user.check_password(pass_hash):
-            if user is None:
-                resp = {
-                    "code": "5",
-                    "type": "error",
-                    "message": "No user found" }
-            else:
-                resp = {
-                    "code": "6",
-                    "type": "error",
-                    "message": "Wrong password" }
-        else:
-            resp = {
-                "code": "0",
-                "type": "info",
-                "message": str(nick)}
-            # esto te logea
-            login_user(user, recordar);
-            # ahora si haces current_user deberia ser el usuario que acaba de loggear
+@bp.route('/user', methods=['GET'])
+@login_required
+def get_logged_user():
+    user_id = current_user.id
+
+    user = Users.query.get(int(user_id))
+
+    user_json = {
+        "id": str(user.id),
+        "nick": str(user.nick),
+        "first_name": str(user.first_name),
+        "last_name": str(user.last_name),
+        "mail": str(user.mail),
+        "pass_hash": str(user.pass_hash),
+        "phone": str(user.phone),
+        "avatar": str(user.avatar),
+        "fnac": str(user.fnac),
+        "dni": str(user.dni),
+        "place": str(user.place),
+        "is_mod": str(user.is_mod),
+        "token": str(user.token),
+        "ban_reason": str(user.ban_reason),
+        "points": str(user.points)
+    }
+
+    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+
+
+@bp.route('/user', methods=['DELETE'])
+@login_required
+def delete_logged_user():
+    user_id = current_user.id
+    Users.delete_user(user_id)
+    resp = api_resp(0, "info", "User: " + str(user_id) + " deleted")
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
-@login_required
+@bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+    nick = content["nick"]
+    pass_ = content["pass"]
+    remember = content["remember"]
+
+    user = Users.query.filter_by(nick=nick).first()
+
+    if user is None:
+        raise UserException(str(nick))
+
+    if not user.check_password(pass_):
+        raise UserPassException(str(nick))
+
+    login_user(user, remember=bool(remember))
+
+    resp = api_resp(0, "info", "User: " + str(nick) + " logged")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
 @bp.route('/logout')
+@login_required
 def logout():
     # asi se sale y se accede a current user en una misma funcion
     nick = current_user.nick

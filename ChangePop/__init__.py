@@ -13,6 +13,9 @@ db = SQLAlchemy(app)
 login = LoginManager(app)
 login.login_view = 'login'
 
+from ChangePop.exeptions import NotLoggedIn
+login.unauthorized_handler(NotLoggedIn.not_auth_handler)
+
 from ChangePop import models
 
 db.drop_all()

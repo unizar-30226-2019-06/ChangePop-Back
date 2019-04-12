@@ -76,6 +76,12 @@ class Users(UserMixin, db.Model):
 
         return u.id
 
+    @staticmethod
+    def delete_user(id):
+        u = Users.query.get(id)
+        db.session.delete(u)
+        db.session.commit()
+
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
 
