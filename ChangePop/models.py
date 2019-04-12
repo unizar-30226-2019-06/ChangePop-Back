@@ -37,6 +37,7 @@ class Users(UserMixin, db.Model):
     nick = db.Column(db.String(255), index=True, unique=True, nullable=False)
     first_name = db.Column(db.String(255), unique=False, nullable=False)
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
+    ban_until = db.Column(db.Date, unique=False, nullable=True)
     points = db.Column(db.Float, unique=False, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
     mail = db.Column(db.String(255), index=True, unique=True, nullable=False)

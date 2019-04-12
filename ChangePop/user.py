@@ -3,7 +3,10 @@ from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
 from flask_login import current_user, login_user, logout_user, login_required
+
+from ChangePop.exeptions import JSONExceptionHandler
 from ChangePop.models import Users
+from ChangePop.utils import api_resp
 
 bp = Blueprint('user', __name__)
 
@@ -16,32 +19,31 @@ curl -X POST "http://127.0.0.1:5000/user" -H  "accept: application/json" -H  "Co
 
 @bp.route('/user', methods=['POST'])
 def create_user():
+    """ Add user to the database getting the info from the
+    json of the request
+
+        :returns: api response with the id of the new user
+        :raises: KeyError, JSONExceptionHandler
+
+        """
     content = request.get_json()
-    if request.is_json:
-        nick: str = content["nick"]
-        first_name = content["first_name"]
-        last_name = content["mail"]
-        pass_hash = content["pass_hash"]
-        phone = int(content["phone"])
-        fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
-        dni = int(content["dni"])
-        place = content["place"]
-        mail = content["place"]
 
-        user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
+    if not request.is_json:
+        raise JSONExceptionHandler("No JSON found")
 
-        # print("Creating this following user:\nId: " + str(user_id) + "\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
+    nick: str = content["nick"]
+    first_name = content["first_name"]
+    last_name = content["mail"]
+    pass_hash = content["pass_hash"]
+    phone = int(content["phone"])
+    fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
+    dni = int(content["dni"])
+    place = content["place"]
+    mail = content["place"]
 
-        resp = {
-            "code": "0",
-            "type": "info",
-            "message": str(user_id)}
+    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
 
-    else:
-        resp = {
-            "code": "1",
-            "type": "error",
-            "message": "No JSON found"}
+    resp = api_resp(0, "info", user_id)
 
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 
@@ -60,12 +62,12 @@ def login():
                 resp = {
                     "code": "5",
                     "type": "error",
-                    "message": "No user found"}
+                    "message": "No user found" }
             else:
                 resp = {
                     "code": "6",
                     "type": "error",
-                    "message": "Wrong password"}
+                    "message": "Wrong password" }
         else:
             resp = {
                 "code": "0",
