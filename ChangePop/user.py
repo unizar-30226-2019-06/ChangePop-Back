@@ -4,7 +4,7 @@ from typing import Optional, Any
 from flask import Blueprint, request, json, Response
 from flask_login import current_user, login_user, logout_user, login_required
 
-from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException
+from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission
 from ChangePop.models import Users
 from ChangePop.utils import api_resp
 
@@ -26,10 +26,10 @@ def create_user():
         :raises: KeyError, JSONExceptionHandler
 
         """
-    content = request.get_json()
-
     if not request.is_json:
         raise JSONExceptionHandler()
+
+    content = request.get_json()
 
     nick: str = content["nick"]
     first_name = content["first_name"]
@@ -51,8 +51,8 @@ def create_user():
 @bp.route('/user', methods=['GET'])
 @login_required
 def get_logged_user():
+    # TODO Doc
     user_id = current_user.id
-
     user = Users.query.get(int(user_id))
 
     user_json = {
@@ -74,6 +74,34 @@ def get_logged_user():
     }
 
     return Response(json.dumps(user_json), status=200, mimetype='application/json')
+
+
+@bp.route('/user', methods=['PUT'])
+@login_required
+def update_logged_user():
+    # TODO Doc
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    nick = content["nick"]
+    first_name = content["first_name"]
+    last_name = content["mail"]
+    phone = int(content["phone"])
+    fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
+    dni = int(content["dni"])
+    place = content["place"]
+    mail = content["place"]
+    avatar = content["avatar"]
+
+    user_id = current_user.id
+    user = Users.query.get(int(user_id))
+    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar)
+
+    resp = api_resp(0, "info", "User: " + str(user_id) + ' (' + nick + ') ' + "updated")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
 @bp.route('/user', methods=['DELETE'])
@@ -110,25 +138,23 @@ def login():
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
-@bp.route('/logout')
+@bp.route('/logout', methods=['GET'])
 @login_required
 def logout():
     # asi se sale y se accede a current user en una misma funcion
     nick = current_user.nick
     logout_user()
-    return Response(json.dumps(nick), status=200, mimetype='application/json')
+    resp = api_resp(0, "info", "Logged out: " + str(nick))
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
-@bp.route('/user/<int:id>')
-def get_info(id):
-    """This function does something.
+@bp.route('/user/<int:id>', methods=['GET'])
+@login_required
+def get_user(id):
+    # TODO doc
 
-    :param id: The user identifier
-    :type id: str.
-    :returns:  str -- JSON of user info.
-    :raises: AttributeError, KeyError
-
-    """
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
 
     user = Users.query.get(int(id))
 
@@ -139,12 +165,102 @@ def get_info(id):
         "last_name": str(user.last_name),
         "mail": str(user.mail),
         "pass_hash": str(user.pass_hash),
+        "is_mod": str(user.is_mod),
+        "ban_reason": str(user.ban_reason),
+        "points": str(user.points),
         "phone": str(user.phone),
         "avatar": str(user.avatar),
         "fnac": str(user.fnac),
         "dni": str(user.dni),
+        "place": str(user.place),
+        "token": str(user.token)
+    }
+
+    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+
+
+@bp.route('/user/<int:id>', methods=['PUT'])
+@login_required
+def update_user(id):
+    # TODO doc
+
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    user = Users.query.get(int(id))
+
+    content = request.get_json()
+
+    nick = content["nick"]
+    first_name = content["first_name"]
+    last_name = content["mail"]
+    phone = int(content["phone"])
+    fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
+    dni = int(content["dni"])
+    place = content["place"]
+    mail = content["place"]
+    avatar = content["avatar"]
+    is_mod = content["is_mod"]
+    ban_reason = content["ban_reason"]
+    token = content["token"]
+    points = content["points"]
+    pass_hash = content["pass_hash"]
+
+    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod, ban_reason,
+                   token, points, pass_hash)
+
+    resp = api_resp(0, "info", "User: " + str(id) + ' (' + nick + ') ' + "updated")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/user/<int:id>', methods=['DELETE'])
+@login_required
+def delete_user(id):
+    # TODO doc
+
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
+    Users.delete_user(int(id))
+    resp = api_resp(0, "info", "User: " + str(id) + " deleted")
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/profile/<string:nick>', methods=['GET'])
+def get_profile(nick):
+    # TODO doc
+
+    user = Users.query.filter_by(nick=str(nick)).first()
+
+    user_json = {
+        "id": str(user.id),
+        "nick": str(user.nick),
+        "first_name": str(user.first_name),
+        "last_name": str(user.last_name),
+        "mail": str(user.mail),
+        "points": str(user.points),
+        "phone": str(user.phone),
+        "avatar": str(user.avatar),
+        "fnac": str(user.fnac),
         "place": str(user.place)
     }
 
-    # TODO: More Attributes
     return Response(json.dumps(user_json), status=200, mimetype='application/json')
+
+
+# Debug:
+@bp.route('/user/setmod/<int:id>', methods=['POST'])
+def set_mod_user(id):
+    # TODO doc
+
+    user = Users.query.get(int(id))
+
+    user.is_mod = True
+    user.set_mod()
+
+    return Response(json.dumps({"msg": "ok"}), status=200, mimetype='application/json')
+

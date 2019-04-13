@@ -76,6 +76,31 @@ class Users(UserMixin, db.Model):
 
         return u.id
 
+    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None, ban_reason=None,
+                  token=None, points=None, pass_hash=None):
+        self.nick = nick
+        self.first_name = first_name
+        self.last_name = last_name
+        self.phone = phone
+        self.fnac = fnac
+        self.dni = dni
+        self.place = place
+        self.mail = mail
+        self.avatar = avatar
+
+        if is_mod is not None:
+            self.is_mod = is_mod
+        if ban_reason is not None:
+            self.ban_reason = ban_reason
+        if token is not None:
+            self.token = token
+        if points is not None:
+            self.points = points
+        if pass_hash is not None:
+            self.pass_hash = pass_hash
+
+        db.session.commit()
+
     @staticmethod
     def delete_user(id):
         u = Users.query.get(id)
@@ -96,10 +121,13 @@ class Users(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.pass_hash, password)
 
-    # esto es si no le dices nada, muestra esto de salida al hacer una consulta a esta clase
     def __repr__(self):
         return '{}, {}, {}, {}'.format(self.id, self.nick, self.mail, self.first_name)
 
+    # Debug
+    def set_mod(self):
+        self.is_mod = True
+        db.session.commit()
 
 # noinspection PyArgumentList
 class Products(db.Model):

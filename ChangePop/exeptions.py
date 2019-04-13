@@ -33,12 +33,20 @@ class UserException(Exception):
         return self.message + '(' + self.user + ')'
 
 
+class UserNotPermission(UserException):
+    code = 3
+    message = "Not enough permissions"
+
+    def __init__(self, user, message=None, status_code=None):
+        UserException.__init__(self,  user, message, status_code)
+
+
 class UserPassException(UserException):
     code = 3
     message = "Wrong Password"
 
-    def __init__(self):
-        UserException.__init__(self)
+    def __init__(self, user, message=None, status_code=None):
+        UserException.__init__(self,  user, message, status_code)
 
 
 class NotLoggedIn(Exception):

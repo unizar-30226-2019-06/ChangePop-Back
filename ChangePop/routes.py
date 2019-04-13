@@ -24,7 +24,7 @@ def handle_key_error(error):
         "type": "error",
         "message": "JSON Key error: " + str(error) + " not found"}
 
-    return Response(json.dumps(resp), status=error.status_code, mimetype='application/json')
+    return Response(json.dumps(resp), status=400, mimetype='application/json')
 
 
 @app.errorhandler(JSONExceptionHandler)
