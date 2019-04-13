@@ -24,45 +24,67 @@ class HomeViewTest(unittest.TestCase):
 class UserDataBase(unittest.TestCase):
     tmp_user_id = -1
     user_data = json.dumps({
-            "id": 0,
-            "nick": "Alice",
-            "first_name": "Foo",
-            "last_name": "Bar",
-            "mail": "mail@email.com",
-            "pass": "pass",
-            "phone": "666999222",
-            "is_mod": True,
-            "ban_reason": "Razon expulsion",
-            "points": 0,
-            "avatar": "http://images.com/235gadfg",
-            "fnac": "2019-04-07",
-            "dni": "123456789",
-            "place": "Madrid",
-            "token": "2sf78gsf68hsf5asfh68afh68a58fha68f"
-        })
+        "id": 0,
+        "nick": "Alice",
+        "first_name": "Foo",
+        "last_name": "Bar",
+        "mail": "mail@email.com",
+        "pass": "pass",
+        "phone": "666999222",
+        "is_mod": False,
+        "ban_reason": "Razon expulsion",
+        "points": 0,
+        "avatar": "http://images.com/235gadfg",
+        "fnac": "2019-04-07",
+        "dni": "123456789",
+        "place": "Madrid",
+        "token": "2sf78gsf68hsf5asfh68afh68a58fha68f"
+    })
+    user_data2 = json.dumps({
+        "id": 0,
+        "nick": "Alice2",
+        "first_name": "Foo",
+        "last_name": "Bar",
+        "mail": "mail2@email.com",
+        "pass": "pass",
+        "phone": "666999223",
+        "is_mod": False,
+        "ban_reason": "Razon expulsion",
+        "points": 0,
+        "avatar": "http://images.com/235gadfg",
+        "fnac": "2019-04-07",
+        "dni": "167666666",
+        "place": "Madrid",
+        "token": "2sf78gsf68hsf5asfh68afh6gha68f"
+    })
     user_login = json.dumps({
-          "nick": "Alice",
-          "pass": "pass",
-          "remember": True
-        })
+        "nick": "Alice",
+        "pass": "pass",
+        "remember": True
+    })
+    user2_login = json.dumps({
+        "nick": "Alice2",
+        "pass": "pass",
+        "remember": True
+    })
 
     user_update = json.dumps({
-            "nick": "Alice",
-            "first_name": "FooFoo",
-            "last_name": "Bar",
-            "mail": "mail@email.com",
-            "pass": "pass",
-            "phone": "666999222",
-            "is_mod": True,
-            "ban_reason": "Razon expulsion",
-            "points": 0,
-            "avatar": "http://images.com/235gadfg",
-            "fnac": "2019-04-07",
-            "dni": "123456789",
-            "place": "Madrid",
-            "token": "2sf78gsf68hsf5asfh68afh68a58fha68f",
-            "pass_hash": "s32uh5423j5h23jh52jh35"
-        })
+        "nick": "Alice",
+        "first_name": "FooFoo",
+        "last_name": "Bar",
+        "mail": "mail@email.com",
+        "pass": "pass",
+        "phone": "666999222",
+        "is_mod": True,
+        "ban_reason": "Razon expulsion",
+        "points": 0,
+        "avatar": "http://images.com/235gadfg",
+        "fnac": "2019-04-07",
+        "dni": "123456789",
+        "place": "Madrid",
+        "token": "2sf78gsf68hsf5asfh68afh68a58fha68f",
+        "pass_hash": "s32uh5423j5h23jh52jh35"
+    })
 
     def setUp(self):
         self.app = webapp.app.test_client()
@@ -114,7 +136,7 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.get('/login', data=self.user_login, mimetype='application/json')    # Login to set the session
+            self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
 
             r_json = self.app.delete('/user').get_json()
             msg = r_json["message"]
@@ -123,7 +145,7 @@ class UserDataBase(unittest.TestCase):
             r = self.app.get('/login', data=self.user_login, mimetype='application/json').get_json()
             self.assertIn("User not found", str(r))  # Check unsuccessful login
 
-    def test_5_mod_users(self):
+    def test_mod_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -131,20 +153,52 @@ class UserDataBase(unittest.TestCase):
             user_id = r_json["message"]
             self.__class__.tmp_user_id = user_id
 
-            r_json = self.app.post('/user/setmod/'+str(user_id), data=self.user_data, mimetype='application/json').get_json()
-            self.assertIn('ok', str(r_json))  # Check set mod
+            r_json = self.app.put('/user/' + str(user_id) + '/mod', data=self.user_data,
+                                  mimetype='application/json').get_json()
+            self.assertIn('Ok', str(r_json))  # Check set mod
 
             self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
 
-            r_json = self.app.get('/user/'+str(user_id)).get_json()
+            r_json = self.app.get('/user/' + str(user_id)).get_json()
             self.assertIn('Alice', str(r_json))  # Check get user info
 
-            r_json = self.app.put('/user/'+str(user_id), data=self.user_update, mimetype='application/json').get_json()
+            r_json = self.app.put('/user/' + str(user_id), data=self.user_update,
+                                  mimetype='application/json').get_json()
             self.assertIn('updated', str(r_json))  # Check update user info
 
-            r_json = self.app.delete('/user/'+str(user_id)).get_json()
+            r_json = self.app.delete('/user/' + str(user_id)).get_json()
             self.assertIn('deleted', str(r_json))  # Check delete user info
 
+    def test_ban_users(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            r_json = self.app.post('/user', data=self.user_data, mimetype='application/json').get_json()  # User created
+            mod_user_id = r_json["message"]
+
+            r_json = self.app.post('/user', data=self.user_data2,
+                                   mimetype='application/json').get_json()  # User created
+            ban_user_id = r_json["message"]
+
+            self.app.put('/user/' + str(mod_user_id) + '/mod', data=self.user_data,
+                         mimetype='application/json').get_json()
+
+            self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+
+            ban_data = json.dumps({
+                "ban_reason": "Ban for example",
+                "ban_until": "9999-04-13"
+            })
+            r_json = self.app.put('/user/' + str(ban_user_id) + '/ban', data=ban_data,
+                                  mimetype='application/json').get_json()
+            self.assertIn('(' + str(ban_user_id) + ') banned', str(r_json))  # Check the ban
+
+            r_json = self.app.get('/login', data=self.user2_login,
+                                  mimetype='application/json').get_json()  # Login to check
+            self.assertIn("Ban for example", str(r_json))
+
+            self.app.delete('/user/' + str(ban_user_id))
+            self.app.delete('/user/' + str(mod_user_id))
 
 
 class ProductDataBase(unittest.TestCase):

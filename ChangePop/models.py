@@ -31,6 +31,7 @@ class Categories(db.Model):
 
 # noinspection PyArgumentList
 class Users(UserMixin, db.Model):
+    # TODO doc
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     last_name = db.Column(db.String(255), unique=False, nullable=False)
@@ -53,10 +54,12 @@ class Users(UserMixin, db.Model):
     ts_edit = db.Column(db.DateTime(timezone=True), onupdate=datetime.datetime.utcnow())
 
     def get_id(self):
+        # TODO doc
         return self.id
 
     @staticmethod
     def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
+        # TODO doc
         u = Users(nick=nick,
                   last_name=last_name,
                   first_name=first_name,
@@ -76,8 +79,15 @@ class Users(UserMixin, db.Model):
 
         return u.id
 
+    @staticmethod
+    def list_users():
+        # TODO doc and more
+        list = Users.query.all()
+        return list
+
     def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None, ban_reason=None,
                   token=None, points=None, pass_hash=None):
+        # TODO doc
         self.nick = nick
         self.first_name = first_name
         self.last_name = last_name
@@ -101,10 +111,20 @@ class Users(UserMixin, db.Model):
 
         db.session.commit()
 
-    @staticmethod
-    def delete_user(id):
-        u = Users.query.get(id)
-        db.session.delete(u)
+    def delete_me(self):
+        # TODO doc
+        db.session.delete(self)
+        db.session.commit()
+
+    def mod_me(self):
+        #TODO doc
+        self.is_mod = True
+        db.session.commit()
+
+    def ban_me(self, reason, until):
+        # TODO doc
+        self.ban_reason = str(reason)
+        self.ban_until = until
         db.session.commit()
 
     def set_password(self, password):
@@ -117,17 +137,13 @@ class Users(UserMixin, db.Model):
 
             """
         self.pass_hash = generate_password_hash(password)
+        db.session.commit()
 
     def check_password(self, password):
         return check_password_hash(self.pass_hash, password)
 
     def __repr__(self):
         return '{}, {}, {}, {}'.format(self.id, self.nick, self.mail, self.first_name)
-
-    # Debug
-    def set_mod(self):
-        self.is_mod = True
-        db.session.commit()
 
 # noinspection PyArgumentList
 class Products(db.Model):

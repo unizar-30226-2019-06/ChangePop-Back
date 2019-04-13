@@ -4,7 +4,7 @@ from typing import Optional, Any
 from flask import Blueprint, request, json, Response
 from flask_login import current_user, login_user, logout_user, login_required
 
-from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission
+from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned
 from ChangePop.models import Users
 from ChangePop.utils import api_resp
 
@@ -33,13 +33,13 @@ def create_user():
 
     nick: str = content["nick"]
     first_name = content["first_name"]
-    last_name = content["mail"]
+    last_name = content["last_name"]
     pass_ = content["pass"]
     phone = int(content["phone"])
     fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
     dni = int(content["dni"])
     place = content["place"]
-    mail = content["place"]
+    mail = content["mail"]
 
     user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail)
 
@@ -87,12 +87,12 @@ def update_logged_user():
 
     nick = content["nick"]
     first_name = content["first_name"]
-    last_name = content["mail"]
+    last_name = content["last_name"]
     phone = int(content["phone"])
     fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
     dni = int(content["dni"])
     place = content["place"]
-    mail = content["place"]
+    mail = content["mail"]
     avatar = content["avatar"]
 
     user_id = current_user.id
@@ -108,7 +108,7 @@ def update_logged_user():
 @login_required
 def delete_logged_user():
     user_id = current_user.id
-    Users.delete_user(user_id)
+    current_user.delete_me()
     resp = api_resp(0, "info", "User: " + str(user_id) + " deleted")
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 
@@ -130,6 +130,11 @@ def login():
 
     if not user.check_password(pass_):
         raise UserPassException(str(nick))
+
+    if user.ban_until is not None:
+        ban_date = datetime.datetime.strptime(str(user.ban_until), "%Y-%m-%d")
+        if ban_date > datetime.datetime.utcnow():
+            raise UserBanned(str(nick), None, user.ban_until, user.ban_reason, None)
 
     login_user(user, remember=bool(remember))
 
@@ -225,7 +230,7 @@ def delete_user(id):
     if not current_user.is_mod:
         raise UserNotPermission(str(current_user.nick))
 
-    Users.delete_user(int(id))
+    Users.query.get(int(id)).delete_me()
     resp = api_resp(0, "info", "User: " + str(id) + " deleted")
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 
@@ -252,15 +257,52 @@ def get_profile(nick):
     return Response(json.dumps(user_json), status=200, mimetype='application/json')
 
 
-# Debug:
-@bp.route('/user/setmod/<int:id>', methods=['POST'])
+@bp.route('/user/<int:id>/ban', methods=['PUT'])
+@login_required
+def set_ban_user(id):
+    # TODO doc
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    ban_reason = content["ban_reason"]
+    ban_until = datetime.datetime.strptime(content["ban_until"], "%Y-%m-%d")
+
+    Users.query.get(int(id)).ban_me(ban_reason,ban_until)
+    resp = api_resp(0, "info", "User" + ' (' + str(id) + ') ' + "banned")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+# TODO: Esta accesible para todos por motivos de depuración
+@bp.route('/user/<int:id>/mod', methods=['PUT'])
 def set_mod_user(id):
     # TODO doc
 
-    user = Users.query.get(int(id))
+    Users.query.get(int(id)).mod_me()
+    resp = api_resp(0, "info", "All Ok")
 
-    user.is_mod = True
-    user.set_mod()
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
-    return Response(json.dumps({"msg": "ok"}), status=200, mimetype='application/json')
+
+@bp.route('/users', methods=['GET'])
+def list_users():
+    # TODO doc y mas cosas
+
+    users = Users.list_users()
+    json_users = []
+
+    for user in users:
+        item = {"nick": user.nick,
+                "id": user.id,
+                "mail": user.mail
+                }
+
+        json_users.append(item)
+
+    return Response(json.dumps(json_users), status=200, mimetype='application/json')
 

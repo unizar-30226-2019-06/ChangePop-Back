@@ -41,6 +41,20 @@ class UserNotPermission(UserException):
         UserException.__init__(self,  user, message, status_code)
 
 
+class UserBanned(UserException):
+    code = 7
+    message = "User Banned"
+    until_date = "Undefined"
+    reason = "Ban reason"
+
+    def __init__(self, user, message=None, until=None, reason=None, status_code=None):
+        UserException.__init__(self,  user, message, status_code)
+        if until is not None:
+            self.until_date = str(until)
+        if reason is not None:
+            self.reason = str(reason)
+
+
 class UserPassException(UserException):
     code = 3
     message = "Wrong Password"
