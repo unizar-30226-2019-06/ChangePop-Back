@@ -61,7 +61,6 @@ def get_logged_user():
         "first_name": str(user.first_name),
         "last_name": str(user.last_name),
         "mail": str(user.mail),
-        "pass_hash": str(user.pass_hash),
         "phone": str(user.phone),
         "avatar": str(user.avatar),
         "fnac": str(user.fnac),
@@ -146,11 +145,36 @@ def login():
 @bp.route('/logout', methods=['GET'])
 @login_required
 def logout():
-    # asi se sale y se accede a current user en una misma funcion
     nick = current_user.nick
     logout_user()
     resp = api_resp(0, "info", "Logged out: " + str(nick))
     return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+# TODO: falta test
+@bp.route('/user/follows', methods=['GET'])
+@login_required
+def get_user_follows():
+    user_id = current_user.id
+
+    product_list = current_user.my_follows()
+
+    prod_list = []
+
+    for prod in product_list:
+        item = {
+              "id": str(prod.id),
+              "title": str(prod.title),
+              "descript": str(prod.descipt),
+              "price": str(prod.price),
+              "main_image": str(prod.main_img)
+            }
+
+        prod_list.append(item)
+
+    json_prods = {"length": len(prod_list), "list": prod_list}
+
+    return Response(json.dumps(json_prods), status=200, mimetype='application/json')
 
 
 @bp.route('/user/<int:id>', methods=['GET'])
@@ -169,7 +193,6 @@ def get_user(id):
         "first_name": str(user.first_name),
         "last_name": str(user.last_name),
         "mail": str(user.mail),
-        "pass_hash": str(user.pass_hash),
         "is_mod": str(user.is_mod),
         "ban_reason": str(user.ban_reason),
         "points": str(user.points),
@@ -212,10 +235,9 @@ def update_user(id):
     ban_reason = content["ban_reason"]
     token = content["token"]
     points = content["points"]
-    pass_hash = content["pass_hash"]
 
     user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod, ban_reason,
-                   token, points, pass_hash)
+                   token, points, None)
 
     resp = api_resp(0, "info", "User: " + str(id) + ' (' + nick + ') ' + "updated")
 
@@ -284,6 +306,7 @@ def set_mod_user(id):
     # TODO doc
 
     Users.query.get(int(id)).mod_me()
+
     resp = api_resp(0, "info", "All Ok")
 
     return Response(json.dumps(resp), status=200, mimetype='application/json')
@@ -294,15 +317,26 @@ def list_users():
     # TODO doc y mas cosas
 
     users = Users.list_users()
-    json_users = []
+
+    users_list = []
 
     for user in users:
-        item = {"nick": user.nick,
-                "id": user.id,
-                "mail": user.mail
-                }
+        item = {
+            "id": str(user.id),
+            "nick": str(user.nick),
+            "first_name": str(user.first_name),
+            "last_name": str(user.last_name),
+            "mail": str(user.mail),
+            "points": str(user.points),
+            "phone": str(user.phone),
+            "avatar": str(user.avatar),
+            "fnac": str(user.fnac),
+            "place": str(user.place)
+        }
 
-        json_users.append(item)
+        users_list.append(item)
+
+    json_users = {"length": len(users_list), "list": users_list}
 
     return Response(json.dumps(json_users), status=200, mimetype='application/json')
 

@@ -48,7 +48,7 @@ class UserDataBase(unittest.TestCase):
         "mail": "mail2@email.com",
         "pass": "pass",
         "phone": "666999223",
-        "is_mod": False,
+        "is_mod": True,
         "ban_reason": "Razon expulsion",
         "points": 0,
         "avatar": "http://images.com/235gadfg",
@@ -153,8 +153,7 @@ class UserDataBase(unittest.TestCase):
             user_id = r_json["message"]
             self.__class__.tmp_user_id = user_id
 
-            r_json = self.app.put('/user/' + str(user_id) + '/mod', data=self.user_data,
-                                  mimetype='application/json').get_json()
+            r_json = self.app.put('/user/' + str(user_id) + '/mod').get_json()
             self.assertIn('Ok', str(r_json))  # Check set mod
 
             self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
@@ -200,6 +199,21 @@ class UserDataBase(unittest.TestCase):
             self.app.delete('/user/' + str(ban_user_id))
             self.app.delete('/user/' + str(mod_user_id))
 
+    def test_list_users(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            id1 = self.app.post('/user', data=self.user_data, mimetype='application/json').get_json()["message"]
+            id2 = self.app.post('/user', data=self.user_data2, mimetype='application/json').get_json()["message"]
+            self.app.put('/user/' + str(id2) + '/mod')
+
+            r_json = self.app.get('users').get_json()
+            self.assertIn("\'length\': 2", str(r_json))
+
+            self.app.get('/login', data=self.user2_login, mimetype='application/json')
+            self.app.delete('/user/' + str(id1)).get_json()
+            self.app.delete('/user/' + str(id2)).get_json()
+
 
 class ProductDataBase(unittest.TestCase):
     user_id: int = 1
@@ -223,6 +237,7 @@ class ProductDataBase(unittest.TestCase):
             "visits": 0,
             "followers": 0,
             "publish_date": "2019-04-07",
+            "main_img": "http://images.com/123af3",
             "photo_urls": [
                 "http://images.com/123af3"
             ],

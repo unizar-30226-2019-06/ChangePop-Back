@@ -26,9 +26,9 @@ def create_product():
         categories = content["categories"]
         photo_urls = content["photo_urls"]
         place = content["place"]
+        main_img = content["main_img"]
 
-        product_id = Products.new_product(user_id, title, descript, price, place)
-        #print("Created this product:\nId: " + str(product_id) + "\nTitle: " + title)
+        product_id = Products.new_product(user_id, title, descript, price, place, main_img)
 
         for cat in categories:
             Categories.add_cat(cat)

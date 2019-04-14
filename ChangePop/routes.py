@@ -1,5 +1,5 @@
 from flask import render_template, Response, json
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
 from ChangePop import app, user, product
@@ -71,7 +71,7 @@ def handle_user_not_logged(error):
     return Response(json.dumps(resp), status=error.status_code, mimetype='application/json')
 
 
-@app.errorhandler(IntegrityError)
+@app.errorhandler(DatabaseError)
 def handle_sql_error(error):
     resp = {
         "code": "1",

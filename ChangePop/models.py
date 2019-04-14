@@ -85,7 +85,22 @@ class Users(UserMixin, db.Model):
         list = Users.query.all()
         return list
 
-    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None, ban_reason=None,
+    def my_follows(self):
+        my_id = self.id
+
+        products_list = db.session.query(Products.id,
+                                         Products.title,
+                                         Products.descript,
+                                         Products.price,
+                                         Products.main_img).join(Follows,
+                                                                 Users,
+                                                                 Images).filter(my_id == Follows.user_id,
+                                                                                Products.id == Follows.product_id)
+
+        return products_list
+
+    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None,
+                  ban_reason=None,
                   token=None, points=None, pass_hash=None):
         # TODO doc
         self.nick = nick
@@ -117,7 +132,7 @@ class Users(UserMixin, db.Model):
         db.session.commit()
 
     def mod_me(self):
-        #TODO doc
+        # TODO doc
         self.is_mod = True
         db.session.commit()
 
@@ -145,6 +160,7 @@ class Users(UserMixin, db.Model):
     def __repr__(self):
         return '{}, {}, {}, {}'.format(self.id, self.nick, self.mail, self.first_name)
 
+
 # noinspection PyArgumentList
 class Products(db.Model):
     __tablename__ = 'Products'
@@ -159,12 +175,14 @@ class Products(db.Model):
     boost_date = db.Column(db.Date, unique=False, nullable=True)
     followers = db.Column(db.Integer, unique=False, nullable=False)
     is_removed = db.Column(db.Boolean, unique=False, nullable=False)
+    main_img = db.Column(db.String(255), nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
-    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(), onupdate=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
+                        onupdate=datetime.datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
     @staticmethod
-    def new_product(user_id, title, descript, price, place):
+    def new_product(user_id, title, descript, price, place, main_img):
         p = Products(user_id=user_id,
                      title=title,
                      descript=descript,
@@ -172,7 +190,8 @@ class Products(db.Model):
                      place=place,
                      visits=0,
                      followers=0,
-                     is_removed=False
+                     is_removed=False,
+                     main_img=main_img
                      )
         db.session.add(p)
         db.session.commit()
@@ -249,7 +268,6 @@ class CatProducts(db.Model):
         cp = CatProducts(cat_name=cat_name, product_id=product_id)
         db.session.add(cp)
         db.session.commit()
-
 
     def __repr__(self):
         return '{},{}'.format(self.cat_name, self.product_id)
