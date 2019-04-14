@@ -187,6 +187,9 @@ def get_user(id):
 
     user = Users.query.get(int(id))
 
+    if user is None:
+        raise UserException(str(id), "User not found")
+
     user_json = {
         "id": str(user.id),
         "nick": str(user.nick),
@@ -262,6 +265,9 @@ def get_profile(nick):
     # TODO doc
 
     user = Users.query.filter_by(nick=str(nick)).first()
+
+    if user is None:
+        raise UserException(str(nick), "User not found")
 
     user_json = {
         "id": str(user.id),

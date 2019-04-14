@@ -30,7 +30,7 @@ class UserException(Exception):
             self.status_code = status_code
 
     def to_dict(self):
-        return self.message + '(' + self.user + ')'
+        return self.message + ' (' + self.user + ')'
 
 
 class UserNotPermission(UserException):
