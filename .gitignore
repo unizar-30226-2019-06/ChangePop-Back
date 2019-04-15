@@ -10,7 +10,7 @@ __pycache__/
 *.so
 
 # Db sqlite
-*.db
+#*.db
 
 # Distribution / packaging
 .Python
