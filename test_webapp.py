@@ -123,7 +123,7 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
 
             r_json = self.app.put('/user', data=self.user_update, mimetype='application/json').get_json()
             msg = r_json["message"]
@@ -136,13 +136,13 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
 
             r_json = self.app.delete('/user').get_json()
             msg = r_json["message"]
             self.assertIn(str(self.__class__.tmp_user_id), msg)  # Check successful deletion
 
-            r = self.app.get('/login', data=self.user_login, mimetype='application/json').get_json()
+            r = self.app.post('/login', data=self.user_login, mimetype='application/json').get_json()
             self.assertIn("User not found", str(r))  # Check unsuccessful login
 
     def test_mod_users(self):
@@ -156,7 +156,7 @@ class UserDataBase(unittest.TestCase):
             r_json = self.app.put('/user/' + str(user_id) + '/mod').get_json()
             self.assertIn('Ok', str(r_json))  # Check set mod
 
-            self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
 
             r_json = self.app.get('/user/' + str(user_id)).get_json()
             self.assertIn('Alice', str(r_json))  # Check get user info
@@ -182,7 +182,7 @@ class UserDataBase(unittest.TestCase):
             self.app.put('/user/' + str(mod_user_id) + '/mod', data=self.user_data,
                          mimetype='application/json').get_json()
 
-            self.app.get('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
 
             ban_data = json.dumps({
                 "ban_reason": "Ban for example",
@@ -192,7 +192,7 @@ class UserDataBase(unittest.TestCase):
                                   mimetype='application/json').get_json()
             self.assertIn('(' + str(ban_user_id) + ') banned', str(r_json))  # Check the ban
 
-            r_json = self.app.get('/login', data=self.user2_login,
+            r_json = self.app.post('/login', data=self.user2_login,
                                   mimetype='application/json').get_json()  # Login to check
             self.assertIn("Ban for example", str(r_json))
 
@@ -210,7 +210,7 @@ class UserDataBase(unittest.TestCase):
             r_json = self.app.get('users').get_json()
             self.assertIn("\'length\': 2", str(r_json))
 
-            self.app.get('/login', data=self.user2_login, mimetype='application/json')
+            self.app.post('/login', data=self.user2_login, mimetype='application/json')
             self.app.delete('/user/' + str(id1)).get_json()
             self.app.delete('/user/' + str(id2)).get_json()
 
@@ -248,7 +248,7 @@ class ProductDataBase(unittest.TestCase):
 
             # Create user and login
             self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.get('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
 
             r_json = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
