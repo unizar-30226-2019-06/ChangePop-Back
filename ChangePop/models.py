@@ -29,7 +29,6 @@ class Categories(db.Model):
         return '{}'.format(self.cat_name)
 
 
-# noinspection PyArgumentList
 class Users(UserMixin, db.Model):
     # TODO doc
     __tablename__ = 'Users'
@@ -52,6 +51,17 @@ class Users(UserMixin, db.Model):
     time_token = db.Column(db.DateTime(timezone=True))
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
     ts_edit = db.Column(db.DateTime(timezone=True), onupdate=datetime.datetime.utcnow())
+
+    products = db.relationship("Products", cascade="all, delete-orphan")
+    trades_s = db.relationship("Trades", foreign_keys='[Trades.user_sell]', cascade="all, delete-orphan")
+    trades_b = db.relationship("Trades", foreign_keys='[Trades.user_buy]', cascade="all, delete-orphan")
+    follows = db.relationship("Follows", cascade="all, delete-orphan")
+    interests = db.relationship("Interests", cascade="all, delete-orphan")
+    comments_t = db.relationship("Comments", foreign_keys='[Comments.user_to]', cascade="all, delete-orphan")
+    comments_f = db.relationship("Comments", foreign_keys='[Comments.user_from]', cascade="all, delete-orphan")
+    bids = db.relationship("Bids", cascade="all, delete-orphan")
+    messages_f = db.relationship("Messages", foreign_keys='[Messages.user_from]', cascade="all, delete-orphan")
+    messages_t = db.relationship("Messages", foreign_keys='[Messages.user_to]', cascade="all, delete-orphan")
 
     def get_id(self):
         # TODO doc
@@ -181,6 +191,15 @@ class Products(db.Model):
                         onupdate=datetime.datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
+    offers = db.relationship("TradesOffers", cascade="all, delete-orphan")
+    trades = db.relationship("Trades", cascade="all, delete-orphan")
+    cats = db.relationship("CatProducts", cascade="all, delete-orphan")
+    bids = db.relationship("Bids", cascade="all, delete-orphan")
+    payments = db.relationship("Payments", cascade="all, delete-orphan")
+    images = db.relationship("Images", cascade="all, delete-orphan")
+    follows = db.relationship("Follows", cascade="all, delete-orphan")
+
+
     @staticmethod
     def new_product(user_id, title, descript, price, place, main_img):
         p = Products(user_id=user_id,
@@ -245,7 +264,7 @@ class Payments(db.Model):
         return '{},{},{}'.format(self.id, self.amount, self.product_id)
 
 
-class Coments(db.Model):
+class Comments(db.Model):
     __tablename__ = 'Coments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
     publish_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False,
@@ -273,7 +292,7 @@ class CatProducts(db.Model):
         return '{},{}'.format(self.cat_name, self.product_id)
 
 
-class Interest(db.Model):
+class Interests(db.Model):
     __tablename__ = 'Interest'
     cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
@@ -311,6 +330,8 @@ class Trades(db.Model):
     closed = db.Column(db.Boolean, unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+
+    offers = db.relationship("TradesOffers", cascade="all, delete-orphan")
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_sell, self.user_buy, self.product_id, self.price)

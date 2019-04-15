@@ -2,51 +2,43 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
+from flask_login import login_required, current_user
+
+from ChangePop.exeptions import JSONExceptionHandler
 from ChangePop.models import Products, Categories, CatProducts, Images
+from ChangePop.utils import api_resp
 
 bp = Blueprint('product', __name__)
 
-"""
-si lo quereis porbar poned este codigo en consola de linux o git:
-
-curl -X POST "http://127.0.0.1:5000/product" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"id\": 0,  \"descript\": \"This product is wonderful\",  \"user_id\": 1,  \"price\": 0,  \"categories\": [    \"Moda\", \"Gafas\"  ],  \"title\": \"Producto Molongo\",  \"bid\": \"2019-04-07\",  \"boost_date\": \"2019-04-07\",  \"visits\": 0,  \"followers\": 0,  \"publish_date\": \"2019-04-07\",  \"photo_urls\": [    \"http://images.com/123af3\"  ],  \"place\": \"Zaragoza\",  \"is_removed\": true,  \"ban_reason\": \"Razon Baneo\"}"
-
-"""
-
 
 @bp.route('/product', methods=['POST'])
+@login_required
 def create_product():
+
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
     content = request.get_json()
-    if request.is_json:
 
-        title = content["title"]
-        price = float(content["price"])
-        user_id = int(content["user_id"])
-        descript = content["descript"]
-        categories = content["categories"]
-        photo_urls = content["photo_urls"]
-        place = content["place"]
-        main_img = content["main_img"]
+    title = content["title"]
+    price = float(content["price"])
+    user_id = str(current_user.id)
+    descript = content["descript"]
+    categories = content["categories"]
+    photo_urls = content["photo_urls"]
+    place = content["place"]
+    main_img = content["main_img"]
 
-        product_id = Products.new_product(user_id, title, descript, price, place, main_img)
+    product_id = Products.new_product(user_id, title, descript, price, place, main_img)
 
-        for cat in categories:
-            Categories.add_cat(cat)
-            CatProducts.add_prod(cat, product_id)
+    for cat in categories:
+        Categories.add_cat(cat)
+        CatProducts.add_prod(cat, product_id)
 
-        for photo in photo_urls:
-            Images.add_photo(photo, product_id)
+    for photo in photo_urls:
+        Images.add_photo(photo, product_id)
 
-        resp = {
-            "code": "0",
-            "type": "info",
-            "message": str(product_id)}
-
-    else:
-        resp = {
-            "code": "1",
-            "type": "error",
-            "message": "No JSON found"}
+    resp = api_resp(0, "info", str(product_id))
 
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 

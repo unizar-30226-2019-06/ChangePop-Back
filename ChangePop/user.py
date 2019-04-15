@@ -112,7 +112,7 @@ def delete_logged_user():
     return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
-@bp.route('/login', methods=['GET', 'POST'])
+@bp.route('/login', methods=['POST'])
 def login():
     if not request.is_json:
         raise JSONExceptionHandler()
