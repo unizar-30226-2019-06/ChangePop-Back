@@ -1,3 +1,6 @@
+import sqlite3
+
+import sqlalchemy
 from flask import render_template
 from flask import Flask
 from sqlalchemy.exc import OperationalError
@@ -25,8 +28,12 @@ from ChangePop import models
 try:
     db.create_all()
     db.session.commit()
-except OperationalError as e:
+except sqlalchemy.exc.OperationalError as e:
     print("Error BD: {}".format(e))
+except sqlite3.OperationalError as e:
+    print("Error BD: {}".format(e))
+except Exception as e:
+    print("Excepcion: {}".format(e))
 
 migrate = Migrate(app, db)
 
