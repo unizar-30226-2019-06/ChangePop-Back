@@ -1,3 +1,5 @@
+from sqlite3 import OperationalError
+
 from flask import render_template
 from flask import Flask
 from config import Config
@@ -18,12 +20,15 @@ login.unauthorized_handler(NotLoggedIn.not_auth_handler)
 
 from ChangePop import models
 
-db.drop_all()
-db.create_all()
+#db.drop_all()
 
-db.session.commit()
+try:
+    db.create_all()
+    db.session.commit()
+except OperationalError():
+    print("Error BD")
 
-# migrate = Migrate(app, db)
+migrate = Migrate(app, db)
 
 # CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
