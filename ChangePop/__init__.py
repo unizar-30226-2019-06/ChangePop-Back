@@ -25,7 +25,7 @@ from ChangePop import models
 try:
     db.create_all()
     db.session.commit()
-except OperationalError():
+except OperationalError as e:
     print("Error BD")
 
 migrate = Migrate(app, db)
