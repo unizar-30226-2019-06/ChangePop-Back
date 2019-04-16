@@ -218,6 +218,17 @@ class Products(db.Model):
 
         return p.id
 
+    def update_me(self, title, price, descript, bid, place, main_img):
+        # TODO doc
+        self.title = title
+        self.price = price
+        self.descript = descript
+        self.main_img = main_img
+        self.place = place
+        self.bid_date = bid
+
+        db.session.commit()
+
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
 
@@ -226,6 +237,15 @@ class Images(db.Model):
     __tablename__ = 'Images'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
     image_url = db.Column(db.String(255), primary_key=True, index=True, nullable=False)
+
+    @staticmethod
+    def delete_images_by_prod(product_id):
+        Images.query.filter_by(product_id=product_id).delete()
+
+    @staticmethod
+    def get_images_by_prod(product_id):
+        cats = Images.query.with_entities(Images.image_url).filter_by(product_id=product_id)
+        return cats
 
     @staticmethod
     def add_photo(image_url, product_id):
@@ -281,6 +301,15 @@ class CatProducts(db.Model):
     __tablename__ = 'CatProducts'
     cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
+
+    @staticmethod
+    def delete_cats_by_prod(product_id):
+        CatProducts.query.filter_by(product_id=product_id).delete()
+
+    @staticmethod
+    def get_cat_names_by_prod(product_id):
+        cats = CatProducts.query.with_entities(CatProducts.cat_name).filter_by(product_id=product_id)
+        return cats
 
     @staticmethod
     def add_prod(cat_name, product_id):

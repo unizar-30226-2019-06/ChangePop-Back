@@ -224,7 +224,7 @@ class ProductDataBase(unittest.TestCase):
             "Moda"
         ],
         "title": "Producto Molongo",
-        "bid": "2019-04-07",
+        "bid_date": "2019-04-07",
         "boost_date": "2019-04-07",
         "visits": 0,
         "followers": 0,
@@ -236,6 +236,21 @@ class ProductDataBase(unittest.TestCase):
         "place": "Zaragoza",
         "is_removed": True,
         "ban_reason": "Razon Baneo"
+    })
+
+    prod_update = json.dumps({
+            "descript": "This product is wonderful",
+            "price": 0,
+            "categories": [
+                "Moda", "Complementeos"
+            ],
+            "title": "Producto Molongo",
+            "bid_date": "2019-04-16",
+            "main_img": "http://images.com/123af3",
+            "photo_urls": [
+                "http://images.com/123af3"
+            ],
+            "place": "Madrid"
     })
 
     def setUp(self):
@@ -256,6 +271,26 @@ class ProductDataBase(unittest.TestCase):
             product_id = r_json["message"]
             check = self.app.get('/product/' + str(product_id))
             self.assertIn('Zaragoza', str(check.get_json()))  # Check get info
+
+            self.app.delete('/user')
+
+    def test_update_product(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create user and login
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+
+            r_json = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful insertion
+
+            product_id = r_json["message"]
+            r_json = self.app.put('/product/' + str(product_id), data=self.prod_update, mimetype='application/json').get_json()
+            self.assertIn('updated', str(r_json))  # Check successful insertion
+
+            check = self.app.get('/product/' + str(product_id))
+            self.assertIn('Madrid', str(check.get_json()))  # Check get info
 
             self.app.delete('/user')
 

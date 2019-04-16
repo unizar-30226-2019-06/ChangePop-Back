@@ -155,7 +155,6 @@ def logout():
 @bp.route('/user/follows', methods=['GET'])
 @login_required
 def get_user_follows():
-    user_id = current_user.id
 
     product_list = current_user.my_follows()
 
@@ -167,7 +166,7 @@ def get_user_follows():
               "title": str(prod.title),
               "descript": str(prod.descipt),
               "price": str(prod.price),
-              "main_image": str(prod.main_img)
+              "main_img": str(prod.main_img)
             }
 
         prod_list.append(item)
