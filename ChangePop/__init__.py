@@ -18,8 +18,10 @@ login.unauthorized_handler(NotLoggedIn.not_auth_handler)
 
 from ChangePop import models
 
-# db.drop_all()
+db.drop_all()
 db.create_all()
+
+db.session.commit()
 
 # migrate = Migrate(app, db)
 
