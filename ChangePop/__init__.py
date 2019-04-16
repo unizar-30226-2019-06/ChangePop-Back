@@ -22,6 +22,7 @@ db.drop_all()
 db.create_all()
 
 migrate = Migrate(app, db)
+
 #CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
 from ChangePop import routes
