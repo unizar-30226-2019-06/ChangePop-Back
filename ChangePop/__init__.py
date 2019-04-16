@@ -1,7 +1,7 @@
-from sqlite3 import OperationalError
-
 from flask import render_template
 from flask import Flask
+from sqlalchemy.exc import OperationalError
+
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -26,7 +26,7 @@ try:
     db.create_all()
     db.session.commit()
 except OperationalError as e:
-    print("Error BD")
+    print("Error BD: {}".format(e))
 
 migrate = Migrate(app, db)
 
