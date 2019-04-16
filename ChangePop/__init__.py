@@ -18,12 +18,12 @@ login.unauthorized_handler(NotLoggedIn.not_auth_handler)
 
 from ChangePop import models
 
-#db.drop_all()
+# db.drop_all()
 db.create_all()
 
-migrate = Migrate(app, db)
+# migrate = Migrate(app, db)
 
-#CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
+# CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
 from ChangePop import routes
 
