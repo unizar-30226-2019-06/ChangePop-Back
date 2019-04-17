@@ -90,7 +90,7 @@ class UserDataBase(unittest.TestCase):
         self.app = webapp.app.test_client()
         self.app.testing = True
 
-    def test_1_add_user(self):
+    def test_add_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -103,9 +103,14 @@ class UserDataBase(unittest.TestCase):
             check = self.app.get('/profile/Alice')
             self.assertIn('666999222', str(check.get_json()))  # Check get info
 
-    def test_2_session_user(self):
+            self.app.post('/login', data=self.user_login, content_type='application/json')
+            self.app.delete('/user')
+
+    def test_session_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/user', data=self.user_data, content_type='application/json')
 
             r_json = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()
             self.assertIn('Alice', str(r_json))  # Check successful login
@@ -119,9 +124,15 @@ class UserDataBase(unittest.TestCase):
             r_json = self.app.get('/user').get_json()  # Try get my info
             self.assertIn('Not logged in', str(r_json))  # Check successful
 
-    def test_3_update_user(self):
+            self.app.post('/login', data=self.user_login, content_type='application/json')
+            self.app.delete('/user')
+
+    def test_update_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/user', data=self.user_data, content_type='application/json')
+            self.app.post('/login', data=self.user_login, content_type='application/json')
 
             self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
 
@@ -130,13 +141,16 @@ class UserDataBase(unittest.TestCase):
             self.assertIn(str(self.__class__.tmp_user_id), msg)  # Check successful update
 
             r = self.app.get('/user').get_json()
-            self.assertIn("FooFoo", str(r))  # Check unsuccessful login
+            self.assertIn("FooFoo", str(r))  # Check sucessful update
 
-    def test_4_delete_user(self):
+            self.app.delete('/user')
+
+    def test_delete_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
+            self.app.post('/user', data=self.user_data, content_type='application/json')
+            self.app.post('/login', data=self.user_login, content_type='application/json')
 
             r_json = self.app.delete('/user').get_json()
             msg = r_json["message"]
@@ -310,9 +324,26 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.delete('/product/'+ str(product_id)).get_json()
             self.assertIn('info', str(r_json))  # Check successful deletion
 
-
             r_json = self.app.get('/product/'+ str(product_id)).get_json()
             self.assertIn('not found', str(r_json))  # Check successful deletion
+
+            self.app.delete('/user')
+
+    def test_list_product(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create user and login
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+
+            self.app.post('/product', data=self.prod_data, mimetype='application/json')
+
+            r_json = self.app.get('/products').get_json()
+            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check successful list
+
+            r_json = self.app.get('/products/' + str(self.user_id)).get_json()
+            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check successful list by user
 
             self.app.delete('/user')
 

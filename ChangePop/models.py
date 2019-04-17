@@ -199,6 +199,17 @@ class Products(db.Model):
     images = db.relationship("Images", cascade="all, delete-orphan")
     follows = db.relationship("Follows", cascade="all, delete-orphan")
 
+    @staticmethod
+    def list():
+        # TODO doc and more
+        list = Products.query.all()
+        return list
+
+    @staticmethod
+    def list_byId(id):
+        # TODO doc and more
+        list = Products.query.filter_by(user_id=id)
+        return list
 
     @staticmethod
     def new_product(user_id, title, descript, price, place, main_img):

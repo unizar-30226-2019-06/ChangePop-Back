@@ -138,4 +138,78 @@ def delete_product(id):
 
     Products.query.get(int(id)).delete_me()
     resp = api_resp(0, "info", "Product: " + str(id) + " deleted")
+
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/products', methods=['GET'])
+def list_products():
+    # TODO doc
+    products = Products.list()
+
+    products_list = []
+
+    for prod in products:
+
+        categories = CatProducts.get_cat_names_by_prod(prod.id)
+        cats = []
+        for cat in categories:
+            cats.append(str(cat))
+
+        item = {
+            "id": int(prod.id),
+            "descript": str(prod.descript),
+            "user_id": int(prod.user_id),
+            "price": float(prod.price),
+            "title": str(prod.title),
+            "categories": cats,
+            "bid_date": str(prod.bid_date),
+            "boost_date": str(prod.boost_date),
+            "followers": int(prod.followers),
+            "publish_date": str(prod.publish_date),
+            "main_img": str(prod.main_img),
+            "place": str(prod.place)
+        }
+
+        products_list.append(item)
+
+    json_products = {"length": len(products_list), "list": products_list}
+
+    return Response(json.dumps(json_products), status=200, content_type='application/json')
+
+
+@bp.route('/products/<int:id>', methods=['GET'])
+def list_products_user(id):
+    # TODO doc
+    products = Products.list_byId(id)
+
+    products_list = []
+
+    for prod in products:
+
+        categories = CatProducts.get_cat_names_by_prod(prod.id)
+        cats = []
+        for cat in categories:
+            cats.append(str(cat))
+
+        item = {
+            "id": int(prod.id),
+            "descript": str(prod.descript),
+            "user_id": int(prod.user_id),
+            "price": float(prod.price),
+            "title": str(prod.title),
+            "categories": cats,
+            "bid_date": str(prod.bid_date),
+            "boost_date": str(prod.boost_date),
+            "followers": int(prod.followers),
+            "publish_date": str(prod.publish_date),
+            "main_img": str(prod.main_img),
+            "place": str(prod.place)
+        }
+
+        products_list.append(item)
+
+    json_products = {"length": len(products_list), "list": products_list}
+
+    return Response(json.dumps(json_products), status=200, content_type='application/json')
+
