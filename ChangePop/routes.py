@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
 from ChangePop import app, user, product
-from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned
+from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned, ProductException
 
 app.register_blueprint(user.bp)
 app.register_blueprint(product.bp)
@@ -26,7 +26,7 @@ def handle_key_error(error):
         "type": "error",
         "message": "JSON Key error: " + str(error) + " not found"}
 
-    return Response(json.dumps(resp), status=400, mimetype='application/json')
+    return Response(json.dumps(resp), status=400, content_type='application/json')
 
 
 @app.errorhandler(JSONExceptionHandler)
@@ -36,7 +36,7 @@ def handle_json_error(error):
         "type": "error",
         "message": str(error.to_dict())}
 
-    return Response(json.dumps(resp), status=error.status_code, mimetype='application/json')
+    return Response(json.dumps(resp), status=error.status_code, content_type='application/json')
 
 
 @app.errorhandler(UserBanned)
@@ -48,7 +48,7 @@ def handle_user_banned(error):
         "ban_until": str(error.until_date),
         "message": str(error.to_dict())}
 
-    return Response(json.dumps(resp), status=error.status_code, mimetype='application/json')
+    return Response(json.dumps(resp), status=error.status_code, content_type='application/json')
 
 
 @app.errorhandler(UserException)
@@ -58,7 +58,17 @@ def handle_user_exception(error):
         "type": "error",
         "message": str(error.to_dict())}
 
-    return Response(json.dumps(resp), status=error.status_code, mimetype='application/json')
+    return Response(json.dumps(resp), status=error.status_code, content_type='application/json')
+
+
+@app.errorhandler(ProductException)
+def handle_user_exception(error):
+    resp = {
+        "code": str(error.code),
+        "type": "error",
+        "message": str(error.to_dict())}
+
+    return Response(json.dumps(resp), status=error.status_code, content_type='application/json')
 
 
 @app.errorhandler(NotLoggedIn)
@@ -68,7 +78,7 @@ def handle_user_not_logged(error):
         "type": "error",
         "message": str(error.to_dict())}
 
-    return Response(json.dumps(resp), status=error.status_code, mimetype='application/json')
+    return Response(json.dumps(resp), status=error.status_code, content_type='application/json')
 
 
 @app.errorhandler(DatabaseError)
@@ -78,4 +88,4 @@ def handle_sql_error(error):
         "type": "error",
         "message": str(error)}
 
-    return Response(json.dumps(resp), status=400, mimetype='application/json')
+    return Response(json.dumps(resp), status=400, content_type='application/json')
