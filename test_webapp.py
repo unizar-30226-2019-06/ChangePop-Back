@@ -294,6 +294,33 @@ class ProductDataBase(unittest.TestCase):
 
             self.app.delete('/user')
 
+    def test_delete_product(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create user and login
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+
+            r_json = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful insertion
+
+            product_id = r_json["message"]
+
+            r_json = self.app.delete('/product/'+ str(product_id)).get_json()
+            self.assertIn('info', str(r_json))  # Check successful deletion
+
+
+            r_json = self.app.get('/product/'+ str(product_id)).get_json()
+            self.assertIn('not found', str(r_json))  # Check successful deletion
+
+            self.app.delete('/user')
+
+
+
+
+
+
 
 if __name__ == "__main__":
     unittest.main()

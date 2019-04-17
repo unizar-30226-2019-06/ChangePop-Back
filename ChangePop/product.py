@@ -122,3 +122,20 @@ def update_prod_info(id):
     resp = api_resp(0, "info", "Product: " + str(id) + ' (' + title + ') ' + "updated")
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/product/<int:id>', methods=['DELETE'])
+@login_required
+def delete_product(id):
+    # TODO doc
+    product = Products.query.get(int(id))
+
+    if product.user_id != current_user.id:
+        raise UserNotPermission(str(current_user.id), "This user doesnt own this product" + str(id))
+
+    if product.user_id != current_user.id:
+        raise UserNotPermission(str(current_user.id), "This user doesnt own this product" + str(id))
+
+    Products.query.get(int(id)).delete_me()
+    resp = api_resp(0, "info", "Product: " + str(id) + " deleted")
+    return Response(json.dumps(resp), status=200, content_type='application/json')
