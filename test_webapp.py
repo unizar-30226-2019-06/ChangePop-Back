@@ -270,7 +270,7 @@ class ProductDataBase(unittest.TestCase):
 
             product_id = r_json["message"]
             check = self.app.get('/product/' + str(product_id))
-            self.assertIn('Zaragoza', str(check.get_json()))  # Check get info
+            self.assertIn('Zaragoza', str(check.get_json()["place"]))  # Check get info
 
             self.app.delete('/user')
 

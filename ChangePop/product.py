@@ -4,7 +4,7 @@ from typing import Optional, Any
 from flask import Blueprint, request, json, Response
 from flask_login import login_required, current_user
 
-from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission
+from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException
 from ChangePop.models import Products, Categories, CatProducts, Images
 from ChangePop.utils import api_resp
 
@@ -47,6 +47,9 @@ def create_product():
 def get_prod_info(id):
 
     product = Products.query.get(int(id))
+
+    if product is None:
+        raise ProductException(str(id), "Product not found")
 
     categories = CatProducts.get_cat_names_by_prod(id)
     cats = []
