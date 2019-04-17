@@ -238,8 +238,8 @@ class ProductDataBase(unittest.TestCase):
             "Moda"
         ],
         "title": "Producto Molongo",
-        "bid_date": "2019-04-07",
-        "boost_date": "2019-04-07",
+        "bid_date": "1999-12-24 23:45:11",
+        "boost_date": "1999-12-24 23:45:12",
         "visits": 0,
         "followers": 0,
         "publish_date": "2019-04-07",
@@ -259,7 +259,7 @@ class ProductDataBase(unittest.TestCase):
                 "Moda", "Complementeos"
             ],
             "title": "Producto Molongo",
-            "bid_date": "2019-04-16",
+            "bid_date": "1999-12-24 22:45:13",
             "main_img": "http://images.com/123af3",
             "photo_urls": [
                 "http://images.com/123af3"
@@ -347,11 +347,31 @@ class ProductDataBase(unittest.TestCase):
 
             self.app.delete('/user')
 
+    def test_bids(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+            # Create user and login
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
 
+            product_id = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()["message"]
 
+            data = json.dumps({"bid_until": "1999-12-24 23:45:10"})
+            r_json = self.app.put('/product/' + str(product_id) + "/bidup", data=data, mimetype='application/json').get_json()
+            self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check successful bid up
 
+            r_json = self.app.get('/bids').get_json()
+            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check bids
 
+            r_json = self.app.get('/bid/' + str(product_id)).get_json()
+            self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check bid
+
+            r_json = self.app.put('/product/' + str(product_id) + "/biddown", data=data,
+                                  mimetype='application/json').get_json()
+            self.assertIn('finished', str(r_json))  # Check successful bid down
+
+            self.app.delete('/user')
 
 if __name__ == "__main__":
     unittest.main()

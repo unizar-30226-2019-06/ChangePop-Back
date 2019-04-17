@@ -180,9 +180,9 @@ class Products(db.Model):
     price = db.Column(db.Float, unique=False, nullable=False)
     publish_date = db.Column(db.Date, unique=False, nullable=False, default=datetime.datetime.utcnow())
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
-    bid_date = db.Column(db.Date, unique=False, nullable=True)
+    bid_date = db.Column(db.DateTime, unique=False, nullable=True)
     visits = db.Column(db.Integer, unique=False, nullable=False)
-    boost_date = db.Column(db.Date, unique=False, nullable=True)
+    boost_date = db.Column(db.DateTime, unique=False, nullable=True)
     followers = db.Column(db.Integer, unique=False, nullable=False)
     is_removed = db.Column(db.Boolean, unique=False, nullable=False)
     main_img = db.Column(db.String(255), nullable=False)
@@ -201,13 +201,13 @@ class Products(db.Model):
 
     @staticmethod
     def list():
-        # TODO doc and more
+        # TODO doc
         list = Products.query.all()
         return list
 
     @staticmethod
-    def list_byId(id):
-        # TODO doc and more
+    def list_by_id(id):
+        # TODO doc
         list = Products.query.filter_by(user_id=id)
         return list
 
@@ -243,6 +243,12 @@ class Products(db.Model):
     def delete_me(self):
         # TODO doc
         db.session.delete(self)
+        db.session.commit()
+
+    def bid_set(self, bid):
+        # TODO doc
+        self.bid_date = bid
+
         db.session.commit()
 
     def __repr__(self):
@@ -361,6 +367,10 @@ class Bids(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+
+    @staticmethod
+    def get_max(product_id):
+        return db.session.query(Bids.bid, Bids.user_id,).filter(Bids.product_id == product_id).order_by(db.desc(Bids.bid)).first()
 
     def __repr__(self):
         return '{},{},{}'.format(self.product_id, self.user_id, self.bid)
