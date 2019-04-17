@@ -1,10 +1,13 @@
 import datetime
-import re
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
+
+from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned
 from ChangePop.models import Users
+from ChangePop.utils import api_resp
+
 bp = Blueprint('user', __name__)
 
 """
@@ -16,110 +19,329 @@ curl -X POST "http://127.0.0.1:5000/user" -H  "accept: application/json" -H  "Co
 
 @bp.route('/user', methods=['POST'])
 def create_user():
+    """ Add user to the database getting the info from the
+    json of the request
+
+        :returns: api response with the id of the new user
+        :raises: KeyError, JSONExceptionHandler
+
+        """
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
     content = request.get_json()
-    if request.is_json:
-        nick: str = content["nick"]
-        first_name = content["first_name"]
-        last_name = content["mail"]
-        pass_hash = content["pass_hash"]
-        phone = int(content["phone"])
-        fnac = datetime.datetime.strptime( content["fnac"], "%Y-%m-%d" )
-        dni = int(content["dni"])
-        place = content["place"]
-        mail = content["mail"]
-        #Esto checkea que es un mail correcto, y si no lo es pues peta
-        is_email = re.compile("^([A-Z]|[a-z]|[0-9])+@([A-Z]|[a-z]|[0-9])+\.([A-Z]|[a-z])+$")
-        if is_email.match(mail):
 
-            user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail)
+    nick: str = content["nick"]
+    first_name = content["first_name"]
+    last_name = content["last_name"]
+    pass_ = content["pass"]
+    phone = int(content["phone"])
+    fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
+    dni = int(content["dni"])
+    place = content["place"]
+    mail = content["mail"]
 
-            # print("Creating this following user:\nId: " + str(user_id) + "\nNick: " + nick + "\nPhone: " + nick + "\nBirth: " + str(fnac.strftime("%x")))
+    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail)
 
-            resp = {
-                "code": "0",
-                "type": "info",
-                "message": str(user_id)}
-        else:
-            resp = {
-                "code": "3",
-                "type": "error",
-                "message": "This is not an email"}
+    resp = api_resp(0, "info", user_id)
 
-    else:
-        resp = {
-            "code": "1",
-            "type": "error",
-            "message": "No JSON found"}
-
-    return Response(json.dumps(resp), status=0, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
-@bp.route('/user', methods=['GET', 'POST'])
+@bp.route('/user', methods=['GET'])
+@login_required
+def get_logged_user():
+    # TODO Doc
+    user_id = current_user.id
+    user = Users.query.get(int(user_id))
+
+    user_json = {
+        "id": str(user.id),
+        "nick": str(user.nick),
+        "first_name": str(user.first_name),
+        "last_name": str(user.last_name),
+        "mail": str(user.mail),
+        "phone": str(user.phone),
+        "avatar": str(user.avatar),
+        "fnac": str(user.fnac),
+        "dni": str(user.dni),
+        "place": str(user.place),
+        "is_mod": str(user.is_mod),
+        "token": str(user.token),
+        "ban_reason": str(user.ban_reason),
+        "points": str(user.points)
+    }
+
+    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+
+
+@bp.route('/user', methods=['PUT'])
+@login_required
+def update_logged_user():
+    # TODO Doc
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    nick = content["nick"]
+    first_name = content["first_name"]
+    last_name = content["last_name"]
+    phone = int(content["phone"])
+    fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
+    dni = int(content["dni"])
+    place = content["place"]
+    mail = content["mail"]
+    avatar = content["avatar"]
+
+    user_id = current_user.id
+    user = Users.query.get(int(user_id))
+    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar)
+
+    resp = api_resp(0, "info", "User: " + str(user_id) + ' (' + nick + ') ' + "updated")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/user', methods=['DELETE'])
+@login_required
+def delete_logged_user():
+    user_id = current_user.id
+    current_user.delete_me()
+    resp = api_resp(0, "info", "User: " + str(user_id) + " deleted")
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/login', methods=['POST'])
 def login():
-    content = request.get_json()
-    if request.is_json:
-        nick: str = content["nick"]
-        pass_hash = content["pass_hash"]
-        # esto si no puede ser booleano pues se hace una comparacion y a correr
-        recordar = content["recordar_pass"]
-        user = Users.query.filter_by(nick=nick).first()
-        if user is None or not user.check_password(pass_hash):
-            if user is None:
-                resp = {
-                    "code": "5",
-                    "type": "error",
-                    "message": "No user found"}
-            else:
-                resp = {
-                    "code": "6",
-                    "type": "error",
-                    "message": "Wrong password"}
-        else:
-            resp = {
-                "code": "0",
-                "type": "info",
-                "message": str(nick)}
-            # esto te logea
-            login_user(user, recordar);
-            # ahora si haces current_user deberia ser el usuario que acaba de loggear
-    return Response(json.dumps(resp), status=0, mimetype='application/json')
+    if not request.is_json:
+        raise JSONExceptionHandler()
 
-@bp.route('/logout')
+    content = request.get_json()
+    nick = content["nick"]
+    pass_ = content["pass"]
+    remember = content["remember"]
+
+    user = Users.query.filter_by(nick=nick).first()
+
+    if user is None:
+        raise UserException(str(nick))
+
+    if not user.check_password(pass_):
+        raise UserPassException(str(nick))
+
+    if user.ban_until is not None:
+        ban_date = datetime.datetime.strptime(str(user.ban_until), "%Y-%m-%d")
+        if ban_date > datetime.datetime.utcnow():
+            raise UserBanned(str(nick), None, user.ban_until, user.ban_reason, None)
+
+    login_user(user, remember=bool(remember))
+
+    resp = api_resp(0, "info", "User: " + str(nick) + " logged")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/logout', methods=['GET'])
+@login_required
 def logout():
-    # asi se sale y se accede a current user en una misma funcion
     nick = current_user.nick
     logout_user()
-    return Response(json.dumps(nick), status=0, mimetype='application/json')
+    resp = api_resp(0, "info", "Logged out: " + str(nick))
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
 
 
-@bp.route('/user/<int:id>')
-def get_info(id):
-    """This function does something.
+# TODO: falta test
+@bp.route('/user/follows', methods=['GET'])
+@login_required
+def get_user_follows():
 
-    :param id: The user identifier
-    :type id: str.
-    :returns:  str -- JSON of user info.
-    :raises: AttributeError, KeyError
+    product_list = current_user.my_follows()
 
-    """
+    prod_list = []
+
+    for prod in product_list:
+        item = {
+              "id": str(prod.id),
+              "title": str(prod.title),
+              "descript": str(prod.descipt),
+              "price": str(prod.price),
+              "main_img": str(prod.main_img)
+            }
+
+        prod_list.append(item)
+
+    json_prods = {"length": len(prod_list), "list": prod_list}
+
+    return Response(json.dumps(json_prods), status=200, mimetype='application/json')
+
+
+@bp.route('/user/<int:id>', methods=['GET'])
+@login_required
+def get_user(id):
+    # TODO doc
+
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
 
     user = Users.query.get(int(id))
 
+    if user is None:
+        raise UserException(str(id), "User not found")
+
     user_json = {
-          "id": str(user.id),
-          "nick": str(user.nick),
-          "first_name": str(user.first_name),
-          "last_name": str(user.last_name),
-          "mail": str(user.mail),
-          "pass_hash": str(user.pass_hash),
-          "phone": str(user.phone),
-          "avatar": str(user.avatar),
-          "fnac": str(user.fnac),
-          "dni": str(user.dni),
-          "place": str(user.place)
+        "id": str(user.id),
+        "nick": str(user.nick),
+        "first_name": str(user.first_name),
+        "last_name": str(user.last_name),
+        "mail": str(user.mail),
+        "is_mod": str(user.is_mod),
+        "ban_reason": str(user.ban_reason),
+        "points": str(user.points),
+        "phone": str(user.phone),
+        "avatar": str(user.avatar),
+        "fnac": str(user.fnac),
+        "dni": str(user.dni),
+        "place": str(user.place),
+        "token": str(user.token)
+    }
+
+    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+
+
+@bp.route('/user/<int:id>', methods=['PUT'])
+@login_required
+def update_user(id):
+    # TODO doc
+
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    user = Users.query.get(int(id))
+
+    content = request.get_json()
+
+    nick = content["nick"]
+    first_name = content["first_name"]
+    last_name = content["mail"]
+    phone = int(content["phone"])
+    fnac = datetime.datetime.strptime(content["fnac"], "%Y-%m-%d")
+    dni = int(content["dni"])
+    place = content["place"]
+    mail = content["place"]
+    avatar = content["avatar"]
+    is_mod = content["is_mod"]
+    ban_reason = content["ban_reason"]
+    token = content["token"]
+    points = content["points"]
+
+    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod, ban_reason,
+                   token, points, None)
+
+    resp = api_resp(0, "info", "User: " + str(id) + ' (' + nick + ') ' + "updated")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/user/<int:id>', methods=['DELETE'])
+@login_required
+def delete_user(id):
+    # TODO doc
+
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
+    Users.query.get(int(id)).delete_me()
+    resp = api_resp(0, "info", "User: " + str(id) + " deleted")
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/profile/<string:nick>', methods=['GET'])
+def get_profile(nick):
+    # TODO doc
+
+    user = Users.query.filter_by(nick=str(nick)).first()
+
+    if user is None:
+        raise UserException(str(nick), "User not found")
+
+    user_json = {
+        "id": str(user.id),
+        "nick": str(user.nick),
+        "first_name": str(user.first_name),
+        "last_name": str(user.last_name),
+        "mail": str(user.mail),
+        "points": str(user.points),
+        "phone": str(user.phone),
+        "avatar": str(user.avatar),
+        "fnac": str(user.fnac),
+        "place": str(user.place)
+    }
+
+    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+
+
+@bp.route('/user/<int:id>/ban', methods=['PUT'])
+@login_required
+def set_ban_user(id):
+    # TODO doc
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    ban_reason = content["ban_reason"]
+    ban_until = datetime.datetime.strptime(content["ban_until"], "%Y-%m-%d")
+
+    Users.query.get(int(id)).ban_me(ban_reason,ban_until)
+    resp = api_resp(0, "info", "User" + ' (' + str(id) + ') ' + "banned")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+# TODO: Esta accesible para todos por motivos de depuración
+@bp.route('/user/<int:id>/mod', methods=['PUT'])
+def set_mod_user(id):
+    # TODO doc
+
+    Users.query.get(int(id)).mod_me()
+
+    resp = api_resp(0, "info", "All Ok")
+
+    return Response(json.dumps(resp), status=200, mimetype='application/json')
+
+
+@bp.route('/users', methods=['GET'])
+def list_users():
+    # TODO doc y mas cosas
+
+    users = Users.list_users()
+
+    users_list = []
+
+    for user in users:
+        item = {
+            "id": str(user.id),
+            "nick": str(user.nick),
+            "first_name": str(user.first_name),
+            "last_name": str(user.last_name),
+            "mail": str(user.mail),
+            "points": str(user.points),
+            "phone": str(user.phone),
+            "avatar": str(user.avatar),
+            "fnac": str(user.fnac),
+            "place": str(user.place)
         }
 
-    # TODO: More Attributes
-    return Response(json.dumps(user_json), status=0, mimetype='application/json')
+        users_list.append(item)
 
+    json_users = {"length": len(users_list), "list": users_list}
+
+    return Response(json.dumps(json_users), status=200, mimetype='application/json')
 

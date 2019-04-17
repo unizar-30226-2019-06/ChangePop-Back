@@ -1,5 +1,10 @@
+import sqlite3
+
+import sqlalchemy
 from flask import render_template
 from flask import Flask
+from sqlalchemy.exc import OperationalError
+
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -13,14 +18,24 @@ db = SQLAlchemy(app)
 login = LoginManager(app)
 login.login_view = 'login'
 
+from ChangePop.exeptions import NotLoggedIn
+login.unauthorized_handler(NotLoggedIn.not_auth_handler)
+
 from ChangePop import models
 
-db.drop_all()
-db.create_all()
+try:
+    db.create_all()
+    db.session.commit()
+except sqlalchemy.exc.OperationalError as e:
+    print("Error BD: {}".format(e))
+except sqlite3.OperationalError as e:
+    print("Error BD: {}".format(e))
+except Exception as e:
+    print("Excepcion: {}".format(e))
 
 migrate = Migrate(app, db)
 
-#CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
+# CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
 from ChangePop import routes
 

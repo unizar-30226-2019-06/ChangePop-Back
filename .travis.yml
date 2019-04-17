@@ -21,5 +21,12 @@ deploy:
     app: kelpa-api
     on:
       python: 3.6
-      branch: master
+      all_branches: true
+  - provider: azure_web_apps
+    username: deploy_user_az
+    password: faa5scSeR7
+    site: Kalepa-API       # If AZURE_WA_SITE isn't set
+    #slot: azure_deployment_slotname       # (optional) If AZURE_WA_SLOT isn't set
+    verbose: true
+    on: master
   

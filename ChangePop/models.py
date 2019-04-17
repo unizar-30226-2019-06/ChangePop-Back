@@ -29,14 +29,15 @@ class Categories(db.Model):
         return '{}'.format(self.cat_name)
 
 
-# noinspection PyArgumentList
 class Users(UserMixin, db.Model):
+    # TODO doc
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     last_name = db.Column(db.String(255), unique=False, nullable=False)
     nick = db.Column(db.String(255), index=True, unique=True, nullable=False)
     first_name = db.Column(db.String(255), unique=False, nullable=False)
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
+    ban_until = db.Column(db.Date, unique=False, nullable=True)
     points = db.Column(db.Float, unique=False, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
     mail = db.Column(db.String(255), index=True, unique=True, nullable=False)
@@ -51,11 +52,24 @@ class Users(UserMixin, db.Model):
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
     ts_edit = db.Column(db.DateTime(timezone=True), onupdate=datetime.datetime.utcnow())
 
+    products = db.relationship("Products", cascade="all, delete-orphan")
+    trades_s = db.relationship("Trades", foreign_keys='[Trades.user_sell]', cascade="all, delete-orphan")
+    trades_b = db.relationship("Trades", foreign_keys='[Trades.user_buy]', cascade="all, delete-orphan")
+    follows = db.relationship("Follows", cascade="all, delete-orphan")
+    interests = db.relationship("Interests", cascade="all, delete-orphan")
+    comments_t = db.relationship("Comments", foreign_keys='[Comments.user_to]', cascade="all, delete-orphan")
+    comments_f = db.relationship("Comments", foreign_keys='[Comments.user_from]', cascade="all, delete-orphan")
+    bids = db.relationship("Bids", cascade="all, delete-orphan")
+    messages_f = db.relationship("Messages", foreign_keys='[Messages.user_from]', cascade="all, delete-orphan")
+    messages_t = db.relationship("Messages", foreign_keys='[Messages.user_to]', cascade="all, delete-orphan")
+
     def get_id(self):
+        # TODO doc
         return self.id
 
     @staticmethod
     def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
+        # TODO doc
         u = Users(nick=nick,
                   last_name=last_name,
                   first_name=first_name,
@@ -75,6 +89,69 @@ class Users(UserMixin, db.Model):
 
         return u.id
 
+    @staticmethod
+    def list_users():
+        # TODO doc and more
+        list = Users.query.all()
+        return list
+
+    def my_follows(self):
+        my_id = self.id
+
+        products_list = db.session.query(Products.id,
+                                         Products.title,
+                                         Products.descript,
+                                         Products.price,
+                                         Products.main_img).join(Follows,
+                                                                 Users,
+                                                                 Images).filter(my_id == Follows.user_id,
+                                                                                Products.id == Follows.product_id)
+
+        return products_list
+
+    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None,
+                  ban_reason=None,
+                  token=None, points=None, pass_hash=None):
+        # TODO doc
+        self.nick = nick
+        self.first_name = first_name
+        self.last_name = last_name
+        self.phone = phone
+        self.fnac = fnac
+        self.dni = dni
+        self.place = place
+        self.mail = mail
+        self.avatar = avatar
+
+        if is_mod is not None:
+            self.is_mod = is_mod
+        if ban_reason is not None:
+            self.ban_reason = ban_reason
+        if token is not None:
+            self.token = token
+        if points is not None:
+            self.points = points
+        if pass_hash is not None:
+            self.pass_hash = pass_hash
+
+        db.session.commit()
+
+    def delete_me(self):
+        # TODO doc
+        db.session.delete(self)
+        db.session.commit()
+
+    def mod_me(self):
+        # TODO doc
+        self.is_mod = True
+        db.session.commit()
+
+    def ban_me(self, reason, until):
+        # TODO doc
+        self.ban_reason = str(reason)
+        self.ban_until = until
+        db.session.commit()
+
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
 
@@ -85,11 +162,11 @@ class Users(UserMixin, db.Model):
 
             """
         self.pass_hash = generate_password_hash(password)
+        db.session.commit()
 
     def check_password(self, password):
         return check_password_hash(self.pass_hash, password)
 
-    # esto es si no le dices nada, muestra esto de salida al hacer una consulta a esta clase
     def __repr__(self):
         return '{}, {}, {}, {}'.format(self.id, self.nick, self.mail, self.first_name)
 
@@ -108,12 +185,23 @@ class Products(db.Model):
     boost_date = db.Column(db.Date, unique=False, nullable=True)
     followers = db.Column(db.Integer, unique=False, nullable=False)
     is_removed = db.Column(db.Boolean, unique=False, nullable=False)
+    main_img = db.Column(db.String(255), nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
-    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(), onupdate=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
+                        onupdate=datetime.datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
+    offers = db.relationship("TradesOffers", cascade="all, delete-orphan")
+    trades = db.relationship("Trades", cascade="all, delete-orphan")
+    cats = db.relationship("CatProducts", cascade="all, delete-orphan")
+    bids = db.relationship("Bids", cascade="all, delete-orphan")
+    payments = db.relationship("Payments", cascade="all, delete-orphan")
+    images = db.relationship("Images", cascade="all, delete-orphan")
+    follows = db.relationship("Follows", cascade="all, delete-orphan")
+
+
     @staticmethod
-    def new_product(user_id, title, descript, price, place):
+    def new_product(user_id, title, descript, price, place, main_img):
         p = Products(user_id=user_id,
                      title=title,
                      descript=descript,
@@ -121,13 +209,25 @@ class Products(db.Model):
                      place=place,
                      visits=0,
                      followers=0,
-                     is_removed=False
+                     is_removed=False,
+                     main_img=main_img
                      )
         db.session.add(p)
         db.session.commit()
         db.session.flush()
 
         return p.id
+
+    def update_me(self, title, price, descript, bid, place, main_img):
+        # TODO doc
+        self.title = title
+        self.price = price
+        self.descript = descript
+        self.main_img = main_img
+        self.place = place
+        self.bid_date = bid
+
+        db.session.commit()
 
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
@@ -137,6 +237,15 @@ class Images(db.Model):
     __tablename__ = 'Images'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
     image_url = db.Column(db.String(255), primary_key=True, index=True, nullable=False)
+
+    @staticmethod
+    def delete_images_by_prod(product_id):
+        Images.query.filter_by(product_id=product_id).delete()
+
+    @staticmethod
+    def get_images_by_prod(product_id):
+        cats = Images.query.with_entities(Images.image_url).filter_by(product_id=product_id)
+        return cats
 
     @staticmethod
     def add_photo(image_url, product_id):
@@ -175,7 +284,7 @@ class Payments(db.Model):
         return '{},{},{}'.format(self.id, self.amount, self.product_id)
 
 
-class Coments(db.Model):
+class Comments(db.Model):
     __tablename__ = 'Coments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
     publish_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=False,
@@ -194,17 +303,25 @@ class CatProducts(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
 
     @staticmethod
+    def delete_cats_by_prod(product_id):
+        CatProducts.query.filter_by(product_id=product_id).delete()
+
+    @staticmethod
+    def get_cat_names_by_prod(product_id):
+        cats = CatProducts.query.with_entities(CatProducts.cat_name).filter_by(product_id=product_id)
+        return cats
+
+    @staticmethod
     def add_prod(cat_name, product_id):
         cp = CatProducts(cat_name=cat_name, product_id=product_id)
         db.session.add(cp)
         db.session.commit()
 
-
     def __repr__(self):
         return '{},{}'.format(self.cat_name, self.product_id)
 
 
-class Interest(db.Model):
+class Interests(db.Model):
     __tablename__ = 'Interest'
     cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
@@ -242,6 +359,8 @@ class Trades(db.Model):
     closed = db.Column(db.Boolean, unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+
+    offers = db.relationship("TradesOffers", cascade="all, delete-orphan")
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_sell, self.user_buy, self.product_id, self.price)
