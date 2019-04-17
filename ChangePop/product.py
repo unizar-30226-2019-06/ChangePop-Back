@@ -40,7 +40,7 @@ def create_product():
 
     resp = api_resp(0, "info", str(product_id))
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/product/<int:id>', methods=['GET'])
@@ -81,7 +81,7 @@ def get_prod_info(id):
 
     }
 
-    return Response(json.dumps(product_json), status=200, mimetype='application/json')
+    return Response(json.dumps(product_json), status=200, content_type='application/json')
 
 
 @bp.route('/product/<int:id>', methods=['PUT'])
@@ -121,4 +121,4 @@ def update_prod_info(id):
 
     resp = api_resp(0, "info", "Product: " + str(id) + ' (' + title + ') ' + "updated")
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')

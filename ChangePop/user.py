@@ -45,7 +45,7 @@ def create_user():
 
     resp = api_resp(0, "info", user_id)
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/user', methods=['GET'])
@@ -72,7 +72,7 @@ def get_logged_user():
         "points": str(user.points)
     }
 
-    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+    return Response(json.dumps(user_json), status=200, content_type='application/json')
 
 
 @bp.route('/user', methods=['PUT'])
@@ -100,7 +100,7 @@ def update_logged_user():
 
     resp = api_resp(0, "info", "User: " + str(user_id) + ' (' + nick + ') ' + "updated")
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/user', methods=['DELETE'])
@@ -109,7 +109,7 @@ def delete_logged_user():
     user_id = current_user.id
     current_user.delete_me()
     resp = api_resp(0, "info", "User: " + str(user_id) + " deleted")
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/login', methods=['POST'])
@@ -139,7 +139,7 @@ def login():
 
     resp = api_resp(0, "info", "User: " + str(nick) + " logged")
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/logout', methods=['GET'])
@@ -148,7 +148,7 @@ def logout():
     nick = current_user.nick
     logout_user()
     resp = api_resp(0, "info", "Logged out: " + str(nick))
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 # TODO: falta test
@@ -173,7 +173,7 @@ def get_user_follows():
 
     json_prods = {"length": len(prod_list), "list": prod_list}
 
-    return Response(json.dumps(json_prods), status=200, mimetype='application/json')
+    return Response(json.dumps(json_prods), status=200, content_type='application/json')
 
 
 @bp.route('/user/<int:id>', methods=['GET'])
@@ -206,7 +206,7 @@ def get_user(id):
         "token": str(user.token)
     }
 
-    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+    return Response(json.dumps(user_json), status=200, content_type='application/json')
 
 
 @bp.route('/user/<int:id>', methods=['PUT'])
@@ -243,7 +243,7 @@ def update_user(id):
 
     resp = api_resp(0, "info", "User: " + str(id) + ' (' + nick + ') ' + "updated")
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/user/<int:id>', methods=['DELETE'])
@@ -256,7 +256,7 @@ def delete_user(id):
 
     Users.query.get(int(id)).delete_me()
     resp = api_resp(0, "info", "User: " + str(id) + " deleted")
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/profile/<string:nick>', methods=['GET'])
@@ -281,7 +281,7 @@ def get_profile(nick):
         "place": str(user.place)
     }
 
-    return Response(json.dumps(user_json), status=200, mimetype='application/json')
+    return Response(json.dumps(user_json), status=200, content_type='application/json')
 
 
 @bp.route('/user/<int:id>/ban', methods=['PUT'])
@@ -302,7 +302,7 @@ def set_ban_user(id):
     Users.query.get(int(id)).ban_me(ban_reason,ban_until)
     resp = api_resp(0, "info", "User" + ' (' + str(id) + ') ' + "banned")
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 # TODO: Esta accesible para todos por motivos de depuración
@@ -314,7 +314,7 @@ def set_mod_user(id):
 
     resp = api_resp(0, "info", "All Ok")
 
-    return Response(json.dumps(resp), status=200, mimetype='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
 @bp.route('/users', methods=['GET'])
@@ -343,5 +343,5 @@ def list_users():
 
     json_users = {"length": len(users_list), "list": users_list}
 
-    return Response(json.dumps(json_users), status=200, mimetype='application/json')
+    return Response(json.dumps(json_users), status=200, content_type='application/json')
 

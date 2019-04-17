@@ -94,7 +94,7 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/user', data=self.user_data, mimetype='application/json').get_json()
+            r_json = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
 
             user_id = r_json["message"]
@@ -107,7 +107,7 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/login', data=self.user_login, mimetype='application/json').get_json()
+            r_json = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()
             self.assertIn('Alice', str(r_json))  # Check successful login
 
             r_json = self.app.get('/user').get_json()
@@ -123,9 +123,9 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
 
-            r_json = self.app.put('/user', data=self.user_update, mimetype='application/json').get_json()
+            r_json = self.app.put('/user', data=self.user_update, content_type='application/json').get_json()
             msg = r_json["message"]
             self.assertIn(str(self.__class__.tmp_user_id), msg)  # Check successful update
 
@@ -136,33 +136,33 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
 
             r_json = self.app.delete('/user').get_json()
             msg = r_json["message"]
             self.assertIn(str(self.__class__.tmp_user_id), msg)  # Check successful deletion
 
-            r = self.app.post('/login', data=self.user_login, mimetype='application/json').get_json()
+            r = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()
             self.assertIn("User not found", str(r))  # Check unsuccessful login
 
     def test_mod_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/user', data=self.user_data, mimetype='application/json').get_json()  # User created
+            r_json = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()  # User created
             user_id = r_json["message"]
             self.__class__.tmp_user_id = user_id
 
             r_json = self.app.put('/user/' + str(user_id) + '/mod').get_json()
             self.assertIn('Ok', str(r_json))  # Check set mod
 
-            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
 
             r_json = self.app.get('/user/' + str(user_id)).get_json()
             self.assertIn('Alice', str(r_json))  # Check get user info
 
             r_json = self.app.put('/user/' + str(user_id), data=self.user_update,
-                                  mimetype='application/json').get_json()
+                                  content_type='application/json').get_json()
             self.assertIn('updated', str(r_json))  # Check update user info
 
             r_json = self.app.delete('/user/' + str(user_id)).get_json()
@@ -172,28 +172,28 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/user', data=self.user_data, mimetype='application/json').get_json()  # User created
+            r_json = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()  # User created
             mod_user_id = r_json["message"]
 
             r_json = self.app.post('/user', data=self.user_data2,
-                                   mimetype='application/json').get_json()  # User created
+                                   content_type='application/json').get_json()  # User created
             ban_user_id = r_json["message"]
 
             self.app.put('/user/' + str(mod_user_id) + '/mod', data=self.user_data,
-                         mimetype='application/json').get_json()
+                         content_type='application/json').get_json()
 
-            self.app.post('/login', data=self.user_login, mimetype='application/json')  # Login to set the session
+            self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
 
             ban_data = json.dumps({
                 "ban_reason": "Ban for example",
                 "ban_until": "9999-04-13"
             })
             r_json = self.app.put('/user/' + str(ban_user_id) + '/ban', data=ban_data,
-                                  mimetype='application/json').get_json()
+                                  content_type='application/json').get_json()
             self.assertIn('(' + str(ban_user_id) + ') banned', str(r_json))  # Check the ban
 
             r_json = self.app.post('/login', data=self.user2_login,
-                                  mimetype='application/json').get_json()  # Login to check
+                                  content_type='application/json').get_json()  # Login to check
             self.assertIn("Ban for example", str(r_json))
 
             self.app.delete('/user/' + str(ban_user_id))
@@ -203,14 +203,14 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            id1 = self.app.post('/user', data=self.user_data, mimetype='application/json').get_json()["message"]
-            id2 = self.app.post('/user', data=self.user_data2, mimetype='application/json').get_json()["message"]
+            id1 = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()["message"]
+            id2 = self.app.post('/user', data=self.user_data2, content_type='application/json').get_json()["message"]
             self.app.put('/user/' + str(id2) + '/mod')
 
             r_json = self.app.get('users').get_json()
             self.assertIn("\'length\': 2", str(r_json))
 
-            self.app.post('/login', data=self.user2_login, mimetype='application/json')
+            self.app.post('/login', data=self.user2_login, content_type='application/json')
             self.app.delete('/user/' + str(id1)).get_json()
             self.app.delete('/user/' + str(id2)).get_json()
 
@@ -262,10 +262,10 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            r_json = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()
+            r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
 
             product_id = r_json["message"]
@@ -279,14 +279,14 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            r_json = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()
+            r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
 
             product_id = r_json["message"]
-            r_json = self.app.put('/product/' + str(product_id), data=self.prod_update, mimetype='application/json').get_json()
+            r_json = self.app.put('/product/' + str(product_id), data=self.prod_update, content_type='application/json').get_json()
             self.assertIn('updated', str(r_json))  # Check successful insertion
 
             check = self.app.get('/product/' + str(product_id))
