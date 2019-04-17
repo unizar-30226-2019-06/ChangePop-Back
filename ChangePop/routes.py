@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
 from ChangePop import app, user, product
-from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned
+from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned, ProductException
 
 app.register_blueprint(user.bp)
 app.register_blueprint(product.bp)
@@ -52,6 +52,16 @@ def handle_user_banned(error):
 
 
 @app.errorhandler(UserException)
+def handle_user_exception(error):
+    resp = {
+        "code": str(error.code),
+        "type": "error",
+        "message": str(error.to_dict())}
+
+    return Response(json.dumps(resp), status=error.status_code, mimetype='application/json')
+
+
+@app.errorhandler(ProductException)
 def handle_user_exception(error):
     resp = {
         "code": str(error.code),
