@@ -16,6 +16,22 @@ class JSONExceptionHandler(Exception):
         return self.message
 
 
+class ProductException(Exception):
+    status_code = 400
+    message = "Product not found"
+    code = 2
+
+    def __init__(self, prod, message=None, status_code=None):
+        Exception.__init__(self)
+        self.prod = prod
+        if message is not None:
+            self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+
+    def to_dict(self):
+        return self.message + ' (' + self.prod + ')'
+
 class UserException(Exception):
     status_code = 400
     message = "User not found"
