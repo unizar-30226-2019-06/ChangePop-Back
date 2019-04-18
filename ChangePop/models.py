@@ -152,6 +152,15 @@ class Users(UserMixin, db.Model):
         self.ban_until = until
         db.session.commit()
 
+    def follow_prod(self, id):
+        f = Follows(user_id=self.id, product_id=id)
+        db.session.add(f)
+        db.session.commit()
+
+    def unfollow_prod(self, id):
+        Follows.query.filter_by(user_id=self.id, product_id=id).delete()
+
+
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
 
@@ -245,10 +254,14 @@ class Products(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def ban_me(self, reason):
+        # TODO doc
+        self.ban_reason = str(reason)
+        db.session.commit()
+
     def bid_set(self, bid):
         # TODO doc
         self.bid_date = bid
-
         db.session.commit()
 
     def __repr__(self):

@@ -2,11 +2,12 @@ from flask import render_template, Response, json
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
-from ChangePop import app, user, product
+from ChangePop import app, user, product, bids
 from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned, ProductException
 
 app.register_blueprint(user.bp)
 app.register_blueprint(product.bp)
+app.register_blueprint(bids.bp)
 
 
 @app.route('/')
@@ -89,3 +90,5 @@ def handle_sql_error(error):
         "message": str(error)}
 
     return Response(json.dumps(resp), status=400, content_type='application/json')
+
+

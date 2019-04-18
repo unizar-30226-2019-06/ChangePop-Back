@@ -347,6 +347,57 @@ class ProductDataBase(unittest.TestCase):
 
             self.app.delete('/user')
 
+    def test_follows_product(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+
+            prod_id = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()["message"]
+
+            r_json = self.app.post('/product/' + str(prod_id) + '/follow').get_json()
+            self.assertIn('follows', str(r_json))  # Check successful follow
+
+            r_json = self.app.get('/user/follows').get_json()
+            self.assertIn("Producto Molongo", str(r_json))  # Check the follows
+
+            r_json = self.app.post('/product/' + str(prod_id) + '/unfollow').get_json()
+            self.assertIn('unfollows', str(r_json))  # Check successful unfollow
+
+            r_json = self.app.get('/user/follows').get_json()
+            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check the follows
+
+            self.app.delete('/user')
+
+    def test_ban_products(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            r_json = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()  # User created
+            mod_user_id = r_json["message"]
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.app.put('/user/' + str(mod_user_id) + '/mod', data=UserDataBase.user_data,
+                         content_type='application/json')
+
+            prod_id = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()["message"]
+
+            ban_data = json.dumps({
+                "ban_reason": "Ban for example"
+            })
+            r_json = self.app.put('/product/' + str(prod_id) + '/ban', data=ban_data, mimetype='application/json').get_json()
+
+            self.assertIn('banned', str(r_json))  # Check successful ban
+
+            self.app.delete('/user')
+
+
+class ProductsBids(unittest.TestCase):
+
+    def setUp(self):
+        self.app = webapp.app.test_client()
+        self.app.testing = True
+
     def test_bids(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -355,7 +406,7 @@ class ProductDataBase(unittest.TestCase):
             self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
             self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
 
-            product_id = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()["message"]
+            product_id = self.app.post('/product', data=ProductDataBase.prod_data, mimetype='application/json').get_json()["message"]
 
             data = json.dumps({"bid_until": "1999-12-24 23:45:10"})
             r_json = self.app.put('/product/' + str(product_id) + "/bidup", data=data, mimetype='application/json').get_json()

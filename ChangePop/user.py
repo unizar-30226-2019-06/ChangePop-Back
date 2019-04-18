@@ -164,7 +164,7 @@ def get_user_follows():
         item = {
               "id": str(prod.id),
               "title": str(prod.title),
-              "descript": str(prod.descipt),
+              "descript": str(prod.descript),
               "price": str(prod.price),
               "main_img": str(prod.main_img)
             }
