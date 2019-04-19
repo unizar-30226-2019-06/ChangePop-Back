@@ -92,6 +92,35 @@ def get_bid(id):
     return Response(json.dumps(item), status=200, content_type='application/json')
 
 
+@bp.route('/bid/<int:id>', methods=['POST'])
+@login_required
+def post_bid(id):
+    # TODO doc
+
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    bid = Products.query.get(id)
+
+    if bid is None:
+        raise ProductException(str(id), "Product not found")
+
+    if bid.bid_date is None:
+        raise ProductException(str(id), "Product isnt a bid")
+    else:
+        if bid.bid_date < datetime.datetime.utcnow():
+            raise ProductException(str(id), "Bid out of time")
+
+    money = float(content["bid"])
+    Bids.add_bid(id, current_user.id, money)
+
+    resp = api_resp(0, "info", "Successful bid with " + str(money) + " to " + str(id) + " bid")
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
 @bp.route('/bids', methods=['GET'])
 def list_bids():
     # TODO doc

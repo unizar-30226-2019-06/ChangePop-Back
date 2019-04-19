@@ -398,7 +398,7 @@ class ProductsBids(unittest.TestCase):
         self.app = webapp.app.test_client()
         self.app.testing = True
 
-    def test_bids(self):
+    def test_open_close_bid(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -421,6 +421,28 @@ class ProductsBids(unittest.TestCase):
             r_json = self.app.put('/product/' + str(product_id) + "/biddown", data=data,
                                   mimetype='application/json').get_json()
             self.assertIn('finished', str(r_json))  # Check successful bid down
+
+            self.app.delete('/user')
+
+    def test_bid_prod(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create user and login
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+
+            product_id = self.app.post('/product', data=ProductDataBase.prod_data, mimetype='application/json').get_json()["message"]
+
+            data = json.dumps({"bid_until": "2999-12-24 23:45:10"})
+            self.app.put('/product/' + str(product_id) + "/bidup", data=data, mimetype='application/json')
+
+            data = json.dumps({"bid": "999.99"})
+            r_json = self.app.post('/bid/' + str(product_id), data=data, mimetype='application/json').get_json()
+            self.assertIn('Successful bid with ' + str(999.99), str(r_json))  # Check bids
+
+            r_json = self.app.get('/bid/' + str(product_id)).get_json()
+            self.assertIn('999.99', str(r_json))  # Check bid with the bid
 
             self.app.delete('/user')
 

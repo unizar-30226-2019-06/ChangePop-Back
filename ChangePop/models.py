@@ -385,6 +385,13 @@ class Bids(db.Model):
     def get_max(product_id):
         return db.session.query(Bids.bid, Bids.user_id,).filter(Bids.product_id == product_id).order_by(db.desc(Bids.bid)).first()
 
+    @staticmethod
+    def add_bid(product_id, user_id, money):
+        b = Bids(bid=float(money), product_id=product_id, user_id=user_id)
+        db.session.add(b)
+        db.session.commit()
+
+
     def __repr__(self):
         return '{},{},{}'.format(self.product_id, self.user_id, self.bid)
 
