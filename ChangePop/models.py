@@ -50,7 +50,8 @@ class Users(UserMixin, db.Model):
     token = db.Column(db.String(255))
     time_token = db.Column(db.DateTime(timezone=True))
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
-    ts_edit = db.Column(db.DateTime(timezone=True), onupdate=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
+                        onupdate=datetime.datetime.utcnow())
 
     products = db.relationship("Products", cascade="all, delete-orphan")
     trades_s = db.relationship("Trades", foreign_keys='[Trades.user_sell]', cascade="all, delete-orphan")
@@ -159,7 +160,6 @@ class Users(UserMixin, db.Model):
 
     def unfollow_prod(self, id):
         Follows.query.filter_by(user_id=self.id, product_id=id).delete()
-
 
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
@@ -383,14 +383,14 @@ class Bids(db.Model):
 
     @staticmethod
     def get_max(product_id):
-        return db.session.query(Bids.bid, Bids.user_id,).filter(Bids.product_id == product_id).order_by(db.desc(Bids.bid)).first()
+        return db.session.query(Bids.bid, Bids.user_id, ).filter(Bids.product_id == product_id).order_by(
+            db.desc(Bids.bid)).first()
 
     @staticmethod
     def add_bid(product_id, user_id, money):
         b = Bids(bid=float(money), product_id=product_id, user_id=user_id)
         db.session.add(b)
         db.session.commit()
-
 
     def __repr__(self):
         return '{},{},{}'.format(self.product_id, self.user_id, self.bid)
@@ -402,11 +402,31 @@ class Trades(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
     user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    closed = db.Column(db.Boolean, unique=False, nullable=False)
+    closed_s = db.Column(db.Boolean, unique=False, nullable=False)
+    closed_b = db.Column(db.Boolean, unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
+                        onupdate=datetime.datetime.utcnow())
 
     offers = db.relationship("TradesOffers", cascade="all, delete-orphan")
+
+    @staticmethod
+    def add(product_id, seller_id, buyer_id):
+        p = Products.query.get(product_id)
+
+        t = Trades(product_id=product_id,
+                   user_sell=seller_id,
+                   user_buy=buyer_id,
+                   price=p.price,
+                   closed_b=False,
+                   closed_s=False)
+
+        db.session.add(t)
+        db.session.commit()
+        db.session.flush()
+
+        return t.id
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_sell, self.user_buy, self.product_id, self.price)

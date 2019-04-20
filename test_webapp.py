@@ -193,8 +193,7 @@ class UserDataBase(unittest.TestCase):
                                    content_type='application/json').get_json()  # User created
             ban_user_id = r_json["message"]
 
-            self.app.put('/user/' + str(mod_user_id) + '/mod', data=self.user_data,
-                         content_type='application/json').get_json()
+            self.app.put('/user/' + str(mod_user_id) + '/mod')
 
             self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
 
@@ -313,10 +312,10 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            r_json = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()
+            r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
 
             product_id = r_json["message"]
@@ -334,10 +333,10 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            self.app.post('/product', data=self.prod_data, mimetype='application/json')
+            self.app.post('/product', data=self.prod_data, content_type='application/json')
 
             r_json = self.app.get('/products').get_json()
             self.assertIn('\'length\': ' + str(1), str(r_json))  # Check successful list
@@ -351,10 +350,10 @@ class ProductDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            prod_id = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()["message"]
+            prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()["message"]
 
             r_json = self.app.post('/product/' + str(prod_id) + '/follow').get_json()
             self.assertIn('follows', str(r_json))  # Check successful follow
@@ -376,16 +375,16 @@ class ProductDataBase(unittest.TestCase):
 
             r_json = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()  # User created
             mod_user_id = r_json["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
             self.app.put('/user/' + str(mod_user_id) + '/mod', data=UserDataBase.user_data,
                          content_type='application/json')
 
-            prod_id = self.app.post('/product', data=self.prod_data, mimetype='application/json').get_json()["message"]
+            prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()["message"]
 
             ban_data = json.dumps({
                 "ban_reason": "Ban for example"
             })
-            r_json = self.app.put('/product/' + str(prod_id) + '/ban', data=ban_data, mimetype='application/json').get_json()
+            r_json = self.app.put('/product/' + str(prod_id) + '/ban', data=ban_data, content_type='application/json').get_json()
 
             self.assertIn('banned', str(r_json))  # Check successful ban
 
@@ -403,13 +402,13 @@ class ProductsBids(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            product_id = self.app.post('/product', data=ProductDataBase.prod_data, mimetype='application/json').get_json()["message"]
+            product_id = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()["message"]
 
             data = json.dumps({"bid_until": "1999-12-24 23:45:10"})
-            r_json = self.app.put('/product/' + str(product_id) + "/bidup", data=data, mimetype='application/json').get_json()
+            r_json = self.app.put('/product/' + str(product_id) + "/bidup", data=data, content_type='application/json').get_json()
             self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check successful bid up
 
             r_json = self.app.get('/bids').get_json()
@@ -419,7 +418,7 @@ class ProductsBids(unittest.TestCase):
             self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check bid
 
             r_json = self.app.put('/product/' + str(product_id) + "/biddown", data=data,
-                                  mimetype='application/json').get_json()
+                                  content_type='application/json').get_json()
             self.assertIn('finished', str(r_json))  # Check successful bid down
 
             self.app.delete('/user')
@@ -429,22 +428,68 @@ class ProductsBids(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, mimetype='application/json').get_json()["message"]
-            self.app.post('/login', data=UserDataBase.user_login, mimetype='application/json')
+            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            product_id = self.app.post('/product', data=ProductDataBase.prod_data, mimetype='application/json').get_json()["message"]
+            product_id = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()["message"]
 
             data = json.dumps({"bid_until": "2999-12-24 23:45:10"})
-            self.app.put('/product/' + str(product_id) + "/bidup", data=data, mimetype='application/json')
+            self.app.put('/product/' + str(product_id) + "/bidup", data=data, content_type='application/json')
 
             data = json.dumps({"bid": "999.99"})
-            r_json = self.app.post('/bid/' + str(product_id), data=data, mimetype='application/json').get_json()
+            r_json = self.app.post('/bid/' + str(product_id), data=data, content_type='application/json').get_json()
             self.assertIn('Successful bid with ' + str(999.99), str(r_json))  # Check bids
 
             r_json = self.app.get('/bid/' + str(product_id)).get_json()
             self.assertIn('999.99', str(r_json))  # Check bid with the bid
 
             self.app.delete('/user')
+
+
+class TradesProducts(unittest.TestCase):
+
+    def setUp(self):
+        self.app = webapp.app.test_client()
+        self.app.testing = True
+
+    def test_post_get_trade(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create users and login
+            seller_id = self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                "message"]
+            self.app.put('/user/' + str(seller_id) + '/mod')
+            buyer_id = self.user_id = self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
+                "message"]
+
+            # Post product
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            product_id = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()["message"]
+            self.app.get('/logout')
+
+            # Create Trade from buyer
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "seller_id": str(seller_id),
+                "buyer_id": str(buyer_id),
+                "product_id": str(product_id)
+            })
+            r_json = self.app.post('/trade', data=json_data, content_type='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check bid with the bid
+
+            trade_id = r_json["message"]
+
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            r_json = self.app.get('/trade/' + str(trade_id)).get_json()
+            self.assertIn('\'seller_id\': ' + str(seller_id), str(r_json))  # Check bid with the bid
+
+            self.app.delete('/user/' + str(buyer_id))
+            self.app.delete('/user/' + str(seller_id))
+
 
 if __name__ == "__main__":
     unittest.main()

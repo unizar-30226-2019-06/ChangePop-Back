@@ -32,6 +32,14 @@ class ProductException(Exception):
     def to_dict(self):
         return self.message + ' (' + self.prod + ')'
 
+
+class TradeException(ProductException):
+    code = 2
+    message = "Trade not found"
+
+    def __init__(self, user, message=None, status_code=None):
+        UserException.__init__(self,  user, message, status_code)
+
 class UserException(Exception):
     status_code = 400
     message = "User not found"
