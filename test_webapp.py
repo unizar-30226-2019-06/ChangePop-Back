@@ -452,7 +452,7 @@ class TradesProducts(unittest.TestCase):
         self.app = webapp.app.test_client()
         self.app.testing = True
 
-    def test_post_get_trade(self):
+    def test_trades(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -481,11 +481,31 @@ class TradesProducts(unittest.TestCase):
 
             trade_id = r_json["message"]
 
+            json_data = json.dumps({
+                "price": "99.9",
+                "products": [],
+            })
+            r_json = self.app.post('/trade/' + str(trade_id) + '/offer', data=json_data, content_type='application/json').get_json()
+            self.assertIn('Successful new offer', str(r_json))  # Check create offer
+
+            json_data = json.dumps({
+                "price": "22.9",
+                "products": [],
+            })
+            r_json = self.app.put('/trade/' + str(trade_id) + '/offer', data=json_data,
+                                   content_type='application/json').get_json()
+            self.assertIn('Successful offer update', str(r_json))  # Check update
+
             self.app.get('/logout')
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
+            r_json = self.app.get('/trades').get_json()
+            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check list trades
+
             r_json = self.app.get('/trade/' + str(trade_id)).get_json()
-            self.assertIn('\'seller_id\': ' + str(seller_id), str(r_json))  # Check bid with the bid
+            self.assertIn('\'seller_id\': ' + str(seller_id), str(r_json))  # Check get info
+
+            # Post test
 
             self.app.delete('/user/' + str(buyer_id))
             self.app.delete('/user/' + str(seller_id))

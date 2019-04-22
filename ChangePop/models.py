@@ -428,6 +428,16 @@ class Trades(db.Model):
 
         return t.id
 
+    @staticmethod
+    def get_trades(user_id):
+        items = Trades.query.filter((Trades.user_sell == str(user_id)) | (Trades.user_buy == str(user_id)))
+        return items
+
+    def set_price(self, price):
+        self.price = price
+
+        db.session.commit()
+
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_sell, self.user_buy, self.product_id, self.price)
 
@@ -449,6 +459,22 @@ class TradesOffers(db.Model):
     __tablename__ = 'TradesOffers'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
     trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'), primary_key=True)
+
+    @staticmethod
+    def add_product(trade_id, product_id):
+        to = TradesOffers(product_id=product_id, trade_id=trade_id)
+
+        db.session.add(to)
+        db.session.commit()
+
+    @staticmethod
+    def delete_all(trade_id):
+        TradesOffers.query.filter_by(trade_id=trade_id).delete()
+
+    @staticmethod
+    def get_prods_by_id(trade_id):
+        items = TradesOffers.query.with_entities(TradesOffers.product_id).filter_by(trade_id=trade_id)
+        return items
 
     def __repr__(self):
         return '{},{}'.format(self.product_id, self.trade_id)
