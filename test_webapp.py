@@ -212,7 +212,7 @@ class UserDataBase(unittest.TestCase):
             self.app.delete('/user/' + str(ban_user_id))
             self.app.delete('/user/' + str(mod_user_id))
 
-    def test_list_users(self):
+    def test_list_search_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -221,6 +221,9 @@ class UserDataBase(unittest.TestCase):
             self.app.put('/user/' + str(id2) + '/mod')
 
             r_json = self.app.get('users').get_json()
+            self.assertIn("\'length\': 2", str(r_json))
+
+            r_json = self.app.get('/search/users?text=Alice').get_json()
             self.assertIn("\'length\': 2", str(r_json))
 
             self.app.post('/login', data=self.user2_login, content_type='application/json')
@@ -237,6 +240,27 @@ class ProductDataBase(unittest.TestCase):
             "Moda"
         ],
         "title": "Producto Molongo",
+        "bid_date": "1999-12-24 23:45:11",
+        "boost_date": "1999-12-24 23:45:12",
+        "visits": 0,
+        "followers": 0,
+        "publish_date": "2019-04-07",
+        "main_img": "http://images.com/123af3",
+        "photo_urls": [
+            "http://images.com/123af3"
+        ],
+        "place": "Zaragoza",
+        "is_removed": True,
+        "ban_reason": "Razon Baneo"
+    })
+
+    prod_data2 = json.dumps({
+        "descript": "This product is wonderful",
+        "price": 0,
+        "categories": [
+            "Moda"
+        ],
+        "title": "Producto Molongo2",
         "bid_date": "1999-12-24 23:45:11",
         "boost_date": "1999-12-24 23:45:12",
         "visits": 0,
@@ -328,7 +352,7 @@ class ProductDataBase(unittest.TestCase):
 
             self.app.delete('/user')
 
-    def test_list_product(self):
+    def test_list_search_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -337,12 +361,16 @@ class ProductDataBase(unittest.TestCase):
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             self.app.post('/product', data=self.prod_data, content_type='application/json')
+            self.app.post('/product', data=self.prod_data2, content_type='application/json')
 
             r_json = self.app.get('/products').get_json()
-            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check successful list
+            self.assertIn('\'length\': ' + str(2), str(r_json))  # Check successful list
+
+            r_json = self.app.get('/search/products?text=Molongo').get_json()
+            self.assertIn('\'length\': ' + str(2), str(r_json))  # Check successful search
 
             r_json = self.app.get('/products/' + str(self.user_id)).get_json()
-            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check successful list by user
+            self.assertIn('\'length\': ' + str(2), str(r_json))  # Check successful list by user
 
             self.app.delete('/user')
 

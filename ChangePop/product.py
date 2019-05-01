@@ -257,3 +257,29 @@ def set_ban_prod(id):
     resp = api_resp(0, "info", "Product" + ' (' + str(id) + ') ' + "banned")
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/search/products', methods=['GET'])
+def search_products():
+    # TODO doc y mas cosas
+
+    title_search = request.args.get('text')
+
+    if title_search is None:
+        raise Exception(str(title_search))
+
+    products = Products.search(title_search)
+
+    products_list = []
+
+    for prod in products:
+        item = {
+            "id": str(prod.id),
+            "title": str(prod.title)
+        }
+
+        products_list.append(item)
+
+    json_users = {"length": len(products_list), "list": products_list}
+
+    return Response(json.dumps(json_users), status=200, content_type='application/json')

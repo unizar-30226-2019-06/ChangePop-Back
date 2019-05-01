@@ -96,6 +96,11 @@ class Users(UserMixin, db.Model):
         list = Users.query.all()
         return list
 
+    @staticmethod
+    def search(nick):
+        list = Users.query.filter(Users.nick.like('%' + nick + '%')).all()
+        return list
+
     def my_follows(self):
         my_id = self.id
 
@@ -218,6 +223,11 @@ class Products(db.Model):
     def list_by_id(id):
         # TODO doc
         list = Products.query.filter_by(user_id=id)
+        return list
+
+    @staticmethod
+    def search(title):
+        list = Products.query.filter(Products.title.like('%' + title + '%')).all()
         return list
 
     @staticmethod

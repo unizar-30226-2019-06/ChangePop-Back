@@ -345,3 +345,30 @@ def list_users():
 
     return Response(json.dumps(json_users), status=200, content_type='application/json')
 
+
+@bp.route('/search/users', methods=['GET'])
+def search_users():
+    # TODO doc y mas cosas
+
+    nick_search = request.args.get('text')
+
+    if nick_search is None:
+        raise Exception(str(nick_search))
+
+    users = Users.search(nick_search)
+
+    users_list = []
+
+    for user in users:
+        item = {
+            "id": str(user.id),
+            "nick": str(user.nick)
+        }
+
+        users_list.append(item)
+
+    json_users = {"length": len(users_list), "list": users_list}
+
+    return Response(json.dumps(json_users), status=200, content_type='application/json')
+
+
