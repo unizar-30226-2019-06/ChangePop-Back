@@ -27,11 +27,12 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 try:
-    fh = open(os.path.join(basedir, 'app.db'), 'r')
     print("Dir: " + os.path.join(basedir, 'app.db'))
+    fh = open(os.path.join(basedir, 'app.db'), 'r')
     fh.close()
 except FileNotFoundError:
     print("NO HAY DB LA CREO YO")
+    db.drop_all()
     db.create_all()
 
 manager.add_command('db', MigrateCommand)
