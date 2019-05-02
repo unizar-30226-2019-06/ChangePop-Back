@@ -22,10 +22,12 @@ migrate = Migrate(app, db)
 
 from ChangePop import models
 
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
 db.drop_all()
 db.create_all()
 
-manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 from flask import g
