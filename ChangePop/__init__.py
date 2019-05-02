@@ -26,8 +26,8 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 try:
-    fh = open('./app.db', 'r')
-
+    fh = open('../app.db', 'r')
+    fh.close()
 except FileNotFoundError:
     db.create_all()
 
