@@ -34,15 +34,15 @@ class Users(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     last_name = db.Column(db.String(255), unique=False, nullable=False)
-    nick = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    nick = db.Column(db.String(255), unique=True, index=True, nullable=False)
     first_name = db.Column(db.String(255), unique=False, nullable=False)
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
     ban_until = db.Column(db.Date, unique=False, nullable=True)
     points = db.Column(db.Float, unique=False, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
-    mail = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    mail = db.Column(db.String(255), unique=True, index=True, nullable=False)
     is_mod = db.Column(db.Boolean, unique=False, nullable=False)
-    dni = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    dni = db.Column(db.String(255), unique=True, index=True, nullable=False)
     avatar = db.Column(db.String(255), unique=False, nullable=False)
     fnac = db.Column(db.Date, unique=False, nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
@@ -344,7 +344,7 @@ class Comments(db.Model):
 
 class CatProducts(db.Model):
     __tablename__ = 'CatProducts'
-    cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
+    cat_name = db.Column(db.String, db.ForeignKey('Categories.cat_name'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
 
     @staticmethod
@@ -368,7 +368,7 @@ class CatProducts(db.Model):
 
 class Interests(db.Model):
     __tablename__ = 'Interest'
-    cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
+    cat_name = db.Column(db.String, db.ForeignKey('Categories.cat_name'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
 
     def __repr__(self):

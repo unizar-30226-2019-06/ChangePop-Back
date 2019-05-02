@@ -27,13 +27,10 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 try:
-    print("Dir: " + os.path.join(basedir, 'app.db'))
-    fh = open(os.path.join(basedir, 'app.db'), 'r')
-    fh.close()
-except FileNotFoundError:
-    print("NO HAY DB LA CREO YO")
-    db.drop_all()
+    #db.drop_all()
     db.create_all()
+except sqlalchemy.exc.ProgrammingError:
+    print("ERROR OK DB")
 
 manager.add_command('db', MigrateCommand)
 

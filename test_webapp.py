@@ -1,13 +1,8 @@
 import unittest
 import warnings
-
 from flask import json
-
 import webapp
-
-
-# from webapp import app
-# from webapp import home
+from config import TestingConfig, Config
 
 
 class HomeViewTest(unittest.TestCase):
@@ -15,6 +10,9 @@ class HomeViewTest(unittest.TestCase):
     def setUp(self):
         self.app = webapp.app.test_client()
         self.app.testing = True
+
+        from ChangePop import app
+        app.config.from_object(TestingConfig)
 
     def test_home_page(self):
         home = self.app.get('/')
@@ -131,14 +129,14 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.post('/user', data=self.user_data, content_type='application/json')
+            id = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()["message"]
             self.app.post('/login', data=self.user_login, content_type='application/json')
 
             self.app.post('/login', data=self.user_login, content_type='application/json')  # Login to set the session
 
             r_json = self.app.put('/user', data=self.user_update, content_type='application/json').get_json()
             msg = r_json["message"]
-            self.assertIn(str(self.__class__.tmp_user_id), msg)  # Check successful update
+            self.assertIn(str(id), msg)  # Check successful update
 
             r = self.app.get('/user').get_json()
             self.assertIn("FooFoo", str(r))  # Check sucessful update
@@ -149,12 +147,12 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.post('/user', data=self.user_data, content_type='application/json')
+            id = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()["message"]
             self.app.post('/login', data=self.user_login, content_type='application/json')
 
             r_json = self.app.delete('/user').get_json()
             msg = r_json["message"]
-            self.assertIn(str(self.__class__.tmp_user_id), msg)  # Check successful deletion
+            self.assertIn(str(id), msg)  # Check successful deletion
 
             r = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()
             self.assertIn("User not found", str(r))  # Check unsuccessful login
