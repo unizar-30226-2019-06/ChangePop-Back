@@ -4,7 +4,8 @@ from typing import Optional, Any
 from flask import Blueprint, request, json, Response
 from flask_login import current_user, login_user, logout_user, login_required
 
-from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned
+from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned, \
+    NotLoggedIn
 from ChangePop.models import Users
 from ChangePop.utils import api_resp
 
@@ -49,9 +50,13 @@ def create_user():
 
 
 @bp.route('/user', methods=['GET'])
-@login_required
+# @login_required
 def get_logged_user():
     # TODO Doc
+
+    if not current_user.is_authenticated:
+        raise NotLoggedIn()
+
     user_id = current_user.id
     user = Users.query.get(int(user_id))
 
