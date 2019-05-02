@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 import sqlalchemy
@@ -5,7 +6,7 @@ from flask import render_template
 from flask import Flask
 from sqlalchemy.exc import OperationalError
 
-from config import Config
+from config import Config, basedir
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
@@ -26,9 +27,11 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 try:
-    fh = open('../app.db', 'r')
+    fh = open(os.path.join(basedir, 'app.db'), 'r')
+    print("Dir: " + os.path.join(basedir, 'app.db'))
     fh.close()
 except FileNotFoundError:
+    print("NO HAY DB LA CREO YO")
     db.create_all()
 
 manager.add_command('db', MigrateCommand)
