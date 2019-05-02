@@ -50,12 +50,9 @@ def create_user():
 
 
 @bp.route('/user', methods=['GET'])
-# @login_required
+@login_required
 def get_logged_user():
     # TODO Doc
-
-    if not current_user.is_authenticated:
-        raise NotLoggedIn()
 
     user_id = current_user.id
     user = Users.query.get(int(user_id))

@@ -163,7 +163,8 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()  # User created
+            r_json = self.app.post('/user', data=self.user_data,
+                                   content_type='application/json').get_json()  # User created
             user_id = r_json["message"]
             self.__class__.tmp_user_id = user_id
 
@@ -186,7 +187,8 @@ class UserDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/user', data=self.user_data, content_type='application/json').get_json()  # User created
+            r_json = self.app.post('/user', data=self.user_data,
+                                   content_type='application/json').get_json()  # User created
             mod_user_id = r_json["message"]
 
             r_json = self.app.post('/user', data=self.user_data2,
@@ -206,7 +208,7 @@ class UserDataBase(unittest.TestCase):
             self.assertIn('(' + str(ban_user_id) + ') banned', str(r_json))  # Check the ban
 
             r_json = self.app.post('/login', data=self.user2_login,
-                                  content_type='application/json').get_json()  # Login to check
+                                   content_type='application/json').get_json()  # Login to check
             self.assertIn("Ban for example", str(r_json))
 
             self.app.delete('/user/' + str(ban_user_id))
@@ -276,18 +278,18 @@ class ProductDataBase(unittest.TestCase):
     })
 
     prod_update = json.dumps({
-            "descript": "This product is wonderful",
-            "price": 0,
-            "categories": [
-                "Moda", "Complementeos"
-            ],
-            "title": "Producto Molongo",
-            "bid_date": "1999-12-24 22:45:13",
-            "main_img": "http://images.com/123af3",
-            "photo_urls": [
-                "http://images.com/123af3"
-            ],
-            "place": "Madrid"
+        "descript": "This product is wonderful",
+        "price": 0,
+        "categories": [
+            "Moda", "Complementeos"
+        ],
+        "title": "Producto Molongo",
+        "bid_date": "1999-12-24 22:45:13",
+        "main_img": "http://images.com/123af3",
+        "photo_urls": [
+            "http://images.com/123af3"
+        ],
+        "place": "Madrid"
     })
 
     def setUp(self):
@@ -299,7 +301,9 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
@@ -316,14 +320,17 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
 
             product_id = r_json["message"]
-            r_json = self.app.put('/product/' + str(product_id), data=self.prod_update, content_type='application/json').get_json()
+            r_json = self.app.put('/product/' + str(product_id), data=self.prod_update,
+                                  content_type='application/json').get_json()
             self.assertIn('updated', str(r_json))  # Check successful insertion
 
             check = self.app.get('/product/' + str(product_id))
@@ -336,7 +343,9 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
@@ -344,10 +353,10 @@ class ProductDataBase(unittest.TestCase):
 
             product_id = r_json["message"]
 
-            r_json = self.app.delete('/product/'+ str(product_id)).get_json()
+            r_json = self.app.delete('/product/' + str(product_id)).get_json()
             self.assertIn('info', str(r_json))  # Check successful deletion
 
-            r_json = self.app.get('/product/'+ str(product_id)).get_json()
+            r_json = self.app.get('/product/' + str(product_id)).get_json()
             self.assertIn('not found', str(r_json))  # Check successful deletion
 
             self.app.delete('/user')
@@ -357,7 +366,9 @@ class ProductDataBase(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             self.app.post('/product', data=self.prod_data, content_type='application/json')
@@ -378,10 +389,13 @@ class ProductDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()["message"]
+            prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()[
+                "message"]
 
             r_json = self.app.post('/product/' + str(prod_id) + '/follow').get_json()
             self.assertIn('follows', str(r_json))  # Check successful follow
@@ -401,18 +415,21 @@ class ProductDataBase(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()  # User created
+            r_json = self.app.post('/user', data=UserDataBase.user_data,
+                                   content_type='application/json').get_json()  # User created
             mod_user_id = r_json["message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
             self.app.put('/user/' + str(mod_user_id) + '/mod', data=UserDataBase.user_data,
                          content_type='application/json')
 
-            prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()["message"]
+            prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()[
+                "message"]
 
             ban_data = json.dumps({
                 "ban_reason": "Ban for example"
             })
-            r_json = self.app.put('/product/' + str(prod_id) + '/ban', data=ban_data, content_type='application/json').get_json()
+            r_json = self.app.put('/product/' + str(prod_id) + '/ban', data=ban_data,
+                                  content_type='application/json').get_json()
 
             self.assertIn('banned', str(r_json))  # Check successful ban
 
@@ -430,13 +447,18 @@ class ProductsBids(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            product_id = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()["message"]
+            product_id = \
+                self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
+                    "message"]
 
             data = json.dumps({"bid_until": "1999-12-24 23:45:10"})
-            r_json = self.app.put('/product/' + str(product_id) + "/bidup", data=data, content_type='application/json').get_json()
+            r_json = self.app.put('/product/' + str(product_id) + "/bidup", data=data,
+                                  content_type='application/json').get_json()
             self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check successful bid up
 
             r_json = self.app.get('/bids').get_json()
@@ -456,10 +478,14 @@ class ProductsBids(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create user and login
-            self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()["message"]
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            product_id = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()["message"]
+            product_id = \
+                self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
+                    "message"]
 
             data = json.dumps({"bid_until": "2999-12-24 23:45:10"})
             self.app.put('/product/' + str(product_id) + "/bidup", data=data, content_type='application/json')
@@ -485,15 +511,19 @@ class TradesProducts(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create users and login
-            seller_id = self.user_id = self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
-                "message"]
+            seller_id = self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.put('/user/' + str(seller_id) + '/mod')
-            buyer_id = self.user_id = self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
-                "message"]
+            buyer_id = self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
+                    "message"]
 
             # Post product
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
-            product_id = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()["message"]
+            product_id = \
+                self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
+                    "message"]
             self.app.get('/logout')
 
             # Create Trade from buyer
@@ -513,7 +543,8 @@ class TradesProducts(unittest.TestCase):
                 "price": "99.9",
                 "products": [],
             })
-            r_json = self.app.post('/trade/' + str(trade_id) + '/offer', data=json_data, content_type='application/json').get_json()
+            r_json = self.app.post('/trade/' + str(trade_id) + '/offer', data=json_data,
+                                   content_type='application/json').get_json()
             self.assertIn('Successful new offer', str(r_json))  # Check create offer
 
             json_data = json.dumps({
@@ -521,7 +552,7 @@ class TradesProducts(unittest.TestCase):
                 "products": [],
             })
             r_json = self.app.put('/trade/' + str(trade_id) + '/offer', data=json_data,
-                                   content_type='application/json').get_json()
+                                  content_type='application/json').get_json()
             self.assertIn('Successful offer update', str(r_json))  # Check update
 
             self.app.get('/logout')
