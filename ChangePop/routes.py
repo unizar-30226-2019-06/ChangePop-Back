@@ -2,13 +2,14 @@ from flask import render_template, Response, json
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
-from ChangePop import app, user, product, bids, trade
+from ChangePop import app, user, product, bids, trade, commsg
 from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned, ProductException
 
 app.register_blueprint(user.bp)
 app.register_blueprint(product.bp)
 app.register_blueprint(bids.bp)
 app.register_blueprint(trade.bp)
+app.register_blueprint(commsg.bp)
 
 
 @app.route('/')

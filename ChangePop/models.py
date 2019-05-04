@@ -39,6 +39,7 @@ class Users(UserMixin, db.Model):
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
     ban_until = db.Column(db.Date, unique=False, nullable=True)
     points = db.Column(db.Float, unique=False, nullable=False)
+    point_times = db.Column(db.Integer, unique=False, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
     mail = db.Column(db.String(255), unique=True, index=True, nullable=False)
     is_mod = db.Column(db.Boolean, unique=False, nullable=False)
@@ -69,6 +70,11 @@ class Users(UserMixin, db.Model):
         return self.id
 
     @staticmethod
+    def get_nick(id):
+        user = Users.query.get(id)
+        return user.nick
+
+    @staticmethod
     def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
         # TODO doc
         u = Users(nick=nick,
@@ -78,6 +84,7 @@ class Users(UserMixin, db.Model):
                   place=place,
                   dni=dni,
                   points=0,
+                  point_times=0,
                   fnac=fnac,
                   is_mod=False,
                   mail=mail,
@@ -114,6 +121,12 @@ class Users(UserMixin, db.Model):
                                                                                 Products.id == Follows.product_id)
 
         return products_list
+
+    def point_me(self, new_points):
+        self.point_times = self.point_times + 1
+        self.points = float((self.points + new_points) / self.point_times)
+
+        db.session.commit()
 
     def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None,
                   ban_reason=None,
@@ -337,6 +350,19 @@ class Comments(db.Model):
     body = db.Column(db.String(255), unique=False, nullable=False)
     user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
+
+    @staticmethod
+    def add_comment(user_to, user_from, body):
+        c = Comments(user_to=user_to, user_from=user_from, body=body)
+
+        db.session.add(c)
+        db.session.commit()
+
+    @staticmethod
+    def list_by_user(id):
+        # TODO doc
+        list = Comments.query.filter_by(user_to=id)
+        return list
 
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.body, self.user_to, self.user_from)

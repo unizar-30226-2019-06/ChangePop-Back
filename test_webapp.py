@@ -11,9 +11,6 @@ class HomeViewTest(unittest.TestCase):
         self.app = webapp.app.test_client()
         self.app.testing = True
 
-        from ChangePop import app
-        app.config.from_object(TestingConfig)
-
     def test_home_page(self):
         home = self.app.get('/')
         self.assertIn('Home Page', str(home.data))
@@ -221,10 +218,10 @@ class UserDataBase(unittest.TestCase):
             self.app.put('/user/' + str(id2) + '/mod')
 
             r_json = self.app.get('users').get_json()
-            self.assertIn("\'length\': 2", str(r_json))
+            self.assertIn("\'length\'", str(r_json))
 
             r_json = self.app.get('/search/users?text=Alice').get_json()
-            self.assertIn("\'length\': 2", str(r_json))
+            self.assertIn("\'length\'", str(r_json))
 
             self.app.post('/login', data=self.user2_login, content_type='application/json')
             self.app.delete('/user/' + str(id1)).get_json()
@@ -373,13 +370,13 @@ class ProductDataBase(unittest.TestCase):
             self.app.post('/product', data=self.prod_data2, content_type='application/json')
 
             r_json = self.app.get('/products').get_json()
-            self.assertIn('\'length\': ' + str(2), str(r_json))  # Check successful list
+            self.assertIn('Producto Molongo', str(r_json))  # Check successful list
 
             r_json = self.app.get('/search/products?text=Molongo').get_json()
-            self.assertIn('\'length\': ' + str(2), str(r_json))  # Check successful search
+            self.assertIn('Producto Molongo', str(r_json))  # Check successful search
 
             r_json = self.app.get('/products/' + str(self.user_id)).get_json()
-            self.assertIn('\'length\': ' + str(2), str(r_json))  # Check successful list by user
+            self.assertIn('Producto Molongo', str(r_json))  # Check successful list by user
 
             self.app.delete('/user')
 
@@ -405,7 +402,7 @@ class ProductDataBase(unittest.TestCase):
             self.assertIn('unfollows', str(r_json))  # Check successful unfollow
 
             r_json = self.app.get('/user/follows').get_json()
-            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check the follows
+            self.assertIn('Producto Molongo', str(r_json))  # Check the follows
 
             self.app.delete('/user')
 
@@ -460,7 +457,7 @@ class ProductsBids(unittest.TestCase):
             self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check successful bid up
 
             r_json = self.app.get('/bids').get_json()
-            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check bids
+            self.assertIn('\'length\': ', str(r_json))  # Check bids
 
             r_json = self.app.get('/bid/' + str(product_id)).get_json()
             self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check bid
@@ -557,7 +554,7 @@ class TradesProducts(unittest.TestCase):
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             r_json = self.app.get('/trades').get_json()
-            self.assertIn('\'length\': ' + str(1), str(r_json))  # Check list trades
+            self.assertIn('\'length\': ', str(r_json))  # Check list trades
 
             r_json = self.app.get('/trade/' + str(trade_id)).get_json()
             self.assertIn('\'seller_id\': ' + str(seller_id), str(r_json))  # Check get info
@@ -566,6 +563,50 @@ class TradesProducts(unittest.TestCase):
 
             self.app.delete('/user/' + str(buyer_id))
             self.app.delete('/user/' + str(seller_id))
+
+
+class CommentsAndMessages(unittest.TestCase):
+
+    def setUp(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
+
+            # Create users and login
+            self.seller_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.put('/user/' + str(self.seller_id) + '/mod')
+            self.buyer_id = \
+                self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
+                    "message"]
+
+    def test_comments(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "body": "ESRES UN CRACK",
+                "points": "3",
+            })
+            r_json = self.app.post('/comment/' + str(self.seller_id), data=json_data,
+                                   content_type='application/json').get_json()
+            self.assertIn('comment created', str(r_json))  # Check successful creation
+
+            r_json = self.app.get('/comments/' + str(self.seller_id)).get_json()
+            self.assertIn('ESRES UN CRACK', str(r_json))  # Check successful get
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            self.app.delete('/user/' + str(self.buyer_id))
+            self.app.delete('/user/' + str(self.seller_id))
 
 
 if __name__ == "__main__":
