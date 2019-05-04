@@ -527,6 +527,10 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.get('/trade/' + str(trade_id)).get_json()
             self.assertIn('\'seller_id\': ' + str(self.seller_id), str(r_json))  # Check get info
 
+            r_json = self.app.put('/trade/' + str(trade_id) + '/close').get_json()
+            self.assertIn('Success close', str(r_json))  # Check get info
+
+
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
