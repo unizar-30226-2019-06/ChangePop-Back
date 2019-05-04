@@ -288,18 +288,21 @@ class ProductDataBase(unittest.TestCase):
     })
 
     def setUp(self):
-        self.app = webapp.app.test_client()
-        self.app.testing = True
-
-    def test_add_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
 
             # Create user and login
             self.user_id = \
                 self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
                     "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+    def test_add_product(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
@@ -308,17 +311,9 @@ class ProductDataBase(unittest.TestCase):
             check = self.app.get('/product/' + str(product_id))
             self.assertIn('Zaragoza', str(check.get_json()["place"]))  # Check get info
 
-            self.app.delete('/user')
-
     def test_update_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-            # Create user and login
-            self.user_id = \
-                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
-                    "message"]
-            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
@@ -331,17 +326,9 @@ class ProductDataBase(unittest.TestCase):
             check = self.app.get('/product/' + str(product_id))
             self.assertIn('Madrid', str(check.get_json()))  # Check get info
 
-            self.app.delete('/user')
-
     def test_delete_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-            # Create user and login
-            self.user_id = \
-                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
-                    "message"]
-            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             r_json = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful insertion
@@ -354,17 +341,9 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/product/' + str(product_id)).get_json()
             self.assertIn('not found', str(r_json))  # Check successful deletion
 
-            self.app.delete('/user')
-
     def test_list_search_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-            # Create user and login
-            self.user_id = \
-                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
-                    "message"]
-            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             self.app.post('/product', data=self.prod_data, content_type='application/json')
             self.app.post('/product', data=self.prod_data2, content_type='application/json')
@@ -378,16 +357,9 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/products/' + str(self.user_id)).get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful list by user
 
-            self.app.delete('/user')
-
     def test_follows_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-            self.user_id = \
-                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
-                    "message"]
-            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()[
                 "message"]
@@ -404,17 +376,11 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/user/follows').get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check the follows
 
-            self.app.delete('/user')
-
     def test_ban_products(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            r_json = self.app.post('/user', data=UserDataBase.user_data,
-                                   content_type='application/json').get_json()  # User created
-            mod_user_id = r_json["message"]
-            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
-            self.app.put('/user/' + str(mod_user_id) + '/mod', data=UserDataBase.user_data,
+            self.app.put('/user/' + str(self.user_id) + '/mod', data=UserDataBase.user_data,
                          content_type='application/json')
 
             prod_id = self.app.post('/product', data=self.prod_data, content_type='application/json').get_json()[
@@ -428,18 +394,21 @@ class ProductDataBase(unittest.TestCase):
 
             self.assertIn('banned', str(r_json))  # Check successful ban
 
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
             self.app.delete('/user')
 
 
 class ProductsBids(unittest.TestCase):
 
     def setUp(self):
-        self.app = webapp.app.test_client()
-        self.app.testing = True
-
-    def test_open_close_bid(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
 
             # Create user and login
             self.user_id = \
@@ -447,50 +416,46 @@ class ProductsBids(unittest.TestCase):
                     "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
-            product_id = \
+            self.product_id = \
                 self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
                     "message"]
 
+    def test_open_close_bid(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
             data = json.dumps({"bid_until": "1999-12-24 23:45:10"})
-            r_json = self.app.put('/product/' + str(product_id) + "/bidup", data=data,
+            r_json = self.app.put('/product/' + str(self.product_id) + "/bidup", data=data,
                                   content_type='application/json').get_json()
             self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check successful bid up
 
             r_json = self.app.get('/bids').get_json()
             self.assertIn('\'length\': ', str(r_json))  # Check bids
 
-            r_json = self.app.get('/bid/' + str(product_id)).get_json()
+            r_json = self.app.get('/bid/' + str(self.product_id)).get_json()
             self.assertIn('1999-12-24 23:45:10', str(r_json))  # Check bid
 
-            r_json = self.app.put('/product/' + str(product_id) + "/biddown", data=data,
+            r_json = self.app.put('/product/' + str(self.product_id) + "/biddown", data=data,
                                   content_type='application/json').get_json()
             self.assertIn('finished', str(r_json))  # Check successful bid down
-
-            self.app.delete('/user')
 
     def test_bid_prod(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            # Create user and login
-            self.user_id = \
-                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
-                    "message"]
-            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
-
-            product_id = \
-                self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
-                    "message"]
-
             data = json.dumps({"bid_until": "2999-12-24 23:45:10"})
-            self.app.put('/product/' + str(product_id) + "/bidup", data=data, content_type='application/json')
+            self.app.put('/product/' + str(self.product_id) + "/bidup", data=data, content_type='application/json')
 
             data = json.dumps({"bid": "999.99"})
-            r_json = self.app.post('/bid/' + str(product_id), data=data, content_type='application/json').get_json()
+            r_json = self.app.post('/bid/' + str(self.product_id), data=data, content_type='application/json').get_json()
             self.assertIn('Successful bid with ' + str(999.99), str(r_json))  # Check bids
 
-            r_json = self.app.get('/bid/' + str(product_id)).get_json()
+            r_json = self.app.get('/bid/' + str(self.product_id)).get_json()
             self.assertIn('999.99', str(r_json))  # Check bid with the bid
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             self.app.delete('/user')
 
@@ -498,36 +463,39 @@ class ProductsBids(unittest.TestCase):
 class TradesProducts(unittest.TestCase):
 
     def setUp(self):
-        self.app = webapp.app.test_client()
-        self.app.testing = True
-
-    def test_trades(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+            self.app = webapp.app.test_client()
+            self.app.testing = True
+
             # Create users and login
-            seller_id = self.user_id = \
+            self.seller_id = self.user_id = \
                 self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
                     "message"]
-            self.app.put('/user/' + str(seller_id) + '/mod')
-            buyer_id = self.user_id = \
+            self.app.put('/user/' + str(self.seller_id) + '/mod')
+            self.buyer_id = self.user_id = \
                 self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
                     "message"]
 
             # Post product
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
-            product_id = \
+            self.product_id = \
                 self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
                     "message"]
             self.app.get('/logout')
+
+    def test_trades(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Create Trade from buyer
             self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
 
             json_data = json.dumps({
-                "seller_id": str(seller_id),
-                "buyer_id": str(buyer_id),
-                "product_id": str(product_id)
+                "seller_id": str(self.seller_id),
+                "buyer_id": str(self.buyer_id),
+                "product_id": str(self.product_id)
             })
             r_json = self.app.post('/trade', data=json_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check bid with the bid
@@ -557,12 +525,16 @@ class TradesProducts(unittest.TestCase):
             self.assertIn('\'length\': ', str(r_json))  # Check list trades
 
             r_json = self.app.get('/trade/' + str(trade_id)).get_json()
-            self.assertIn('\'seller_id\': ' + str(seller_id), str(r_json))  # Check get info
+            self.assertIn('\'seller_id\': ' + str(self.seller_id), str(r_json))  # Check get info
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Post test
 
-            self.app.delete('/user/' + str(buyer_id))
-            self.app.delete('/user/' + str(seller_id))
+            self.app.delete('/user/' + str(self.buyer_id))
+            self.app.delete('/user/' + str(self.seller_id))
 
 
 class CommentsAndMessages(unittest.TestCase):
