@@ -22,7 +22,7 @@ def new_comment_user(id):
     body = content["body"]
     points = int(content["points"])
 
-    Comments.new_comment(id, current_user.id, body)
+    Comments.add_comment(id, current_user.id, body)
     user = Users.query.get(id)
     user.point_me(points)
 
