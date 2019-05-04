@@ -3,7 +3,7 @@ class JSONExceptionHandler(Exception):
     message = "No JSON found"
     code = 6
 
-    def __init__(self, message=None, status_code=None, payload=None):
+    def __init__(self, message=None, status_code=None, payload=None): # pragma: no cover
         Exception.__init__(self)
         if message is not None:
             self.message = message

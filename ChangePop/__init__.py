@@ -26,10 +26,10 @@ from ChangePop import models
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
-try:
+try: # pragma: no cover
     #db.drop_all()
     db.create_all()
-except sqlalchemy.exc.ProgrammingError:
+except sqlalchemy.exc.ProgrammingError: # pragma: no cover
     print("ERROR OK DB")
 
 manager.add_command('db', MigrateCommand)
@@ -38,7 +38,7 @@ from flask import g
 from flask.sessions import SecureCookieSessionInterface
 
 
-class CustomSessionInterface(SecureCookieSessionInterface):
+class CustomSessionInterface(SecureCookieSessionInterface): # pragma: no cover
     """Prevent creating session from API requests."""
     def save_session(self, *args, **kwargs):
         if g.get('login_via_header'):
