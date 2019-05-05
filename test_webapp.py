@@ -498,7 +498,7 @@ class TradesProducts(unittest.TestCase):
                 "product_id": str(self.product_id)
             })
             r_json = self.app.post('/trade', data=json_data, content_type='application/json').get_json()
-            self.assertIn('info', str(r_json))  # Check bid with the bid
+            self.assertIn('info', str(r_json))  # Check successful trade created
 
             trade_id = r_json["message"]
 
@@ -536,7 +536,8 @@ class TradesProducts(unittest.TestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
             # Post test
-
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
             self.app.delete('/user/' + str(self.buyer_id))
             self.app.delete('/user/' + str(self.seller_id))
 
@@ -576,13 +577,53 @@ class CommentsAndMessages(unittest.TestCase):
             r_json = self.app.get('/comments/' + str(self.seller_id)).get_json()
             self.assertIn('ESRES UN CRACK', str(r_json))  # Check successful get
 
+    def test_messages(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Post product
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            self.product_id = \
+                self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.get('/logout')
+
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "seller_id": str(self.seller_id),
+                "buyer_id": str(self.buyer_id),
+                "product_id": str(self.product_id)
+            })
+            trade_id = self.app.post('/trade', data=json_data, content_type='application/json').get_json()["message"]
+
+            json_data = json.dumps({
+                "body": "HELLO THERE!"
+            })
+            r_json = self.app.post('/msgs/' + str(trade_id), data=json_data, content_type='application/json').get_json()
+            self.assertIn('Message created', str(r_json))  # Check successful creation
+
+            self.app.get('/logout')
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "body": "HELLO HERE!"
+            })
+            r_json = self.app.post('/msgs/' + str(trade_id), data=json_data, content_type='application/json').get_json()
+            self.assertIn('Message created', str(r_json))  # Check successful creation
+
+            r_json = self.app.get('/msgs/' + str(trade_id)).get_json()
+            self.assertIn('HELLO HERE!', str(r_json))  # Check successful get
+
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
-            self.app.delete('/user/' + str(self.buyer_id))
-            self.app.delete('/user/' + str(self.seller_id))
+            print("\n" + str(self.app.get('/logout').get_json()) + "\n")
+            print("\n" + str(self.app.post('/login', data=UserDataBase.user_login, content_type='application/json').get_json()) + "\n")
+            print("\n" + str(self.app.delete('/user/' + str(self.buyer_id)).get_json()) + "\n")
+            print("\n" + str(self.app.delete('/user/' + str(self.seller_id)).get_json()) + "\n")
 
 
 if __name__ == "__main__":

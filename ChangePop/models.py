@@ -446,6 +446,7 @@ class Trades(db.Model):
                         onupdate=datetime.datetime.utcnow())
 
     offers = db.relationship("TradesOffers", cascade="all, delete-orphan")
+    messages = db.relationship("Messages", cascade="all, delete-orphan")
 
     @staticmethod
     def add(product_id, seller_id, buyer_id):
@@ -486,6 +487,18 @@ class Messages(db.Model):
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
     body = db.Column(db.String(255), unique=False, nullable=False)
     msg_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True, default=datetime.datetime.utcnow())
+
+    @staticmethod
+    def new_msg(trade_id, user_to, user_from, body):
+        m = Messages(trade_id=trade_id, user_to=user_to, user_from=user_from, body=body)
+
+        db.session.add(m)
+        db.session.commit()
+
+    @staticmethod
+    def get_msgs(trade_id):
+        items = Messages.query.filter((Messages.trade_id == str(trade_id)))
+        return items
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_to, self.user_from, self.trade_id, self.body)
