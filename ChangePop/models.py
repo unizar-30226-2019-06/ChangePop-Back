@@ -64,6 +64,8 @@ class Users(UserMixin, db.Model):
     bids = db.relationship("Bids", cascade="all, delete-orphan")
     messages_f = db.relationship("Messages", foreign_keys='[Messages.user_from]', cascade="all, delete-orphan")
     messages_t = db.relationship("Messages", foreign_keys='[Messages.user_to]', cascade="all, delete-orphan")
+    reports = db.relationship("Reports", cascade="all, delete-orphan")
+    notifications = db.relationship("Notifications", cascade="all, delete-orphan")
 
     def get_id(self):
         # TODO doc
@@ -225,6 +227,7 @@ class Products(db.Model):
     payments = db.relationship("Payments", cascade="all, delete-orphan")
     images = db.relationship("Images", cascade="all, delete-orphan")
     follows = db.relationship("Follows", cascade="all, delete-orphan")
+    reports = db.relationship("Reports", cascade="all, delete-orphan")
 
     @staticmethod
     def list():
@@ -435,9 +438,9 @@ class Bids(db.Model):
 class Trades(db.Model):
     __tablename__ = 'Trades'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
-    user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
+    user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     closed_s = db.Column(db.Boolean, unique=False, nullable=False)
     closed_b = db.Column(db.Boolean, unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
@@ -482,9 +485,9 @@ class Trades(db.Model):
 class Messages(db.Model):
     __tablename__ = 'Messages'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'))
-    user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'), nullable=False)
+    user_to = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    user_from = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     body = db.Column(db.String(255), unique=False, nullable=False)
     msg_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True, default=datetime.datetime.utcnow())
 
@@ -527,6 +530,31 @@ class TradesOffers(db.Model):
 
     def __repr__(self):
         return '{},{}'.format(self.product_id, self.trade_id)
+
+
+class Notifications(db.Model):
+    __tablename__ = 'Notifications'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
+    category = db.Column(db.String(255), db.ForeignKey('Categories.cat_name'))
+    date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+    text = db.Column(db.String(255), unique=False, nullable=False)
+
+    @staticmethod
+    def push(user, text, product=None, category=None):
+        n = Notifications(user_id=user, product_id=product, category=category, text=text)
+
+        db.session.add(n)
+        db.session.commit()
+
+    @staticmethod
+    def list_by_user(user_id):
+        items = Notifications.query.filter_by(user_id=user_id)
+        return items
+
+    def __repr__(self):
+        return '{},{},{},{},{},{}'.format(self.id, self.user_id, self.product_id, self.category, self.date, self.text)
 
 
 @login.user_loader

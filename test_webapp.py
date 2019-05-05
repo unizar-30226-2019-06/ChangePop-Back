@@ -620,10 +620,71 @@ class CommentsAndMessages(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-            print("\n" + str(self.app.get('/logout').get_json()) + "\n")
-            print("\n" + str(self.app.post('/login', data=UserDataBase.user_login, content_type='application/json').get_json()) + "\n")
-            print("\n" + str(self.app.delete('/user/' + str(self.buyer_id)).get_json()) + "\n")
-            print("\n" + str(self.app.delete('/user/' + str(self.seller_id)).get_json()) + "\n")
+            self.app.get('/logout').get_json()
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json').get_json()
+            self.app.delete('/user/' + str(self.buyer_id)).get_json()
+            self.app.delete('/user/' + str(self.seller_id)).get_json()
+
+
+class Notifications(unittest.TestCase):
+
+    def setUp(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
+
+            # Create users and login
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.put('/user/' + str(self.user_id) + '/mod')
+
+    def test_create_get_notification(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "product_id": 0,
+                "category": "null",
+                "text": "Nuevo producto en categoria e interés"
+
+            })
+            r_json = self.app.post('/notification', data=json_data, content_type='application/json').get_json()
+            self.assertIn('Notification pushed', str(r_json))  # Check successful creation
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "product_id": 0,
+                "category": "null",
+                "text": "Otra cosa"
+
+            })
+            r_json = self.app.post('/notification', data=json_data, content_type='application/json').get_json()
+            self.assertIn('Notification pushed', str(r_json))  # Check successful creation
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "product_id": 0,
+                "category": "null",
+                "text": "Otra cosa 2"
+
+            })
+            r_json = self.app.post('/notification', data=json_data, content_type='application/json').get_json()
+            self.assertIn('Notification pushed', str(r_json))  # Check successful creation
+
+            r_json = self.app.get('/notifications').get_json()
+            self.assertIn('Otra cosa', str(r_json))  # Check successful get
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.delete('/user')
 
 
 if __name__ == "__main__":
