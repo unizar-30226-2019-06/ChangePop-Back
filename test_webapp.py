@@ -641,7 +641,7 @@ class Notifications(unittest.TestCase):
                     "message"]
             self.app.put('/user/' + str(self.user_id) + '/mod')
 
-    def test_create_get_notification(self):
+    def test_delete_all_notifications(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -654,8 +654,7 @@ class Notifications(unittest.TestCase):
                 "text": "Nuevo producto en categoria e interés"
 
             })
-            r_json = self.app.post('/notification', data=json_data, content_type='application/json').get_json()
-            self.assertIn('Notification pushed', str(r_json))  # Check successful creation
+            self.app.post('/notification', data=json_data, content_type='application/json').get_json()
 
             json_data = json.dumps({
                 "user_id": self.user_id,
@@ -664,8 +663,28 @@ class Notifications(unittest.TestCase):
                 "text": "Otra cosa"
 
             })
-            r_json = self.app.post('/notification', data=json_data, content_type='application/json').get_json()
-            self.assertIn('Notification pushed', str(r_json))  # Check successful creation
+            self.app.post('/notification', data=json_data, content_type='application/json').get_json()
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "product_id": 0,
+                "category": "null",
+                "text": "Otra cosa 2"
+
+            })
+            self.app.post('/notification', data=json_data, content_type='application/json').get_json()
+
+            r_json = self.app.delete('/notifications').get_json()
+            self.assertIn('Successful delete', str(r_json))  # Check successful
+
+            r_json = self.app.get('/notifications').get_json()
+            self.assertIn('0', str(r_json))  # Check successful get 0 elements
+
+    def test_create_get_notification(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             json_data = json.dumps({
                 "user_id": self.user_id,

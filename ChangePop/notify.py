@@ -64,3 +64,15 @@ def get_notifications():
     json_notifications = {"length": len(notifications_list), "list": notifications_list}
 
     return Response(json.dumps(json_notifications), status=200, content_type='application/json')
+
+
+@bp.route('/notifications', methods=['DELETE'])
+@login_required
+def delete_notifications():
+
+    Notifications.delete_all(current_user.id)
+
+    resp = api_resp(0, "info", "Successful delete")
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')
+
