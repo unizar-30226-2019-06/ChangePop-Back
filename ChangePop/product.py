@@ -29,6 +29,12 @@ def create_product():
     place = content["place"]
     main_img = content["main_img"]
 
+    if not isinstance(categories, list):
+        raise JSONExceptionHandler("Bad format for categories, need an array")
+
+    if not isinstance(photo_urls, list):
+        raise JSONExceptionHandler("Bad format for photo_urls, need an array")
+
     product_id = Products.new_product(user_id, title, descript, price, place, main_img)
 
     for cat in categories:
@@ -109,6 +115,12 @@ def update_prod_info(id):
     photo_urls = content["photo_urls"]
     place = content["place"]
     main_img = content["main_img"]
+
+    if not isinstance(categories, list):
+        raise JSONExceptionHandler("Bad format for categories, need an array")
+
+    if not isinstance(photo_urls, list):
+        raise JSONExceptionHandler("Bad format for photo_urls, need an array")
 
     CatProducts.delete_cats_by_prod(id)
     Images.delete_images_by_prod(id)
@@ -195,6 +207,11 @@ def list_products_user(id):
         for cat in categories:
             cats.append(str(cat))
 
+        images = Images.get_images_by_prod(id)
+        imgs = []
+        for img in images:
+            imgs.append(str(img))
+
         item = {
             "id": int(prod.id),
             "descript": str(prod.descript),
@@ -202,12 +219,15 @@ def list_products_user(id):
             "price": float(prod.price),
             "title": str(prod.title),
             "categories": cats,
+            "photo_urls": imgs,
             "bid_date": str(prod.bid_date),
             "boost_date": str(prod.boost_date),
+            "visits": int(prod.visits),
             "followers": int(prod.followers),
             "publish_date": str(prod.publish_date),
             "main_img": str(prod.main_img),
-            "place": str(prod.place)
+            "place": str(prod.place),
+            "ban_reason": str(prod.ban_reason)
         }
 
         products_list.append(item)

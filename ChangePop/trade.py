@@ -153,7 +153,7 @@ def trade_close(id):
     trade.closed_b = True
     trade.closed_s = True
 
-    resp = api_resp(0, "info", "Succes close for trade " + '(' + str(id) + ')')
+    resp = api_resp(0, "info", "Success close for trade " + '(' + str(id) + ')')
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
