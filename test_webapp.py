@@ -722,7 +722,8 @@ class UploadFiles(unittest.TestCase):
                     "message"]
             self.app.put('/user/' + str(self.user_id) + '/mod')
 
-    def test_1_upload(self):
+    @unittest.skip
+    def test_upload(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -733,11 +734,11 @@ class UploadFiles(unittest.TestCase):
             file_url = r_json["message"]
             f.close()
 
-            #self.assertIn('info', str(r_json))  # Check successful upload
+            self.assertIn('info', str(r_json))  # Check successful upload
 
             r = self.app.get(file_url)
-            #self.assertIn("[200 OK]", str(r))
-            self.assertTrue(True)
+            self.assertIn("[200 OK]", str(r))
+
             r.close()
 
             file = file_url.split('/')[2]
