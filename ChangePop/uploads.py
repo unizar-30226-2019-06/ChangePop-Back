@@ -66,7 +66,7 @@ def upload_file_test(): # pragma: no cover
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "ok: "+ "/uploads/"+file.filename
+            return "ok: "+ request.base_url+"/uploads/"+file.filename
     return '''
     <!doctype html>
     <title>Upload new File</title>

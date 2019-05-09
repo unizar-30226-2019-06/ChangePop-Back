@@ -709,7 +709,6 @@ class Notifications(unittest.TestCase):
 
 class UploadFiles(unittest.TestCase):
 
-    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -723,7 +722,6 @@ class UploadFiles(unittest.TestCase):
                     "message"]
             self.app.put('/user/' + str(self.user_id) + '/mod')
 
-    #@unittest.skip
     def test_upload(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -739,14 +737,13 @@ class UploadFiles(unittest.TestCase):
             self.assertIn('info', str(r_json))  # Check successful upload
 
             r = self.app.get(file_url)
-            #self.assertIn("[200 OK]", str(r))
+            self.assertIn("[200 OK]", str(r))
 
             r.close()
 
             file = file_url.split('/')[2]
             os.remove("./images/" + file)
 
-    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
