@@ -14,6 +14,7 @@ branches:
   only:
   - master
   - develop
+  - deploying-azure
 deploy:
   - provider: azure_web_apps
     username: deploy_user_az
