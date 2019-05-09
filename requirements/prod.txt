@@ -6,7 +6,7 @@ Flask==1.0.2
 # Deployment
 gunicorn==19.7.1
 
-# Tests
+# Others
 pytest==3.3.1
 pytest-runner==3.0
 pytest-cov==2.5.1
@@ -17,5 +17,6 @@ flask_migrate
 flask_script
 flask_login
 flask_wtf
-psycopg2==2.7.7
+#psycopg2==2.7.7
 django_heroku
+werkzeug

@@ -25,8 +25,9 @@ deploy:
   - provider: azure_web_apps
     username: deploy_user_az
     password: faa5scSeR7
-    site: Kalepa-API       # If AZURE_WA_SITE isn't set
-    #slot: azure_deployment_slotname       # (optional) If AZURE_WA_SLOT isn't set
+    site: Kalepa
     verbose: true
-    on: master
-  
+    on:
+      branches:
+        - master
+        - deploying-azure
