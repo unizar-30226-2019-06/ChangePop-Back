@@ -15,12 +15,12 @@ from ChangePop.utils import api_resp
 bp = Blueprint('uploads', __name__)
 
 
-def allowed_file(filename):
+def allowed_file(filename): # pragma: no cover
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def random_string(string_length=20):
+def random_string(string_length=20): # pragma: no cover
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase+"0123456789"
     return ''.join(random.choice(letters) for i in range(string_length))
@@ -28,7 +28,7 @@ def random_string(string_length=20):
 
 @bp.route('/upload', methods=['POST'])
 @login_required
-def upload_file():
+def upload_file(): # pragma: no cover
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -57,8 +57,8 @@ def upload_file():
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
-@bp.route('/test', methods=['GET', 'POST'])
-def upload_file_test():
+@bp.route('/test_upload', methods=['GET', 'POST'])
+def upload_file_test(): # pragma: no cover
     if request.method == 'POST':
         file = request.files['file']
         if file.filename == '':
@@ -79,5 +79,5 @@ def upload_file_test():
 
 
 @bp.route('/uploads/<path:filename>')
-def uploaded_file(filename):
+def uploaded_file(filename): # pragma: no cover
     return send_file('../'+app.config['UPLOAD_FOLDER']+'/' + filename)
