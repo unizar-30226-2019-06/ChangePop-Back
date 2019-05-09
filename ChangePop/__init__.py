@@ -13,8 +13,12 @@ from flask_script import Manager
 from flask_login import LoginManager
 from flask_wtf import CsrfProtect
 
-app = Flask(__name__, instance_relative_config=True)
+UPLOAD_FOLDER = 'images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+app = Flask(__name__, instance_relative_config=True, static_folder='images')
 app.config.from_object(Config)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 db = SQLAlchemy(app)
 login = LoginManager(app)
@@ -57,6 +61,7 @@ login.unauthorized_handler(NotLoggedIn.not_auth_handler)
 # CsrfProtect(app)                       Esto aun no podemos k no tenemos ni key ni na
 
 from ChangePop import routes
+
 
 def get_app():
     return app

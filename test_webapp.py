@@ -1,3 +1,4 @@
+import os
 import unittest
 import warnings
 from flask import json
@@ -698,6 +699,48 @@ class Notifications(unittest.TestCase):
 
             r_json = self.app.get('/notifications').get_json()
             self.assertIn('Otra cosa', str(r_json))  # Check successful get
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.delete('/user')
+
+
+class UploadFiles(unittest.TestCase):
+
+    def setUp(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
+
+            # Create users and login
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.put('/user/' + str(self.user_id) + '/mod')
+
+    def test_1_upload(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            f = open('./test/jake.jpg', 'rb')
+            data = {'file': f}
+            r_json = self.app.post('/upload', content_type='multipart/form-data', data=data).get_json()
+            file_url = r_json["message"]
+            f.close()
+
+            self.assertIn('info', str(r_json))  # Check successful upload
+
+            r = self.app.get(file_url)
+            self.assertIn("[200 OK]", str(r))
+            r.close()
+
+            file = file_url.split('/')[2]
+            os.remove("./images/" + file)
 
     def tearDown(self):
         with warnings.catch_warnings():
