@@ -7,6 +7,10 @@ from flask import Blueprint, request, json, Response, send_from_directory, send_
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
+#azure things
+import os, uuid, sys
+from azure.storage.blob import BlockBlobService, PublicAccess
+
 from ChangePop import app, ALLOWED_EXTENSIONS
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
 from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages, Notifications

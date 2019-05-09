@@ -1,5 +1,7 @@
 language: python
 python: 3.6
+git:
+   depth: 9999999
 install:
 #- pip install -r requirements/dev.txt
 #- pip install codecov
