@@ -34,15 +34,16 @@ class Users(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     last_name = db.Column(db.String(255), unique=False, nullable=False)
-    nick = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    nick = db.Column(db.String(255), unique=True, index=True, nullable=False)
     first_name = db.Column(db.String(255), unique=False, nullable=False)
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
     ban_until = db.Column(db.Date, unique=False, nullable=True)
     points = db.Column(db.Float, unique=False, nullable=False)
+    point_times = db.Column(db.Integer, unique=False, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
-    mail = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    mail = db.Column(db.String(255), unique=True, index=True, nullable=False)
     is_mod = db.Column(db.Boolean, unique=False, nullable=False)
-    dni = db.Column(db.String(255), index=True, unique=True, nullable=False)
+    dni = db.Column(db.String(255), unique=True, index=True, nullable=False)
     avatar = db.Column(db.String(255), unique=False, nullable=False)
     fnac = db.Column(db.Date, unique=False, nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
@@ -50,7 +51,8 @@ class Users(UserMixin, db.Model):
     token = db.Column(db.String(255))
     time_token = db.Column(db.DateTime(timezone=True))
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
-    ts_edit = db.Column(db.DateTime(timezone=True), onupdate=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
+                        onupdate=datetime.datetime.utcnow())
 
     products = db.relationship("Products", cascade="all, delete-orphan")
     trades_s = db.relationship("Trades", foreign_keys='[Trades.user_sell]', cascade="all, delete-orphan")
@@ -62,10 +64,17 @@ class Users(UserMixin, db.Model):
     bids = db.relationship("Bids", cascade="all, delete-orphan")
     messages_f = db.relationship("Messages", foreign_keys='[Messages.user_from]', cascade="all, delete-orphan")
     messages_t = db.relationship("Messages", foreign_keys='[Messages.user_to]', cascade="all, delete-orphan")
+    reports = db.relationship("Reports", cascade="all, delete-orphan")
+    notifications = db.relationship("Notifications", cascade="all, delete-orphan")
 
     def get_id(self):
         # TODO doc
         return self.id
+
+    @staticmethod
+    def get_nick(id):
+        user = Users.query.get(id)
+        return user.nick
 
     @staticmethod
     def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
@@ -77,6 +86,7 @@ class Users(UserMixin, db.Model):
                   place=place,
                   dni=dni,
                   points=0,
+                  point_times=0,
                   fnac=fnac,
                   is_mod=False,
                   mail=mail,
@@ -95,6 +105,11 @@ class Users(UserMixin, db.Model):
         list = Users.query.all()
         return list
 
+    @staticmethod
+    def search(nick):
+        list = Users.query.filter(Users.nick.like('%' + nick + '%')).all()
+        return list
+
     def my_follows(self):
         my_id = self.id
 
@@ -108,6 +123,12 @@ class Users(UserMixin, db.Model):
                                                                                 Products.id == Follows.product_id)
 
         return products_list
+
+    def point_me(self, new_points):
+        self.point_times = self.point_times + 1
+        self.points = float((self.points + new_points) / self.point_times)
+
+        db.session.commit()
 
     def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None,
                   ban_reason=None,
@@ -152,6 +173,14 @@ class Users(UserMixin, db.Model):
         self.ban_until = until
         db.session.commit()
 
+    def follow_prod(self, id):
+        f = Follows(user_id=self.id, product_id=id)
+        db.session.add(f)
+        db.session.commit()
+
+    def unfollow_prod(self, id):
+        Follows.query.filter_by(user_id=self.id, product_id=id).delete()
+
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
 
@@ -180,9 +209,9 @@ class Products(db.Model):
     price = db.Column(db.Float, unique=False, nullable=False)
     publish_date = db.Column(db.Date, unique=False, nullable=False, default=datetime.datetime.utcnow())
     ban_reason = db.Column(db.String(255), unique=False, nullable=True)
-    bid_date = db.Column(db.Date, unique=False, nullable=True)
+    bid_date = db.Column(db.DateTime, unique=False, nullable=True)
     visits = db.Column(db.Integer, unique=False, nullable=False)
-    boost_date = db.Column(db.Date, unique=False, nullable=True)
+    boost_date = db.Column(db.DateTime, unique=False, nullable=True)
     followers = db.Column(db.Integer, unique=False, nullable=False)
     is_removed = db.Column(db.Boolean, unique=False, nullable=False)
     main_img = db.Column(db.String(255), nullable=False)
@@ -198,7 +227,24 @@ class Products(db.Model):
     payments = db.relationship("Payments", cascade="all, delete-orphan")
     images = db.relationship("Images", cascade="all, delete-orphan")
     follows = db.relationship("Follows", cascade="all, delete-orphan")
+    reports = db.relationship("Reports", cascade="all, delete-orphan")
 
+    @staticmethod
+    def list():
+        # TODO doc
+        list = Products.query.all()
+        return list
+
+    @staticmethod
+    def list_by_id(id):
+        # TODO doc
+        list = Products.query.filter_by(user_id=id)
+        return list
+
+    @staticmethod
+    def search(title):
+        list = Products.query.filter(Products.title.like('%' + title + '%')).all()
+        return list
 
     @staticmethod
     def new_product(user_id, title, descript, price, place, main_img):
@@ -218,6 +264,32 @@ class Products(db.Model):
 
         return p.id
 
+    def update_me(self, title, price, descript, bid, place, main_img):
+        # TODO doc
+        self.title = title
+        self.price = price
+        self.descript = descript
+        self.main_img = main_img
+        self.place = place
+        self.bid_date = bid
+
+        db.session.commit()
+
+    def delete_me(self):
+        # TODO doc
+        db.session.delete(self)
+        db.session.commit()
+
+    def ban_me(self, reason):
+        # TODO doc
+        self.ban_reason = str(reason)
+        db.session.commit()
+
+    def bid_set(self, bid):
+        # TODO doc
+        self.bid_date = bid
+        db.session.commit()
+
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
 
@@ -226,6 +298,15 @@ class Images(db.Model):
     __tablename__ = 'Images'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
     image_url = db.Column(db.String(255), primary_key=True, index=True, nullable=False)
+
+    @staticmethod
+    def delete_images_by_prod(product_id):
+        Images.query.filter_by(product_id=product_id).delete()
+
+    @staticmethod
+    def get_images_by_prod(product_id):
+        cats = Images.query.with_entities(Images.image_url).filter_by(product_id=product_id)
+        return cats
 
     @staticmethod
     def add_photo(image_url, product_id):
@@ -273,14 +354,36 @@ class Comments(db.Model):
     user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
     user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
 
+    @staticmethod
+    def add_comment(user_to, user_from, body):
+        c = Comments(user_to=user_to, user_from=user_from, body=body)
+
+        db.session.add(c)
+        db.session.commit()
+
+    @staticmethod
+    def list_by_user(id):
+        # TODO doc
+        list = Comments.query.filter_by(user_to=id)
+        return list
+
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.body, self.user_to, self.user_from)
 
 
 class CatProducts(db.Model):
     __tablename__ = 'CatProducts'
-    cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
+    cat_name = db.Column(db.String, db.ForeignKey('Categories.cat_name'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
+
+    @staticmethod
+    def delete_cats_by_prod(product_id):
+        CatProducts.query.filter_by(product_id=product_id).delete()
+
+    @staticmethod
+    def get_cat_names_by_prod(product_id):
+        cats = CatProducts.query.with_entities(CatProducts.cat_name).filter_by(product_id=product_id)
+        return cats
 
     @staticmethod
     def add_prod(cat_name, product_id):
@@ -294,7 +397,7 @@ class CatProducts(db.Model):
 
 class Interests(db.Model):
     __tablename__ = 'Interest'
-    cat_name = db.Column(db.Integer, db.ForeignKey('Categories.cat_name'), primary_key=True)
+    cat_name = db.Column(db.String, db.ForeignKey('Categories.cat_name'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
 
     def __repr__(self):
@@ -317,6 +420,17 @@ class Bids(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
 
+    @staticmethod
+    def get_max(product_id):
+        return db.session.query(Bids.bid, Bids.user_id, ).filter(Bids.product_id == product_id).order_by(
+            db.desc(Bids.bid)).first()
+
+    @staticmethod
+    def add_bid(product_id, user_id, money):
+        b = Bids(bid=float(money), product_id=product_id, user_id=user_id)
+        db.session.add(b)
+        db.session.commit()
+
     def __repr__(self):
         return '{},{},{}'.format(self.product_id, self.user_id, self.bid)
 
@@ -324,14 +438,45 @@ class Bids(db.Model):
 class Trades(db.Model):
     __tablename__ = 'Trades'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
-    user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    closed = db.Column(db.Boolean, unique=False, nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
+    user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    closed_s = db.Column(db.Boolean, unique=False, nullable=False)
+    closed_b = db.Column(db.Boolean, unique=False, nullable=False)
     price = db.Column(db.Float, unique=False, nullable=False)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+    ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
+                        onupdate=datetime.datetime.utcnow())
 
     offers = db.relationship("TradesOffers", cascade="all, delete-orphan")
+    messages = db.relationship("Messages", cascade="all, delete-orphan")
+
+    @staticmethod
+    def add(product_id, seller_id, buyer_id):
+        p = Products.query.get(product_id)
+
+        t = Trades(product_id=product_id,
+                   user_sell=seller_id,
+                   user_buy=buyer_id,
+                   price=p.price,
+                   closed_b=False,
+                   closed_s=False)
+
+        db.session.add(t)
+        db.session.commit()
+        db.session.flush()
+
+        return t.id
+
+    @staticmethod
+    def get_trades(user_id):
+        items = Trades.query.filter((Trades.user_sell == str(user_id)) | (Trades.user_buy == str(user_id)))
+        return items
+
+    def set_price(self, price):
+        self.price = price
+
+        db.session.commit()
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_sell, self.user_buy, self.product_id, self.price)
@@ -340,11 +485,23 @@ class Trades(db.Model):
 class Messages(db.Model):
     __tablename__ = 'Messages'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
-    trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'))
-    user_to = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    user_from = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'), nullable=False)
+    user_to = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    user_from = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     body = db.Column(db.String(255), unique=False, nullable=False)
     msg_date = db.Column(db.DateTime(timezone=True), unique=False, nullable=True, default=datetime.datetime.utcnow())
+
+    @staticmethod
+    def new_msg(trade_id, user_to, user_from, body):
+        m = Messages(trade_id=trade_id, user_to=user_to, user_from=user_from, body=body)
+
+        db.session.add(m)
+        db.session.commit()
+
+    @staticmethod
+    def get_msgs(trade_id):
+        items = Messages.query.filter((Messages.trade_id == str(trade_id)))
+        return items
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.user_to, self.user_from, self.trade_id, self.body)
@@ -355,8 +512,54 @@ class TradesOffers(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
     trade_id = db.Column(db.Integer, db.ForeignKey('Trades.id'), primary_key=True)
 
+    @staticmethod
+    def add_product(trade_id, product_id):
+        to = TradesOffers(product_id=product_id, trade_id=trade_id)
+
+        db.session.add(to)
+        db.session.commit()
+
+    @staticmethod
+    def delete_all(trade_id):
+        TradesOffers.query.filter_by(trade_id=trade_id).delete()
+
+    @staticmethod
+    def get_prods_by_id(trade_id):
+        items = TradesOffers.query.with_entities(TradesOffers.product_id).filter_by(trade_id=trade_id)
+        return items
+
     def __repr__(self):
         return '{},{}'.format(self.product_id, self.trade_id)
+
+
+class Notifications(db.Model):
+    __tablename__ = 'Notifications'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('Products.id'))
+    category = db.Column(db.String(255), db.ForeignKey('Categories.cat_name'))
+    date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
+    text = db.Column(db.String(255), unique=False, nullable=False)
+
+    @staticmethod
+    def push(user, text, product=None, category=None):
+        n = Notifications(user_id=user, product_id=product, category=category, text=text)
+
+        db.session.add(n)
+        db.session.commit()
+
+    @staticmethod
+    def delete_all(user):
+        Notifications.query.filter_by(user_id=user).delete()
+        db.session.commit()
+
+    @staticmethod
+    def list_by_user(user_id):
+        items = Notifications.query.filter_by(user_id=user_id)
+        return items
+
+    def __repr__(self):
+        return '{},{},{},{},{},{}'.format(self.id, self.user_id, self.product_id, self.category, self.date, self.text)
 
 
 @login.user_loader

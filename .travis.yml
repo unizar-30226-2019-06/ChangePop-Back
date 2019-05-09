@@ -4,29 +4,24 @@ install:
 - pip install -r requirements/dev.txt
 - pip install codecov
 script:
-- python -m unittest discover
-- coverage erase
-- coverage run --source=ChangePop test_webapp.py
-- coverage html
+#- python -m unittest discover
+#- coverage erase
+#- coverage run --source=ChangePop test_webapp.py
+#- coverage html
 after_success:
-- codecov
+#- codecov
 branches:
   only:
   - master
   - develop
 deploy:
-  - provider: heroku
-    api_key:
-      secure: C4Q6JnYpJZTZA6bfo/qJ4bSZjgf93TQSEN6yzYKLnu7Oj8Vz7mDTerVxXeiFttjt9emrTPZpOZnu9tdOO1iVFxgagRGmzpmJbyE/rCnBg4uBxUmz4L60FQ4dW2JDgdVWyNg2QeLNy1jIzV5pw/rws6KYcGBXxXztjHF5/V2eSA9lpwezRKwWNCYwaWlTvxKzgaXV/JBRBP2RAFLC0MdE0Tco03Uupu5QZci83RXysCJDYlSbqOLJ25+RuZ/FYKc0WqQlO7gScqsMbwU4cYPQUG/uREDFuhFSpUEbYsgbx+D6pXKld4RDCwZxZxZUgsDhkCYBMc2e6yQK8RvXUnQ5SovSQcxd9qsgz4jR2O4ndPiyXFUw+wPGgWKI3p1Rrg2/mNyx6ol4b6wO7HLwLnnt9YiJHoXeRzKKmKq5IkwzK3fUJCoGJ+pdBlF8BwVSEo07R/5bm6/DKrr1DPKvjWuxHMjsi3GOmdkAesnmxwFh7MFm7g1GBpmgyCVsS1LhGRDl8fxrNVbc/J8DiEt6EkRCbn1TcDd4nuXtfVQCm6pSsaRL3GC5OnN6TcH7Zj/Btf/S1uBXUYn1mbUsCmoLB/wKDheSYPBG2wPS22SeDO0/j1HFgWtl5yZFOd+91jha1zUDZdWCivIHdDrNXNye4kMCyYkr483dFvyTFkTru2iJJyA=
-    app: kelpa-api
-    on:
-      python: 3.6
-      all_branches: true
   - provider: azure_web_apps
     username: deploy_user_az
     password: faa5scSeR7
-    site: Kalepa-API       # If AZURE_WA_SITE isn't set
+    site: Kalepa       # If AZURE_WA_SITE isn't set
     #slot: azure_deployment_slotname       # (optional) If AZURE_WA_SLOT isn't set
     verbose: true
-    on: master
-  
+    on:
+      branches:
+        - master
+        - deploying-azure

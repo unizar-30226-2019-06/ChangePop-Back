@@ -3,7 +3,7 @@ class JSONExceptionHandler(Exception):
     message = "No JSON found"
     code = 6
 
-    def __init__(self, message=None, status_code=None, payload=None):
+    def __init__(self, message=None, status_code=None, payload=None): # pragma: no cover
         Exception.__init__(self)
         if message is not None:
             self.message = message
@@ -15,6 +15,30 @@ class JSONExceptionHandler(Exception):
     def to_dict(self):
         return self.message
 
+
+class ProductException(Exception):
+    status_code = 400
+    message = "Product not found"
+    code = 2
+
+    def __init__(self, prod, message=None, status_code=None):
+        Exception.__init__(self)
+        self.prod = prod
+        if message is not None:
+            self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+
+    def to_dict(self):
+        return self.message + ' (' + str(self.prod) + ')'
+
+
+class TradeException(ProductException):
+    code = 2
+    message = "Trade not found"
+
+    def __init__(self, prod, message=None, status_code=None):
+        ProductException.__init__(self,  prod, message, status_code)
 
 class UserException(Exception):
     status_code = 400
