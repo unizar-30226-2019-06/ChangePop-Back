@@ -5,11 +5,11 @@
 Flask-DebugToolbar==0.10.1
 
 # Lint and code style
-pylint==1.8.1
+#pylint==1.8.1
 
 # Coverage
 coverage==4.4.2
 
 # Documentation
-Sphinx==1.6.5
-sphinx-autobuild==0.7.1
+#Sphinx==1.6.5
+#sphinx-autobuild==0.7.1
