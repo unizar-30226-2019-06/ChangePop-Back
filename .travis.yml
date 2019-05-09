@@ -29,6 +29,6 @@ deploy:
     #slot: azure_deployment_slotname       # (optional) If AZURE_WA_SLOT isn't set
     verbose: true
     on:
-      branch:
+      branches:
         - master
         - deploying-azure
