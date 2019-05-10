@@ -58,7 +58,7 @@ def upload_file():
 
 
 @bp.route('/test_upload', methods=['GET', 'POST'])
-def upload_file_test():
+def upload_file_test(): # pragma: no cover
     if request.method == 'POST':
         file = request.files['file']
         if file.filename == '':
