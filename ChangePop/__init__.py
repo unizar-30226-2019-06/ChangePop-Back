@@ -16,7 +16,7 @@ from flask_wtf import CsrfProtect
 UPLOAD_FOLDER = 'images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-app = Flask(__name__, instance_relative_config=True, static_folder='images')
+app = Flask(__name__, instance_relative_config=True, static_folder='static')
 app.config.from_object(Config)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
