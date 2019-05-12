@@ -20,7 +20,7 @@ class Categories(db.Model):
     @staticmethod
     def add_cat(cat_name):
         c = Categories.query.get(cat_name)
-        if not (c is not None):
+        if not (c is None):
             c = Categories(cat_name=cat_name)
             db.session.add(c)
             db.session.commit()
