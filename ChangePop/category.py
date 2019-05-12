@@ -7,9 +7,9 @@ from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, Product
 from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages, Categories
 from ChangePop.utils import api_resp
 
-bp = Blueprint('notify', __name__)
+bp = Blueprint('category', __name__)
 
-
+'''
 @bp.route('/category', methods=['POST'])
 @login_required
 def new_category():
@@ -25,45 +25,35 @@ def new_category():
 
     resp = api_resp(0, "info", "Category pushed")
 
-    return Response(json.dumps(resp), status=200, content_type='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')'''
 
 
 @bp.route('/categories', methods=['GET'])
 @login_required
 def get_categories():
 
-    notifications = Categories.list_by_user(current_user.id)
+    categories = Categories.list()
 
-    notifications_list = []
+    categories_list = []
 
-    for noti in notifications:
+    for cat in categories:
 
-        product_id = str(noti.product_id) if noti.product_id is not None else "null"
-        category = str(noti.category) if noti.category is not None else "null"
+        item = cat.cat_name
 
-        item = {
-            "id": str(noti.id),
-            "user_id": str(noti.user_id),
-            "product_id": str(product_id),
-            "category": str(category),
-            "date": str(noti.date),
-            "text": str(noti.text)
-        }
+        categories_list.append(item)
 
-        notifications_list.append(item)
+    json_categories = {"length": len(categories_list), "list": categories_list}
 
-    json_notifications = {"length": len(notifications_list), "list": notifications_list}
+    return Response(json.dumps(json_categories), status=200, content_type='application/json')
 
-    return Response(json.dumps(json_notifications), status=200, content_type='application/json')
-
-
-@bp.route('/categories', methods=['DELETE'])
+'''
+@bp.route('/category', methods=['DELETE'])
 @login_required
 def delete_categories():
-
-    Notifications.delete_all(current_user.id)
+    # TODO ESTA MAL
+    Categories.delete(current_user.id)
 
     resp = api_resp(0, "info", "Successful delete")
 
-    return Response(json.dumps(resp), status=200, content_type='application/json')
+    return Response(json.dumps(resp), status=200, content_type='application/json')'''
 

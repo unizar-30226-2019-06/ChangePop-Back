@@ -20,10 +20,16 @@ class Categories(db.Model):
     @staticmethod
     def add_cat(cat_name):
         c = Categories.query.get(cat_name)
-        if not (c is None):
+        if c is None:
             c = Categories(cat_name=cat_name)
             db.session.add(c)
             db.session.commit()
+
+    @staticmethod
+    def list():
+        # TODO doc and more
+        list = Categories.query.all()
+        return list
 
     def __repr__(self):
         return '{}'.format(self.cat_name)
