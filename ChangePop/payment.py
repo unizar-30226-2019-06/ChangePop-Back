@@ -13,14 +13,16 @@ bp = Blueprint('payment', __name__)
 
 @bp.route('/payment', methods=['POST'])
 @login_required
-def create_trade():
+def create_payment():
     if not request.is_json:
         raise JSONExceptionHandler()
 
     content = request.get_json()
 
-    seller_id = content["seller_id"]
-    buyer_id = content["buyer_id"]
+    amount = content["amount"]
+    iban = content["iban"]
+    pay_date = datetime.datetime.strptime(content["pay_date"], "%Y-%m-%d")
+    boost_date = datetime.datetime.strptime(content["boost_date"], "%Y-%m-%d")
     product_id = int(content["product_id"])
 
     product = Products.query.get(int(product_id))
@@ -28,9 +30,9 @@ def create_trade():
     if product is None:
         raise ProductException(str(id), "Product not found")
 
-    trade_id = Payments.add(product_id, seller_id, buyer_id)
+    payment_id = Payments.add(amount, iban, pay_date, boost_date, product_id)
 
-    resp = api_resp(0, "info", str(trade_id))
+    resp = api_resp(0, "info", str(payment_id))
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
@@ -40,20 +42,33 @@ def create_trade():
 @bp.route('/payment/<int:id>/close', methods=['PUT'])
 @login_required
 def payment_close(id):
-    trade = Payments.query.get(int(id))
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    price = float(content["price"])
+    products = content["products"]
+
+    trade = Trades.query.get(int(id))
 
     if trade is None:
         raise TradeException(str(id))
 
-    # TODO Cambiar requisito para k sea mas normal esto?
-    # if trade.user_sell != current_user.id and trade.user_buy != current_user.id:
-    if trade.user_sell != current_user.id:
-        raise UserNotPermission(str(id), "Tis user (" + str(current_user.nick) + ") is not related with this trade")
+    if trade.user_sell != current_user.id and trade.user_buy != current_user.id:
+        raise UserNotPermission(str(id), "This user (" + str(current_user.nick) + ") is not related with this trade")
 
-    trade.closed_b = True
-    trade.closed_s = True
+    # Set the price
 
-    resp = api_resp(0, "info", "Success close for trade " + '(' + str(id) + ')')
+    trade.set_price(price)
+
+    # Add products to the offer
+
+    TradesOffers.delete_all(id)
+    for p in products:
+        TradesOffers.add_product(id, p)
+
+    resp = api_resp(0, "info", "Successful offer update")
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
