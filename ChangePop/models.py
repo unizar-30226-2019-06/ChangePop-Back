@@ -327,6 +327,30 @@ class Reports(db.Model):
     report_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=True,
                             default=datetime.datetime.utcnow())
 
+    @staticmethod
+    def new_report(user_id, product_id, reason):
+        r = Reports(user_id=user_id, product_id=product_id, reason=reason)
+        db.session.add(r)
+        db.session.commit()
+        db.session.flush()
+
+        return r.id
+
+    @staticmethod
+    def list():
+        # TODO doc
+        list = Reports.query.all()
+        return list
+
+    def delete_me(self):
+        # TODO doc
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def delete_by_id(report_id):
+        Reports.query.get(report_id).delete_me()
+
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.reason, self.user_id, self.product_id)
 

@@ -720,7 +720,6 @@ class UploadFiles(unittest.TestCase):
             self.user_id = \
                 self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
                     "message"]
-            self.app.put('/user/' + str(self.user_id) + '/mod')
 
     def test_upload(self):
         with warnings.catch_warnings():
@@ -750,6 +749,83 @@ class UploadFiles(unittest.TestCase):
 
             self.app.delete('/user')
 
+
+class Reports(unittest.TestCase):
+
+    def setUp(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
+
+            # Create users and login
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.put('/user/' + str(self.user_id) + '/mod')
+
+    def test_new_report(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "reason": "Porque si y punto en boca"
+            })
+            r_json = self.app.post('/report', data=json_data, content_type='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful upload
+
+            product_id = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()["message"]
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "product_id": product_id,
+                "reason": "Porque si y punto en boca otra vez"
+            })
+            r_json = self.app.post('/report', data=json_data, content_type='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful upload
+
+    def test_get_reports(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "reason": "Porque si y punto en boca"
+            })
+            self.app.post('/report', data=json_data, content_type='application/json')
+
+            r_json = self.app.get('/reports').get_json()
+            self.assertIn('Porque si y punto en boca', str(r_json))  # Check successful get
+
+    def test_delete_report(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "reason": "Porque si y punto en boca"
+            })
+            id = self.app.post('/report', data=json_data, content_type='application/json').get_json()["message"]
+
+            r_json = self.app.delete('/report/'+str(id)).get_json()
+            self.assertIn('deleted', str(r_json))  # Check successful upload
+
+            r_json = self.app.get('/reports').get_json()
+            self.assertNotIn('Porque si y punto en boca', str(r_json))
+
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.delete('/user')
 
 if __name__ == "__main__":
     unittest.main()
