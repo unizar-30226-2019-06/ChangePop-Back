@@ -29,7 +29,6 @@ def new_category():
 
 
 @bp.route('/categories', methods=['GET'])
-@login_required
 def get_categories():
 
     categories = Categories.list()

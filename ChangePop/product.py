@@ -38,6 +38,8 @@ def create_product():
     product_id = Products.new_product(user_id, title, descript, price, place, main_img)
 
     for cat in categories:
+        if len(cat) <= 1:
+            raise ProductException(title, "Invalid categorie: " + cat)
         Categories.add_cat(cat)
         CatProducts.add_prod(cat, product_id)
 
@@ -126,6 +128,8 @@ def update_prod_info(id):
     Images.delete_images_by_prod(id)
 
     for cat in categories:
+        if len(cat) <= 1:
+            raise ProductException(title, "Invalid categorie: " + cat)
         Categories.add_cat(cat)
         CatProducts.add_prod(cat, id)
 
