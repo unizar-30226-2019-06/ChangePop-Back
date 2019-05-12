@@ -14,6 +14,7 @@ app.register_blueprint(notify.bp)
 app.register_blueprint(uploads.bp)
 app.register_blueprint(payment.bp)
 
+
 @app.route('/')
 def show():
     return render_template('index.html')
