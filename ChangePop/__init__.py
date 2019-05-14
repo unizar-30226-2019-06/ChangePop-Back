@@ -12,11 +12,13 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_login import LoginManager
 from flask_wtf import CsrfProtect
+from flask_cors import CORS
 
 UPLOAD_FOLDER = 'images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__, instance_relative_config=True, static_folder='static')
+CORS(app)
 app.config.from_object(Config)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
