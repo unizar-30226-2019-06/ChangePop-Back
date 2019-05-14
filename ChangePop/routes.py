@@ -21,6 +21,11 @@ def show():
     return render_template('index.html')
 
 
+@app.route('/test_request')
+def show():
+    return render_template('test.html')
+
+
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
     return 'bad request!' + "e", 400
