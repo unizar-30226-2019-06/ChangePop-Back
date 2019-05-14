@@ -22,7 +22,7 @@ def show():
 
 
 @app.route('/test_request')
-def show():
+def show_test():
     return render_template('test.html')
 
 
