@@ -433,6 +433,18 @@ class Interests(db.Model):
     def __repr__(self):
         return '{},{}'.format(self.cat_name, self.user_id)
 
+    @staticmethod
+    def add_interest(cat_name, user_id):
+        c = Interests.query.get(cat_name,user_id)
+        if c is None:
+            c = Interests(cat_name=cat_name, user_id=user_id)
+            db.session.add(c)
+            db.session.commit()
+
+    @staticmethod
+    def delete_all(user_id):
+        Interests.query.filter_by(user_id=user_id).delete()
+
 
 class Follows(db.Model):
     __tablename__ = 'Follows'

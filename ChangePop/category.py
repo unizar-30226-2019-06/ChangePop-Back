@@ -4,7 +4,7 @@ from flask import Blueprint, request, json, Response
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
-from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages, Categories
+from ChangePop.models import Products, Bids, Comments, Users, Interests, Messages, Categories
 from ChangePop.utils import api_resp
 
 bp = Blueprint('category', __name__)
@@ -56,3 +56,32 @@ def delete_categories():
 
     return Response(json.dumps(resp), status=200, content_type='application/json')'''
 
+
+
+@bp.route('/categories/interest', methods=['POST'])
+@login_required
+def new_interest():
+
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+    categories_list = content["list"]
+    user=current_user.id
+
+    for cat in categories_list:
+        Interests.new_interest(cat,user)
+
+    resp = api_resp(0, "info", "Interest pushed")
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')
+
+@bp.route('/categories/interest', methods=['DELETE'])
+@login_required
+def delete_interest():
+
+    Interests.delete_all(current_user.id)
+
+    resp = api_resp(0, "info", "Successful delete")
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')
