@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException
 from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users
-from ChangePop.utils import api_resp
+from ChangePop.utils import api_resp, fix_str
 
 bp = Blueprint('product', __name__)
 
@@ -62,12 +62,12 @@ def get_prod_info(id):
     categories = CatProducts.get_cat_names_by_prod(id)
     cats = []
     for cat in categories:
-        cats.append(str(cat))
+        cats.append(fix_str(str(cat)))
 
     images = Images.get_images_by_prod(id)
     imgs = []
     for img in images:
-        imgs.append(str(img))
+        imgs.append(fix_str(str(img)))
 
     product_json = {
 
@@ -173,7 +173,7 @@ def list_products():
         categories = CatProducts.get_cat_names_by_prod(prod.id)
         cats = []
         for cat in categories:
-            cats.append(str(cat))
+            cats.append(fix_str(str(cat)))
 
         item = {
             "id": int(prod.id),
@@ -209,12 +209,12 @@ def list_products_user(id):
         categories = CatProducts.get_cat_names_by_prod(prod.id)
         cats = []
         for cat in categories:
-            cats.append(str(cat))
+            cats.append(fix_str(str(cat)))
 
         images = Images.get_images_by_prod(id)
         imgs = []
         for img in images:
-            imgs.append(str(img))
+            imgs.append(fix_str(str(img)))
 
         item = {
             "id": int(prod.id),

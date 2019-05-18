@@ -1,3 +1,5 @@
+import re
+
 
 def api_resp(code, mtype, msg):
     # TODO Doc
@@ -6,3 +8,8 @@ def api_resp(code, mtype, msg):
         "type": str(mtype),
         "message": str(msg)}
     return r
+
+
+def fix_str(string):
+    string = re.sub('[\'(),]', '', string)
+    return string
