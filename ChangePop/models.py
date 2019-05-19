@@ -344,7 +344,30 @@ class Payments(db.Model):
     def __repr__(self):
         return '{},{},{}'.format(self.id, self.amount, self.product_id)
 
+    @staticmethod
+    def list():
+        # TODO doc
+        list = Payments.query.all()
+        return list
 
+    def delete_me(self):
+        # TODO doc
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def add(amount, iban, product_id):
+        p = Products.query.get(product_id)
+
+        pays = Payments(product_id=product_id,
+                   amount=amount,
+                   iban=iban)
+
+        db.session.add(pays)
+        db.session.commit()
+        db.session.flush()
+
+        return pays.id
 class Comments(db.Model):
     __tablename__ = 'Coments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)

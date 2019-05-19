@@ -21,8 +21,6 @@ def create_payment():
 
     amount = content["amount"]
     iban = content["iban"]
-    pay_date = datetime.datetime.strptime(content["pay_date"], "%Y-%m-%d")
-    boost_date = datetime.datetime.strptime(content["boost_date"], "%Y-%m-%d")
     product_id = int(content["product_id"])
 
     product = Products.query.get(int(product_id))
@@ -30,7 +28,7 @@ def create_payment():
     if product is None:
         raise ProductException(str(id), "Product not found")
 
-    payment_id = Payments.add(amount, iban, pay_date, boost_date, product_id)
+    payment_id = Payments.add(amount, iban, product_id)
 
     resp = api_resp(0, "info", str(payment_id))
 
@@ -39,62 +37,46 @@ def create_payment():
 
 
 
-@bp.route('/payment/<int:id>/close', methods=['PUT'])
+@bp.route('/payment/check/<int:id>', methods=['PUT'])
 @login_required
-def payment_close(id):
+def payment_put(id):
     if not request.is_json:
         raise JSONExceptionHandler()
 
-    content = request.get_json()
+    product = Products.query.get(int(id))
 
-    price = float(content["price"])
-    products = content["products"]
+    if product is None:
+        raise ProductException(str(id), "Payment of product not found")
 
-    trade = Trades.query.get(int(id))
-
-    if trade is None:
-        raise TradeException(str(id))
-
-    if trade.user_sell != current_user.id and trade.user_buy != current_user.id:
-        raise UserNotPermission(str(id), "This user (" + str(current_user.nick) + ") is not related with this trade")
-
-    # Set the price
-
-    trade.set_price(price)
-
-    # Add products to the offer
-
-    TradesOffers.delete_all(id)
-    for p in products:
-        TradesOffers.add_product(id, p)
-
-    resp = api_resp(0, "info", "Successful offer update")
+    Payments.query.get(int(id)).delete_me()
+    resp = api_resp(0, "info", "Payment: " + str(id) + " deleted")
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
 
 
 @bp.route('/payment', methods=['GET'])
 @login_required
 def get_list_payments():
+    payments = Payments.list()
 
-    trades = Payments.get_trades(current_user.id)
+    payments_list = []
 
-    trades_list = []
-    for t in trades:
-        product = Products.query.get(t.product_id)
-        t_json = {
-            "id": int(t.id),
-            "product_id": int(t.product_id),
-            "product_title": str(product.title),
-            "seller_id": int(t.user_sell),
-            "buyer_id": int(t.user_buy),
-            "closed": bool(t.closed_s and t.closed_b),
-            "price": float(t.price),
-            "last_edit": str(t.ts_edit)
+    for pay in payments:
+
+        item = {
+            "id": int(pay.id),
+            "pay_date": str(pay.pay_date),
+            "amount": float(pay.amount),
+            "iban": str(pay.iban),
+            "boost_date": str(pay.boost_date),
+            "product_id": int(pay.product_id),
+
         }
 
-        trades_list.append(str(t_json))
+        payments_list.append(item)
 
-    json_trades = {"length": len(trades_list), "list": trades_list}
+    json_products = {"length": len(payments_list), "list": payments_list}
 
-    return Response(json.dumps(json_trades), status=200, content_type='application/json')
+    return Response(json.dumps(json_products), status=200, content_type='application/json')
+
