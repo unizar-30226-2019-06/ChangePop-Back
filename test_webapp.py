@@ -827,5 +827,64 @@ class Reports(unittest.TestCase):
 
             self.app.delete('/user')
 
+
+class Interest(unittest.TestCase):
+
+    def setUp(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
+
+            # Create users and login
+            self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.put('/user/' + str(self.user_id) + '/mod')
+
+    def test_delete_all_interests(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "user_id": self.user_id,
+                "product_id": 0,
+                "category": "null",
+                "text": "Nuevo producto en categoria e interés"
+
+            })
+            self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
+
+            json_data = json.dumps({
+                "list": ["moda"]
+
+            })
+            r_json = self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
+
+            json_data = json.dumps({
+                "list":["electronica"]
+            })
+            self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
+
+            r_json = self.app.delete('/categories/interest').get_json()
+            self.assertIn('Successful delete', str(r_json))  # Check successful
+
+            r_json = self.app.get('/categories/interest').get_json()
+            self.assertIn('0', str(r_json))  # Check successful get 0 elements
+
+
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.delete('/user')
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
