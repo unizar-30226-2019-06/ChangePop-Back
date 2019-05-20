@@ -79,7 +79,7 @@ def delete_notifications():
 
 @bp.route('/notification/<int:id>', methods=['DELETE'])
 @login_required
-def delete_notifications(id):
+def delete_notification_id(id):
 
     Notifications.delete_id(id)
 
