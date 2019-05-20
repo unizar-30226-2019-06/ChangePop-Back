@@ -867,9 +867,13 @@ class Interest(unittest.TestCase):
             json_data = json.dumps({
                 "list":["electronica"]
             })
+
+
             self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
 
-            r_json = self.app.delete('/categories/interest').get_json()
+            self.app.get('/categories/interest').get_json()
+
+            r_json = self.app.delete('/categories/interest', data=json_data, content_type='application/json' ).get_json()
             self.assertIn('Successful delete', str(r_json))  # Check successful
 
             r_json = self.app.get('/categories/interest').get_json()
