@@ -76,3 +76,13 @@ def delete_notifications():
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
+
+@bp.route('/notification/<int:id>', methods=['DELETE'])
+@login_required
+def delete_notifications(id):
+
+    Notifications.delete_id(id)
+
+    resp = api_resp(0, "info", "Successful delete")
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')

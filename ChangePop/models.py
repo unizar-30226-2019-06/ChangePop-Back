@@ -591,6 +591,11 @@ class Notifications(db.Model):
         db.session.commit()
 
     @staticmethod
+    def delete_id(id):
+        Notifications.query.filter_by(id=id).delete()
+        db.session.commit()
+
+    @staticmethod
     def delete_all(user):
         Notifications.query.filter_by(user_id=user).delete()
         db.session.commit()
