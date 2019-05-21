@@ -64,6 +64,8 @@ def get_prod_info(id):
     for cat in categories:
         cats.append(fix_str(str(cat)))
 
+    product.increment_views()
+
     images = Images.get_images_by_prod(id)
     imgs = []
     for img in images:

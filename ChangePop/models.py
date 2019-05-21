@@ -296,6 +296,11 @@ class Products(db.Model):
         self.bid_date = bid
         db.session.commit()
 
+    def increment_views(self):
+        self.visits = self.visits + 1
+
+
+
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
 
