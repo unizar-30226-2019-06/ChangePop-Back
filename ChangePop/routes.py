@@ -1,9 +1,10 @@
-from flask import render_template, Response, json
+from flask import render_template, Response, json, send_file
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
 from ChangePop import app, user, product, bids, trade, commsg, notify, uploads, reports, payment, category
 from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned, ProductException
+from ChangePop.utils import send_mail
 
 app.register_blueprint(user.bp)
 app.register_blueprint(product.bp)
@@ -30,6 +31,17 @@ def show_test():
 @app.route('/test_login')
 def show_test_login():
     return render_template('test_login.html')
+
+
+@app.route('/test_mail')
+def test_mail():
+    json_resp = send_mail()
+    return Response(json_resp, status=200, content_type='application/json')
+
+
+@app.route('/<path:dirr>')
+def file_for_mailjet(dirr):
+    return send_file('static/' + dirr)
 
 
 @app.errorhandler(BadRequest)
