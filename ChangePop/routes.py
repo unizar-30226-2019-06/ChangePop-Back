@@ -27,6 +27,11 @@ def show_test():
     return render_template('test.html')
 
 
+@app.route('/test_login')
+def show_test():
+    return render_template('test_login.html')
+
+
 @app.errorhandler(BadRequest)
 def handle_bad_request(e):
     return 'bad request!' + "e", 400
