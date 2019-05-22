@@ -70,7 +70,7 @@ def new_interest():
     user=current_user.id
 
     for cat in categories_list:
-        Interests.new_interest(cat,user)
+        Interests.add_interest(cat,user)
 
     resp = api_resp(0, "info", "Interest pushed")
 
@@ -80,8 +80,34 @@ def new_interest():
 @login_required
 def delete_interest():
 
-    Interests.delete_all(current_user.id)
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+    categories_list = content["list"]
+    user=current_user.id
+
+    for cat in categories_list:
+        Interests.delete_interest(cat,user)
 
     resp = api_resp(0, "info", "Successful delete")
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
+@bp.route('/categories/interest', methods=['GET'])
+@login_required
+def get_interest():
+
+    categories = Interests.interest_byUser(current_user.id)
+
+    categories_list = []
+
+    for cat in categories:
+
+        item = cat.cat_name
+
+        categories_list.append(item)
+
+    json_categories = {"length": len(categories_list), "list": categories_list}
+
+    return Response(json.dumps(json_categories), status=200, content_type='application/json')

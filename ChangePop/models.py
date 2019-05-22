@@ -296,6 +296,11 @@ class Products(db.Model):
         self.bid_date = bid
         db.session.commit()
 
+    def increment_views(self):
+        self.visits = self.visits + 1
+
+
+
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
 
@@ -465,8 +470,18 @@ class Interests(db.Model):
             db.session.commit()
 
     @staticmethod
+    def interest_byUser(id):
+        list = Interests.query.filter_by(user_id=id)
+        return list
+
+
+    @staticmethod
     def delete_all(user_id):
         Interests.query.filter_by(user_id=user_id).delete()
+
+    @staticmethod
+    def delete_interest(cat, user_id):
+        Interests.query.filter_by(user_id=user_id, cat_name=cat).delete()
 
 
 class Follows(db.Model):
