@@ -1,4 +1,4 @@
-from flask import render_template, Response, json, send_file
+from flask import render_template, Response, json, send_file, request
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
@@ -35,8 +35,12 @@ def show_test_login():
 
 @app.route('/test_mail')
 def test_mail():
-    json_resp = send_mail()
-    return Response(json_resp, status=200, content_type='application/json')
+    mail = request.args.get('mail')
+    subject = "Test"
+    text = "Dear passenger 1, welcome to Mailjet! May the delivery force be with you!"
+    html = "<h3>Dear passenger 1, welcome to <a href='https://www.mailjet.com/'>Mailjet</a>!</h3><br />May the delivery force be with you!"
+    send_mail(mail, mail, subject, text, html)
+    return "ok (creo xD)"
 
 
 @app.route('/<path:dirr>')

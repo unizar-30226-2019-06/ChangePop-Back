@@ -1,4 +1,7 @@
+import random
 import re
+import string
+
 from mailjet_rest import Client
 import os
 
@@ -11,11 +14,17 @@ def api_resp(code, mtype, msg):
     return r
 
 
+def random_string(string_length=20):
+    """Generate a random string of fixed length """
+    letters = "abcdefghijklmnopqrstuvwxyz0123456789"
+    return ''.join(random.choice(letters) for i in range(string_length))
+
+
 def fix_str(string):
     string = re.sub('[\'(),]', '', string)
     return string
 
-def send_mail():
+def send_mail(mail,name,subject,textPart,htmlPart):
 
     api_key = "288ca9ac426b3e41809ee9c8a429a974"
     api_secret = "1f29a950828de1e093e7c8d4b74bd5ab"
@@ -24,22 +33,21 @@ def send_mail():
       'Messages': [
                     {
                             "From": {
-                                    "Email": "info@kalepa.com",
+                                    "Email": "info@kelpa-api.herokuapp.com",
                                     "Name": "Kalepa Info"
                             },
                             "To": [
                                     {
-                                            "Email": "javiergimenezgarces@gmail.com",
-                                            "Name": "passenger 1"
+                                            "Email": mail,
+                                            "Name": name
                                     }
                             ],
-                            "Subject": "Your email flight plan!",
-                            "TextPart": "Dear passenger 1, welcome to Mailjet! May the delivery force be with you!",
-                            "HTMLPart": "<h3>Dear passenger 1, welcome to <a href='https://www.mailjet.com/'>Mailjet</a>!</h3><br />May the delivery force be with you!"
+                            "Subject": subject,
+                            "TextPart": textPart,
+                            "HTMLPart": htmlPart
                     }
             ]
     }
     result = mailjet.send.create(data=data)
-    print(result.status_code)
     return result.json()
 

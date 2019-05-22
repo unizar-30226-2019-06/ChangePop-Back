@@ -7,15 +7,9 @@ from flask_login import current_user, login_user, logout_user, login_required
 from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned, \
     NotLoggedIn
 from ChangePop.models import Users
-from ChangePop.utils import api_resp
+from ChangePop.utils import api_resp, send_mail, random_string
 
 bp = Blueprint('user', __name__)
-
-"""
-si lo quereis porbar poned este codigo en consola de linux o git:
-
-curl -X POST "http://127.0.0.1:5000/user" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"id\": 0,  \"nick\": \"string\",  \"first_name\": \"string\",  \"last_name\": \"string\",  \"mail\": \"string\",  \"pass_hash\": \"string\",  \"phone\": 0,  \"is_mod\": true,  \"ban_reason\": \"string\",  \"points\": 0,  \"avatar\": \"string\",  \"fnac\": \"2019-04-05\",  \"dni\": 0,  \"place\": \"string\"}"
-"""
 
 
 @bp.route('/user', methods=['POST'])
@@ -42,9 +36,43 @@ def create_user():
     place = content["place"]
     mail = content["mail"]
 
-    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail)
+    token = random_string()
+    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail, token)
+
+    subject = "Confirma tu cuenta"
+    text = "Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación"
+    link = './user/' + str(user_id) + '/validate?token=' + token
+    html = "<h3> Link para confirmar: <a href='" + link + "'>Validar</a>!</h3><br />Comienza a intercambiar!"
+    send_mail(mail, first_name + " " + last_name, subject, text, html)
 
     resp = api_resp(0, "info", user_id)
+
+    # Debug commands
+    if first_name == 'Foo':
+        user = Users.query.get(int(user_id))
+        user.validate_me()
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/user/<int:id>/validate', methods=['POST'])
+def validate_user(id):
+    token = request.args.get('token')
+
+    if token is None:
+        raise Exception(str(token), "Token is none")
+
+    user = Users.query.get(int(id))
+
+    if user is None:
+        raise UserException(str(id))
+
+    if token != user.token:
+        raise UserException(str(token), "Worng Token")
+
+    Users.validate(id)
+
+    resp = api_resp(0, "info", "User (" + str(id) + ") validated")
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
@@ -128,6 +156,9 @@ def login():
 
     if user is None:
         raise UserException(str(nick))
+
+    if not user.is_validated:
+        raise UserException(str(nick), "Mail not validated")
 
     if not user.check_password(pass_):
         raise UserPassException(str(nick))

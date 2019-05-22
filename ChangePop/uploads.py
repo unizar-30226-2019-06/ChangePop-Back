@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from ChangePop import app, ALLOWED_EXTENSIONS
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
 from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages, Notifications
-from ChangePop.utils import api_resp
+from ChangePop.utils import api_resp, random_string
 
 bp = Blueprint('uploads', __name__)
 
@@ -18,12 +18,6 @@ bp = Blueprint('uploads', __name__)
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def random_string(string_length=20):
-    """Generate a random string of fixed length """
-    letters = string.ascii_lowercase+"0123456789"
-    return ''.join(random.choice(letters) for i in range(string_length))
 
 
 @bp.route('/upload', methods=['POST'])

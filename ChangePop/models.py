@@ -49,6 +49,7 @@ class Users(UserMixin, db.Model):
     phone = db.Column(db.Integer, unique=True, nullable=False)
     mail = db.Column(db.String(255), unique=True, index=True, nullable=False)
     is_mod = db.Column(db.Boolean, unique=False, nullable=False)
+    is_validated = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     dni = db.Column(db.String(255), unique=True, index=True, nullable=False)
     avatar = db.Column(db.String(255), unique=False, nullable=False)
     fnac = db.Column(db.Date, unique=False, nullable=False)
@@ -83,7 +84,7 @@ class Users(UserMixin, db.Model):
         return user.nick
 
     @staticmethod
-    def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
+    def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail, token):
         # TODO doc
         u = Users(nick=nick,
                   last_name=last_name,
@@ -96,7 +97,9 @@ class Users(UserMixin, db.Model):
                   fnac=fnac,
                   is_mod=False,
                   mail=mail,
-                  avatar="http://127.0.0.1:5000/static/images/logo.jpg"
+                  avatar="./static/images/logo.jpg",
+                  is_validated=False,
+                  token=token
                   )
         u.set_password(pass_hash)
         db.session.add(u)
@@ -166,6 +169,10 @@ class Users(UserMixin, db.Model):
     def delete_me(self):
         # TODO doc
         db.session.delete(self)
+        db.session.commit()
+
+    def validate_me(self):
+        self.is_validated = True
         db.session.commit()
 
     def mod_me(self):
