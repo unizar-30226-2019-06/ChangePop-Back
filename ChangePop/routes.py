@@ -28,7 +28,7 @@ def show_test():
 
 
 @app.route('/test_login')
-def show_test():
+def show_test_login():
     return render_template('test_login.html')
 
 
