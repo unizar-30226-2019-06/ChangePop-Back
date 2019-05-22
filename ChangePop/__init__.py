@@ -21,6 +21,10 @@ app = Flask(__name__, instance_relative_config=True, static_folder='static')
 CORS(app)
 app.config.from_object(Config)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+#app.config['SESSION_COOKIE_SECURE'] = False
+#app.config['REMEMBER_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_HTTPONLY'] = False
+app.config['REMEMBER_COOKIE_HTTPONLY'] = False
 
 db = SQLAlchemy(app)
 login = LoginManager(app)
@@ -43,7 +47,7 @@ manager.add_command('db', MigrateCommand)
 from flask import g
 from flask.sessions import SecureCookieSessionInterface
 
-
+'''
 class CustomSessionInterface(SecureCookieSessionInterface): # pragma: no cover
     """Prevent creating session from API requests."""
     def save_session(self, *args, **kwargs):
@@ -53,7 +57,7 @@ class CustomSessionInterface(SecureCookieSessionInterface): # pragma: no cover
                                                              **kwargs)
 
 
-app.session_interface = CustomSessionInterface()
+app.session_interface = CustomSessionInterface()'''
 
 
 from ChangePop.exeptions import NotLoggedIn

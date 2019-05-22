@@ -307,3 +307,42 @@ def search_products():
     json_users = {"length": len(products_list), "list": products_list}
 
     return Response(json.dumps(json_users), status=200, content_type='application/json')
+
+
+@bp.route('/search/products', methods=['GET'])
+def search_products_advanced():
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    product = Products.query.get(int(id))
+
+    if product is None:
+        raise ProductException(str(id), "Product not found")
+
+    if product.user_id != current_user.id:
+        raise UserNotPermission(str(current_user.id), "This user doesnt own this product" + str(id))
+
+
+
+    title_search = request.args.get('text')
+
+    if title_search is None:
+        raise Exception(str(title_search))
+
+    products = Products.search(title_search)
+
+    products_list = []
+
+    for prod in products:
+        item = {
+            "id": str(prod.id),
+            "title": str(prod.title)
+        }
+
+        products_list.append(item)
+
+    json_users = {"length": len(products_list), "list": products_list}
+
+    return Response(json.dumps(json_users), status=200, content_type='application/json')
