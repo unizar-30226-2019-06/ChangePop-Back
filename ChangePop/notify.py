@@ -80,6 +80,7 @@ def delete_notifications():
 @bp.route('/notification/<int:id>', methods=['DELETE'])
 @login_required
 def delete_notification_id(id):
+    # TODO comprobar k la noty es del user loged
 
     Notifications.delete_id(id)
 

@@ -72,6 +72,7 @@ def validate_user(id):
         raise UserException(str(token), "Worng Token")
 
     user.validate_me()
+    user.set_token(random_string())
 
     return render_template('close.html')
 

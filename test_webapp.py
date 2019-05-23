@@ -66,8 +66,8 @@ class UserDataBase(unittest.TestCase):
 
     user_update = json.dumps({
         "nick": "Alice",
-        "first_name": "FooFoo",
-        "last_name": "Bar",
+        "first_name": "Foo",
+        "last_name": "BarBar",
         "mail": "mail@email.com",
         "pass": "pass",
         "phone": "666999222",
@@ -137,7 +137,7 @@ class UserDataBase(unittest.TestCase):
             self.assertIn(str(id), msg)  # Check successful update
 
             r = self.app.get('/user').get_json()
-            self.assertIn("FooFoo", str(r))  # Check sucessful update
+            self.assertIn("BarBar", str(r))  # Check sucessful update
 
             self.app.delete('/user')
 
