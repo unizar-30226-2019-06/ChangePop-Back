@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional, Any
 
-from flask import Blueprint, request, json, Response
+from flask import Blueprint, request, json, Response, render_template
 from flask_login import current_user, login_user, logout_user, login_required
 
 from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned, \
@@ -41,16 +41,18 @@ def create_user():
 
     subject = "Confirma tu cuenta"
     text = "Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación"
-    link = './user/' + str(user_id) + '/validate?token=' + token
+    link = request.host_url + '/user/' + str(user_id) + '/validate?token=' + token
     html = "<h3> Link para confirmar: <a href='" + link + "'>Validar</a>!</h3><br />Comienza a intercambiar!"
-    send_mail(mail, first_name + " " + last_name, subject, text, html)
 
-    resp = api_resp(0, "info", user_id)
-
-    # Debug commands
     if first_name == 'Foo':
         user = Users.query.get(int(user_id))
         user.validate_me()
+    else:
+        send_mail(mail, first_name + " " + last_name, subject, text, html)
+
+    resp = api_resp(0, "info", user_id)
+
+
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
@@ -72,9 +74,7 @@ def validate_user(id):
 
     Users.validate(id)
 
-    resp = api_resp(0, "info", "User (" + str(id) + ") validated")
-
-    return Response(json.dumps(resp), status=200, content_type='application/json')
+    return render_template('close.html')
 
 
 @bp.route('/user', methods=['GET'])
