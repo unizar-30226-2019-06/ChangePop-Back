@@ -246,7 +246,7 @@ def get_user_follows():
 def get_user(id):
     # TODO doc
 
-    if not current_user.is_mod or False:
+    if not current_user.is_mod and False:
         raise UserNotPermission(str(current_user.nick))
 
     user = Users.query.get(int(id))
