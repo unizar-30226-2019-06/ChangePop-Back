@@ -41,7 +41,8 @@ def create_user():
 
     subject = "Confirma tu cuenta"
     text = "Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación"
-    link = request.host_url + '/user/' + str(user_id) + '/validate?token=' + token
+    link = request.host_url + 'user/' + str(user_id) + '/validate?token=' + token
+    print(link)
     html = "<h3> Link para confirmar: <a href='" + link + "'>Validar</a>!</h3><br />Comienza a intercambiar!"
 
     if first_name == 'Foo':
@@ -52,12 +53,10 @@ def create_user():
 
     resp = api_resp(0, "info", user_id)
 
-
-
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
-@bp.route('/user/<int:id>/validate', methods=['POST'])
+@bp.route('/user/<int:id>/validate', methods=['GET'])
 def validate_user(id):
     token = request.args.get('token')
 
@@ -72,7 +71,7 @@ def validate_user(id):
     if token != user.token:
         raise UserException(str(token), "Worng Token")
 
-    Users.validate(id)
+    user.validate_me()
 
     return render_template('close.html')
 
