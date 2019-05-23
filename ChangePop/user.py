@@ -40,10 +40,10 @@ def create_user():
     user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail, token)
 
     subject = "Confirma tu cuenta"
-    text = "Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación"
     link = request.host_url + 'user/' + str(user_id) + '/validate?token=' + token
-    print(link)
-    html = "<h3> Link para confirmar: <a href='" + link + "'>Validar</a>!</h3><br />Comienza a intercambiar!"
+    text = "Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación, link:" + link
+    html = "<p>Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación</p>" \
+           "<h3> Link para confirmar: <a href='" + link + "'>Validar</a>!</h3><br />Comienza a intercambiar!"
 
     if first_name == 'Foo':
         user = Users.query.get(int(user_id))
@@ -136,9 +136,42 @@ def update_logged_user():
 @login_required
 def delete_logged_user():
     user_id = current_user.id
-    current_user.delete_me()
-    resp = api_resp(0, "info", "User: " + str(user_id) + " deleted")
+
+    if current_user.first_name == 'Foo':
+        current_user.delete_me()
+    else:
+        token = random_string()
+        current_user.set_token(token)
+        subject = "Confirma para eliminar tu cuenta"
+        link = request.host_url + 'user/' + str(user_id) + '/delete?token=' + token
+        text = "Necesitamos que confirmes para eliminar tu cuenta, link: " + link
+        html = "<p>Necesitamos que confirmes para eliminar tu cuenta</p>" \
+               "<h3> Link para eliminar: <a href='" + link + "'>Eliminar</a>!</h3><br />Se borraran todos tu datos y " \
+                                                              "productos, intercambios y demás objetos asociados"
+        send_mail(current_user.mail, current_user.first_name + " " + current_user.last_name, subject, text, html)
+
+    resp = api_resp(0, "info", "User: " + str(user_id) + " ready to deleted (mail)")
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/user/<int:id>/delete', methods=['GET'])
+def validate_delete_user(id):
+    token = request.args.get('token')
+
+    if token is None:
+        raise Exception(str(token), "Token is none")
+
+    user = Users.query.get(int(id))
+
+    if user is None or not user.is_validated:
+        raise UserException(str(id))
+
+    if token != user.token:
+        raise UserException(str(token), "Worng Token")
+
+    user.delete_me()
+
+    return render_template('close.html')
 
 
 @bp.route('/login', methods=['POST'])
@@ -213,7 +246,7 @@ def get_user_follows():
 def get_user(id):
     # TODO doc
 
-    if not current_user.is_mod:
+    if not current_user.is_mod or False:
         raise UserNotPermission(str(current_user.nick))
 
     user = Users.query.get(int(id))

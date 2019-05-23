@@ -171,6 +171,10 @@ class Users(UserMixin, db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def set_token(self, token):
+        self.token = token
+        db.session.commit()
+
     def validate_me(self):
         self.is_validated = True
         db.session.commit()
