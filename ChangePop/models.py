@@ -197,6 +197,7 @@ class Users(UserMixin, db.Model):
 
     def unfollow_prod(self, id):
         Follows.query.filter_by(user_id=self.id, product_id=id).delete()
+        db.session.commit()
 
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
@@ -414,6 +415,8 @@ class Payments(db.Model):
         db.session.flush()
 
         return pays.id
+
+
 class Comments(db.Model):
     __tablename__ = 'Coments'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, index=True, nullable=False)

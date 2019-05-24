@@ -375,7 +375,7 @@ class ProductDataBase(unittest.TestCase):
             self.assertIn('unfollows', str(r_json))  # Check successful unfollow
 
             r_json = self.app.get('/user/follows').get_json()
-            self.assertIn('Producto Molongo', str(r_json))  # Check the follows
+            self.assertNotIn('Producto Molongo', str(r_json)) # Check the unfollows
 
     def test_ban_products(self):
         with warnings.catch_warnings():
