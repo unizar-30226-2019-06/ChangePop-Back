@@ -232,9 +232,11 @@ def get_user_follows():
               "title": str(prod.title),
               "descript": str(prod.descript),
               "price": str(prod.price),
-              "main_img": str(prod.main_img),
-              "bid_date": str(prod.bid_date),
+              "main_img": str(prod.main_img)
             }
+
+        if prod.bid_date is not None:
+            item["bid_date"] = str(prod.bid_date)
 
         prod_list.append(item)
 
