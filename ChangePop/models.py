@@ -128,8 +128,7 @@ class Users(UserMixin, db.Model):
                                          Products.price,
                                          Products.main_img,
                                          Products.bid_date).join(Follows,
-                                                                 Users,
-                                                                 Images).filter(my_id == Follows.user_id,
+                                                                 Users).filter(my_id == Follows.user_id,
                                                                                 Products.id == Follows.product_id)
 
         return products_list
