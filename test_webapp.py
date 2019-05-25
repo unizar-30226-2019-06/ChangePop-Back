@@ -34,6 +34,7 @@ class UserDataBase(unittest.TestCase):
         "fnac": "2019-04-07",
         "dni": "123456789",
         "place": "Madrid",
+        "desc": "Hi I am the fuking Alice",
         "token": "2sf78gsf68hsf5asfh68afh68a58fha68f"
     })
     user_data2 = json.dumps({
@@ -51,6 +52,7 @@ class UserDataBase(unittest.TestCase):
         "fnac": "2019-04-07",
         "dni": "167666666",
         "place": "Madrid",
+        "desc": "Hi I am the fuking Alice2",
         "token": "2sf78gsf68hsf5asfh68afh6gha68f"
     })
     user_login = json.dumps({
@@ -78,6 +80,7 @@ class UserDataBase(unittest.TestCase):
         "fnac": "2019-04-07",
         "dni": "123456789",
         "place": "Madrid",
+        "desc": "Hi I am the fuking Alice updated",
         "token": "2sf78gsf68hsf5asfh68afh68a58fha68f",
         "pass_hash": "s32uh5423j5h23jh52jh35"
     })

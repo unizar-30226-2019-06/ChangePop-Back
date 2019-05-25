@@ -56,6 +56,7 @@ class Users(UserMixin, db.Model):
     place = db.Column(db.String(255), unique=False, nullable=False)
     pass_hash = db.Column(db.String(255), nullable=False)
     token = db.Column(db.String(255))
+    desc = db.Column(db.String, unique=False, nullable=True)
     time_token = db.Column(db.DateTime(timezone=True))
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
     ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
@@ -139,7 +140,7 @@ class Users(UserMixin, db.Model):
 
         db.session.commit()
 
-    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None,
+    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, desc, is_mod=None,
                   ban_reason=None,
                   token=None, points=None, pass_hash=None):
         # TODO doc
@@ -152,6 +153,7 @@ class Users(UserMixin, db.Model):
         self.place = place
         self.mail = mail
         self.avatar = avatar
+        self.desc = desc
 
         if is_mod is not None:
             self.is_mod = is_mod
