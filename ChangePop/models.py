@@ -536,8 +536,8 @@ class Trades(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
     user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    closed_s = db.Column(db.Boolean, unique=False, nullable=False)
-    closed_b = db.Column(db.Boolean, unique=False, nullable=False)
+    closed_s = db.Column(db.Boolean, unique=False, nullable=False, default=False)
+    closed_b = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     price = db.Column(db.Float, unique=False, nullable=False)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
     ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
@@ -570,6 +570,14 @@ class Trades(db.Model):
 
     def set_price(self, price):
         self.price = price
+
+        db.session.commit()
+
+    def switch(self, who):
+        if who == 's':
+            self.closed_s = not self.closed_s
+        elif who == 'b':
+            self.closed_b = not self.closed_b
 
         db.session.commit()
 

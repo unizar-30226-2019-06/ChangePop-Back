@@ -85,6 +85,12 @@ def trade_offer(id):
     if trade is None:
         raise TradeException(str(id))
 
+    if trade.closed_s and trade.closed_b:
+        raise TradeException(str(id), "The trade is already closed, no chages allowed")
+
+    if trade.closed_s or trade.closed_b:
+        raise TradeException(str(id), "The trade is on confirm status")
+
     if trade.user_sell != current_user.id and trade.user_buy != current_user.id:
         raise UserNotPermission(str(id), "This user (" + str(current_user.nick) + ") is not related with this trade")
 
@@ -119,6 +125,9 @@ def trade_edit_offer(id):
     if trade is None:
         raise TradeException(str(id))
 
+    if trade.closed_s and trade.closed_b:
+        raise TradeException(str(id), "The trade is already closed, no chages allowed")
+
     if trade.user_sell != current_user.id and trade.user_buy != current_user.id:
         raise UserNotPermission(str(id), "This user (" + str(current_user.nick) + ") is not related with this trade")
 
@@ -137,7 +146,7 @@ def trade_edit_offer(id):
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
-@bp.route('/trade/<int:id>/close', methods=['PUT'])
+@bp.route('/trade/<int:id>/delete', methods=['PUT'])
 @login_required
 def trade_close(id):
     trade = Trades.query.get(int(id))
@@ -145,15 +154,42 @@ def trade_close(id):
     if trade is None:
         raise TradeException(str(id))
 
-    # TODO Cambiar requisito para k sea mas normal esto?
-    # if trade.user_sell != current_user.id and trade.user_buy != current_user.id:
     if trade.user_sell != current_user.id:
         raise UserNotPermission(str(id), "Tis user (" + str(current_user.nick) + ") is not related with this trade")
 
-    trade.closed_b = True
-    trade.closed_s = True
+    resp = api_resp(0, "info", "Success delete of trade " + '(' + str(id) + ')')
 
-    resp = api_resp(0, "info", "Success close for trade " + '(' + str(id) + ')')
+    return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/trade/<int:id>/confirm', methods=['PUT'])
+@login_required
+def trade_confirm(id):
+    trade = Trades.query.get(int(id))
+
+    if trade is None:
+        raise TradeException(str(id), "Trade not found")
+
+    if trade.closed_s and trade.closed_b:
+        raise TradeException(str(id), "The trade is already closed, no chages allowed")
+
+    if current_user.id == trade.user_sell:
+        trade.switch('s')
+        if trade.closed_s:
+            resp = api_resp(0, "info", "Success confirm for trade " + '(' + str(id) + ')')
+        else:
+            resp = api_resp(0, "info", "Success unconfirm for trade " + '(' + str(id) + ')')
+    elif trade.user_buy == current_user.id:
+        trade.switch('b')
+        if trade.closed_b:
+            resp = api_resp(0, "info", "Success confirm for trade " + '(' + str(id) + ')')
+        else:
+            resp = api_resp(0, "info", "Success unconfirm for trade " + '(' + str(id) + ')')
+    else:
+        raise UserNotPermission(str(id), "Tis user (" + str(current_user.nick) + ") is not related with this trade")
+
+    if trade.closed_s and trade.closed_b:
+        resp = api_resp(0, "info", "Success confirm and close for trade " + '(' + str(id) + ')')
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
@@ -178,7 +214,7 @@ def get_list_trades():
             "last_edit": str(t.ts_edit)
         }
 
-        trades_list.append(str(t_json))
+        trades_list.append(t_json)
 
     json_trades = {"length": len(trades_list), "list": trades_list}
 

@@ -522,6 +522,60 @@ class TradesProducts(unittest.TestCase):
                                   content_type='application/json').get_json()
             self.assertIn('Successful offer update', str(r_json))  # Check update
 
+            r_json = self.app.get('/trades').get_json()
+            self.assertIn('\'length\': ', str(r_json))  # Check list trades
+
+            r_json = self.app.get('/trade/' + str(trade_id)).get_json()
+            self.assertIn('\'seller_id\': ' + str(self.seller_id), str(r_json))  # Check get info
+
+            r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
+            self.assertIn('Success confirm', str(r_json))  # Check get info
+
+            r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
+            self.assertIn('Success unconfirm', str(r_json))  # Check get info
+
+            r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
+            self.assertIn('Success confirm', str(r_json))  # Check get info
+
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
+            self.assertIn('Success confirm and close', str(r_json))  # Check get info
+
+    def test_trades_delete(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create Trade from buyer
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "seller_id": str(self.seller_id),
+                "buyer_id": str(self.buyer_id),
+                "product_id": str(self.product_id)
+            })
+            r_json = self.app.post('/trade', data=json_data, content_type='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful trade created
+
+            trade_id = r_json["message"]
+
+            json_data = json.dumps({
+                "price": "99.9",
+                "products": [],
+            })
+            r_json = self.app.post('/trade/' + str(trade_id) + '/offer', data=json_data,
+                                   content_type='application/json').get_json()
+            self.assertIn('Successful new offer', str(r_json))  # Check create offer
+
+            json_data = json.dumps({
+                "price": "22.9",
+                "products": [],
+            })
+            r_json = self.app.put('/trade/' + str(trade_id) + '/offer', data=json_data,
+                                  content_type='application/json').get_json()
+            self.assertIn('Successful offer update', str(r_json))  # Check update
+
             self.app.get('/logout')
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
@@ -531,8 +585,13 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.get('/trade/' + str(trade_id)).get_json()
             self.assertIn('\'seller_id\': ' + str(self.seller_id), str(r_json))  # Check get info
 
-            r_json = self.app.put('/trade/' + str(trade_id) + '/close').get_json()
-            self.assertIn('Success close', str(r_json))  # Check get info
+            self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
+
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            r_json = self.app.put('/trade/' + str(trade_id) + '/delete').get_json()
+            self.assertIn('Success delete', str(r_json))  # Check get info
 
     def tearDown(self):
         with warnings.catch_warnings():
