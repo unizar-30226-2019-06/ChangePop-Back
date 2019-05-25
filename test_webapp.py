@@ -531,7 +531,6 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.put('/trade/' + str(trade_id) + '/close').get_json()
             self.assertIn('Success close', str(r_json))  # Check get info
 
-
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -868,7 +867,6 @@ class Interest(unittest.TestCase):
                 "list":["electronica"]
             })
 
-
             self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
 
             self.app.get('/categories/interest').get_json()
@@ -879,8 +877,6 @@ class Interest(unittest.TestCase):
             r_json = self.app.get('/categories/interest').get_json()
             self.assertIn('0', str(r_json))  # Check successful get 0 elements
 
-
-
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -888,7 +884,105 @@ class Interest(unittest.TestCase):
             self.app.delete('/user')
 
 
+class PaymentsTest(unittest.TestCase):
 
+    def setUp(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app = webapp.app.test_client()
+            self.app.testing = True
+
+            # Create users and login
+            self.modder = \
+                self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.put('/user/' + str(self.modder) + '/mod')
+            self.user = self.user_id = \
+                self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
+                    "message"]
+
+            # Post product
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+            self.product_id = \
+                self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
+                    "message"]
+            self.app.get('/logout')
+
+    def test_new_pay(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create Trade from buyer
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            iban = "ES809999123125412535"
+            json_data = json.dumps({
+                "amount": 9.99,
+                "iban": iban,
+                "product_id": int(self.product_id)
+            })
+            r_json = self.app.post('/payment', data=json_data, content_type='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful pay created
+
+    def test_delete_pay(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create Trade from buyer
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            iban = "ES809999123125412535"
+            json_data = json.dumps({
+                "amount": 9.99,
+                "iban": iban,
+                "product_id": int(self.product_id)
+            })
+            r_json = self.app.post('/payment', data=json_data, content_type='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful pay created
+
+            pay_id = r_json["message"]
+
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            r_json = self.app.put('/payment/check/' + str(pay_id), data=json_data, content_type='application/json').get_json()
+            self.assertIn('deleted', str(r_json))  # Check deleted offer
+
+            r_json = self.app.put('/payment/check/' + str(pay_id), data=json_data,
+                                  content_type='application/json').get_json()
+            self.assertIn('not found', str(r_json))  # Check deleted offer
+
+    def test_list_pays(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Create Trade from buyer
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            iban = "ES809999123125412535"
+            json_data = json.dumps({
+                "amount": 9.99,
+                "iban": iban,
+                "product_id": int(self.product_id)
+            })
+            self.app.post('/payment', data=json_data, content_type='application/json').get_json()
+
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            r_json = self.app.get('/payments').get_json()
+            self.assertIn(iban, str(r_json))  # Check deleted offer
+
+    def tearDown(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            # Post test
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            self.app.delete('/user/' + str(self.user))
+            self.app.delete('/user/' + str(self.modder))
 
 if __name__ == "__main__":
     unittest.main()

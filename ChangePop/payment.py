@@ -35,17 +35,15 @@ def create_payment():
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
-
-
 @bp.route('/payment/check/<int:id>', methods=['PUT'])
 @login_required
-def payment_put(id):
-    if not request.is_json:
-        raise JSONExceptionHandler()
+def payment_check(id):
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
 
-    product = Products.query.get(int(id))
+    pay = Payments.query.get(int(id))
 
-    if product is None:
+    if pay is None:
         raise ProductException(str(id), "Payment of product not found")
 
     Payments.query.get(int(id)).delete_me()
@@ -54,10 +52,12 @@ def payment_put(id):
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
-
-@bp.route('/payment', methods=['GET'])
+@bp.route('/payments', methods=['GET'])
 @login_required
 def get_list_payments():
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
     payments = Payments.list()
 
     payments_list = []
@@ -71,7 +71,6 @@ def get_list_payments():
             "iban": str(pay.iban),
             "boost_date": str(pay.boost_date),
             "product_id": int(pay.product_id),
-
         }
 
         payments_list.append(item)
@@ -79,4 +78,3 @@ def get_list_payments():
     json_products = {"length": len(payments_list), "list": payments_list}
 
     return Response(json.dumps(json_products), status=200, content_type='application/json')
-
