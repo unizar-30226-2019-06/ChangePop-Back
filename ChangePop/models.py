@@ -403,12 +403,11 @@ class Payments(db.Model):
         db.session.commit()
 
     @staticmethod
-    def add(amount, iban, product_id):
-        p = Products.query.get(product_id)
-
+    def add(amount, iban, product_id, boost_date):
         pays = Payments(product_id=product_id,
                    amount=amount,
-                   iban=iban)
+                   iban=iban,
+                   boost_date=boost_date)
 
         db.session.add(pays)
         db.session.commit()

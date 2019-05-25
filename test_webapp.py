@@ -920,6 +920,7 @@ class PaymentsTest(unittest.TestCase):
             json_data = json.dumps({
                 "amount": 9.99,
                 "iban": iban,
+                "boost_date": "1999-12-24",
                 "product_id": int(self.product_id)
             })
             r_json = self.app.post('/payment', data=json_data, content_type='application/json').get_json()
@@ -936,6 +937,7 @@ class PaymentsTest(unittest.TestCase):
             json_data = json.dumps({
                 "amount": 9.99,
                 "iban": iban,
+                "boost_date": "1999-12-24",
                 "product_id": int(self.product_id)
             })
             r_json = self.app.post('/payment', data=json_data, content_type='application/json').get_json()
@@ -964,6 +966,7 @@ class PaymentsTest(unittest.TestCase):
             json_data = json.dumps({
                 "amount": 9.99,
                 "iban": iban,
+                "boost_date": "1999-12-24",
                 "product_id": int(self.product_id)
             })
             self.app.post('/payment', data=json_data, content_type='application/json').get_json()

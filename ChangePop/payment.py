@@ -21,6 +21,7 @@ def create_payment():
 
     amount = content["amount"]
     iban = content["iban"]
+    boost_date = datetime.datetime.strptime(content["boost_date"], "%Y-%m-%d")
     product_id = int(content["product_id"])
 
     product = Products.query.get(int(product_id))
@@ -28,7 +29,7 @@ def create_payment():
     if product is None:
         raise ProductException(str(id), "Product not found")
 
-    payment_id = Payments.add(amount, iban, product_id)
+    payment_id = Payments.add(amount, iban, product_id, boost_date)
 
     resp = api_resp(0, "info", str(payment_id))
 
