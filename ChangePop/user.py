@@ -56,7 +56,7 @@ def create_user():
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
-@bp.route('/user/<int:id>/validate', methods=['GET'])
+@bp.route('/user/<int:id>/validate', methods=['GET']) # pragma: no cover
 def validate_user(id):
     token = request.args.get('token')
 

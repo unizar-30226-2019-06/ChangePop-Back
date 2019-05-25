@@ -23,17 +23,17 @@ def show():
     return render_template('index.html')
 
 
-@app.route('/test_request')
+@app.route('/test_request') # pragma: no cover
 def show_test():
     return render_template('test.html')
 
 
-@app.route('/test_login')
+@app.route('/test_login') # pragma: no cover
 def show_test_login():
     return render_template('test_login.html')
 
 
-@app.route('/test_mail')
+@app.route('/test_mail') # pragma: no cover
 def test_mail():
     mail = request.args.get('mail')
     subject = "Test"
@@ -43,7 +43,7 @@ def test_mail():
     return "ok (creo xD)"
 
 
-@app.route('/<path:dirr>')
+@app.route('/<path:dirr>') # pragma: no cover
 def file_for_mailjet(dirr):
     return send_file('static/' + dirr)
 

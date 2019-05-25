@@ -24,7 +24,7 @@ def fix_str(string):
     string = re.sub('[\'(),]', '', string)
     return string
 
-def send_mail(mail,name,subject,textPart,htmlPart):
+def send_mail(mail,name,subject,textPart,htmlPart): # pragma: no cover
 
     api_key = "288ca9ac426b3e41809ee9c8a429a974"
     api_secret = "1f29a950828de1e093e7c8d4b74bd5ab"

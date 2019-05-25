@@ -881,7 +881,6 @@ class Reports(unittest.TestCase):
             r_json = self.app.get('/reports').get_json()
             self.assertNotIn('Porque si y punto en boca', str(r_json))
 
-
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -938,6 +937,15 @@ class Interest(unittest.TestCase):
 
             r_json = self.app.get('/categories/interest').get_json()
             self.assertIn('0', str(r_json))  # Check successful get 0 elements
+
+    def test_get_categories(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            r_json = self.app.get('/categories').get_json()
+            self.assertIn('Moda', str(r_json))  # Check successful upload
 
     def tearDown(self):
         with warnings.catch_warnings():
