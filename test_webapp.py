@@ -182,6 +182,9 @@ class UserDataBase(unittest.TestCase):
             r_json = self.app.delete('/user/' + str(user_id)).get_json()
             self.assertIn('deleted', str(r_json))  # Check delete user info
 
+            r_json = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()  # Login to set the session
+            self.assertIn('not found', str(r_json))  # Check get user info
+
     def test_ban_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -284,9 +287,10 @@ class ProductDataBase(unittest.TestCase):
         ],
         "title": "Producto Molongo",
         "bid_date": "1999-12-24 22:45:13",
-        "main_img": "http://images.com/123af3",
+        "main_img": "http://images.com/hola",
         "photo_urls": [
-            "http://images.com/123af3"
+            "http://images.com/122af3",
+            "http://images.com/fgfgfgfgfgf"
         ],
         "place": "Madrid"
     })
@@ -328,7 +332,11 @@ class ProductDataBase(unittest.TestCase):
             self.assertIn('updated', str(r_json))  # Check successful insertion
 
             check = self.app.get('/product/' + str(product_id))
-            self.assertIn('Madrid', str(check.get_json()))  # Check get info
+            self.assertIn('fgfgfgfgfgf', str(check.get_json()))  # Check get info
+            self.assertIn('122af3', str(check.get_json()))  # Check get info
+            self.assertIn('Complementeos', str(check.get_json()))  # Check get info
+            self.assertNotIn('123af3', str(check.get_json()))  # Check get info
+
 
     def test_delete_product(self):
         with warnings.catch_warnings():
@@ -564,6 +572,7 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
             self.assertIn('Success confirm and close', str(r_json))  # Check get info
 
+    @unittest.skip
     def test_trades_delete(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -613,6 +622,9 @@ class TradesProducts(unittest.TestCase):
 
             r_json = self.app.put('/trade/' + str(trade_id) + '/delete').get_json()
             self.assertIn('Success delete', str(r_json))  # Check get info
+
+            r_json = self.app.get('/trades').get_json()
+            self.assertNotIn('22.9', str(r_json))  # Check get info
 
     def tearDown(self):
         with warnings.catch_warnings():
@@ -812,7 +824,7 @@ class Notifications(unittest.TestCase):
             r_json = self.app.get('/notifications').get_json()
             self.assertIn('precio', str(r_json))  # Check successful get
 
-            r_json = self.app.delete('/user/' + str(user_2)).get_json()
+            self.app.delete('/user/' + str(user_2)).get_json()
 
 
     def tearDown(self):
