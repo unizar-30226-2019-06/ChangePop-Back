@@ -278,7 +278,7 @@ class ProductDataBase(unittest.TestCase):
 
     prod_update = json.dumps({
         "descript": "This product is wonderful",
-        "price": 0,
+        "price": 55,
         "categories": [
             "Moda", "Complementeos"
         ],
@@ -760,6 +760,39 @@ class Notifications(unittest.TestCase):
 
             r_json = self.app.get('/notifications').get_json()
             self.assertIn('Otra cosa', str(r_json))  # Check successful get
+
+    def test_follow_notify(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            user_2 = \
+                self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
+                    "message"]
+
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            r_json = self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()
+            product_id = r_json["message"]
+
+            # Follow
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            self.app.post('/product/' + str(product_id) + '/follow')
+
+            # Update
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+            r_json = self.app.put('/product/' + str(product_id), data=ProductDataBase.prod_update,
+                                  content_type='application/json').get_json()
+
+            # Check
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            r_json = self.app.get('/notifications').get_json()
+            self.assertIn('precio', str(r_json))  # Check successful get
+
+            r_json = self.app.delete('/user/' + str(user_2)).get_json()
+
 
     def tearDown(self):
         with warnings.catch_warnings():

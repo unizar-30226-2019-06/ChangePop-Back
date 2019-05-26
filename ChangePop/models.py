@@ -248,6 +248,7 @@ class Products(db.Model):
     images = db.relationship("Images", cascade="all, delete-orphan")
     follows = db.relationship("Follows", cascade="all, delete-orphan")
     reports = db.relationship("Reports", cascade="all, delete-orphan")
+    notifications = db.relationship("Notifications", cascade="all, delete-orphan")
 
     @staticmethod
     def list():
@@ -260,6 +261,12 @@ class Products(db.Model):
         # TODO doc
         list = Products.query.filter_by(user_id=id)
         return list
+
+    @staticmethod
+    def get_title(id):
+        # TODO doc
+        prod = Products.query.get(id)
+        return prod.title
 
     @staticmethod
     def search(title):
@@ -312,8 +319,6 @@ class Products(db.Model):
 
     def increment_views(self):
         self.visits = self.visits + 1
-
-
 
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
@@ -489,7 +494,6 @@ class Interests(db.Model):
         list = Interests.query.filter_by(user_id=id)
         return list
 
-
     @staticmethod
     def delete_all(user_id):
         Interests.query.filter_by(user_id=user_id).delete()
@@ -503,6 +507,11 @@ class Follows(db.Model):
     __tablename__ = 'Follows'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
+
+    @staticmethod
+    def get_users_follow_prod(product_id):
+        list = Follows.query.with_entities(Follows.user_id).filter_by(product_id=product_id)
+        return list
 
     def __repr__(self):
         return '{},{}'.format(self.product_id, self.user_id)

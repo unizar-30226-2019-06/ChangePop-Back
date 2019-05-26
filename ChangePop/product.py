@@ -5,8 +5,8 @@ from flask import Blueprint, request, json, Response
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException
-from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users
-from ChangePop.utils import api_resp, fix_str
+from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users, Follows
+from ChangePop.utils import api_resp, fix_str, push_notify
 
 bp = Blueprint('product', __name__)
 
@@ -138,6 +138,16 @@ def update_prod_info(id):
 
     for photo in photo_urls:
         Images.add_photo(photo, id)
+
+    # Notificaiones
+    if product.price > price:
+        users_ids = Follows.get_users_follow_prod(product.id)
+        for user_id in users_ids:
+            push_notify(user_id, "El precio del producto ha bajado! :D", int(product.id))
+    elif product.price < price:
+        users_ids = Follows.get_users_follow_prod(product.id)
+        for user_id in users_ids:
+            push_notify(user_id, "El precio del producto ha subido :(", int(product.id))
 
     product.update_me(title, price, descript, bid, place, main_img)
 
