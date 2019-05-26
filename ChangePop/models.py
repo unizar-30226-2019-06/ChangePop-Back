@@ -349,12 +349,15 @@ class Products(db.Model):
 
     def increment_views(self):
         self.visits = self.visits + 1
+        db.session.commit()
 
     def followers_up(self):
         self.followers = self.followers + 1
+        db.session.commit()
 
     def followers_down(self):
         self.followers = self.followers - 1
+        db.session.commit()
 
     def __repr__(self):
         return '{},{},{},{},{}'.format(self.id, self.title, self.user_id, self.visits, self.user_id)
