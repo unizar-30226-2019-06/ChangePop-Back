@@ -202,7 +202,7 @@ class Users(UserMixin, db.Model):
 
     def unfollow_prod(self, id):
         Follows.query.filter_by(user_id=self.id, product_id=id).delete()
-        #db.session.commit()
+        db.session.commit()
 
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
