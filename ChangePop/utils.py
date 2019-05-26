@@ -5,6 +5,9 @@ import string
 from mailjet_rest import Client
 import os
 
+from ChangePop.models import Notifications
+
+
 def api_resp(code, mtype, msg):
     # TODO Doc
     r = {
@@ -20,9 +23,14 @@ def random_string(string_length=20):
     return ''.join(random.choice(letters) for i in range(string_length))
 
 
+def push_notify(user_id, text, product=None, category=None):
+    Notifications.push(user_id, text, product=product, category=category)
+
+
 def fix_str(string):
     string = re.sub('[\'(),]', '', string)
     return string
+
 
 def send_mail(mail,name,subject,textPart,htmlPart): # pragma: no cover
 
