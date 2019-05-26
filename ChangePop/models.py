@@ -371,6 +371,7 @@ class Images(db.Model):
     @staticmethod
     def delete_images_by_prod(product_id):
         Images.query.filter_by(product_id=product_id).delete()
+        db.session.commit()
 
     @staticmethod
     def get_images_by_prod(product_id):
@@ -496,6 +497,7 @@ class CatProducts(db.Model):
     @staticmethod
     def delete_cats_by_prod(product_id):
         CatProducts.query.filter_by(product_id=product_id).delete()
+        db.session.commit()
 
     @staticmethod
     def get_cat_names_by_prod(product_id):
@@ -536,10 +538,12 @@ class Interests(db.Model):
     @staticmethod
     def delete_all(user_id):
         Interests.query.filter_by(user_id=user_id).delete()
+        db.session.commit()
 
     @staticmethod
     def delete_interest(cat, user_id):
         Interests.query.filter_by(user_id=user_id, cat_name=cat).delete()
+        db.session.commit()
 
 
 class Follows(db.Model):
@@ -612,6 +616,12 @@ class Trades(db.Model):
         return t.id
 
     @staticmethod
+    def delete(trade_id):
+        Trades.query.filter_by(id=trade_id).delete()
+
+        db.session.commit()
+
+    @staticmethod
     def get_trades(user_id):
         items = Trades.query.filter((Trades.user_sell == str(user_id)) | (Trades.user_buy == str(user_id)))
         return items
@@ -673,6 +683,8 @@ class TradesOffers(db.Model):
     @staticmethod
     def delete_all(trade_id):
         TradesOffers.query.filter_by(trade_id=trade_id).delete()
+
+        db.session.commit()
 
     @staticmethod
     def get_prods_by_id(trade_id):

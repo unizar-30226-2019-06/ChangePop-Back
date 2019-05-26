@@ -614,6 +614,9 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.put('/trade/' + str(trade_id) + '/delete').get_json()
             self.assertIn('Success delete', str(r_json))  # Check get info
 
+            r_json = self.app.get('/trades').get_json()
+            self.assertNotIn('22.9', str(r_json))  # Check get info
+
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
