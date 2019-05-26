@@ -603,6 +603,11 @@ class Trades(db.Model):
         return t.id
 
     @staticmethod
+    def delete_id(id):
+        Trades.query.filter_by(id=id).delete()
+        db.session.commit()
+
+    @staticmethod
     def get_trades(user_id):
         items = Trades.query.filter((Trades.user_sell == str(user_id)) | (Trades.user_buy == str(user_id)))
         return items

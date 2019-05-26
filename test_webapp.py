@@ -572,7 +572,6 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
             self.assertIn('Success confirm and close', str(r_json))  # Check get info
 
-    @unittest.skip
     def test_trades_delete(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)

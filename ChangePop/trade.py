@@ -159,6 +159,8 @@ def trade_close(id):
 
     resp = api_resp(0, "info", "Success delete of trade " + '(' + str(id) + ')')
 
+    Trades.delete_id(id)
+
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
