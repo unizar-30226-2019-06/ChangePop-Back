@@ -815,7 +815,7 @@ class Notifications(unittest.TestCase):
             r_json = self.app.get('/notifications').get_json()
             self.assertIn('precio', str(r_json))  # Check successful get
 
-            r_json = self.app.delete('/user/' + str(user_2)).get_json()
+            self.app.delete('/user/' + str(user_2)).get_json()
 
 
     def tearDown(self):

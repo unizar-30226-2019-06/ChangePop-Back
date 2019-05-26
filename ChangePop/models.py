@@ -202,7 +202,7 @@ class Users(UserMixin, db.Model):
 
     def unfollow_prod(self, id):
         Follows.query.filter_by(user_id=self.id, product_id=id).delete()
-        db.session.commit()
+        #db.session.commit()
 
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
@@ -371,7 +371,7 @@ class Images(db.Model):
     @staticmethod
     def delete_images_by_prod(product_id):
         Images.query.filter_by(product_id=product_id).delete()
-        db.session.commit()
+        #db.session.commit()
 
     @staticmethod
     def get_images_by_prod(product_id):
@@ -497,7 +497,7 @@ class CatProducts(db.Model):
     @staticmethod
     def delete_cats_by_prod(product_id):
         CatProducts.query.filter_by(product_id=product_id).delete()
-        db.session.commit()
+        #db.session.commit()
 
     @staticmethod
     def get_cat_names_by_prod(product_id):
@@ -538,12 +538,12 @@ class Interests(db.Model):
     @staticmethod
     def delete_all(user_id):
         Interests.query.filter_by(user_id=user_id).delete()
-        db.session.commit()
+        #db.session.commit()
 
     @staticmethod
     def delete_interest(cat, user_id):
         Interests.query.filter_by(user_id=user_id, cat_name=cat).delete()
-        db.session.commit()
+        #db.session.commit()
 
 
 class Follows(db.Model):
@@ -618,7 +618,6 @@ class Trades(db.Model):
     @staticmethod
     def delete(trade_id):
         Trades.query.filter_by(id=trade_id).delete()
-
         db.session.commit()
 
     @staticmethod
@@ -683,8 +682,7 @@ class TradesOffers(db.Model):
     @staticmethod
     def delete_all(trade_id):
         TradesOffers.query.filter_by(trade_id=trade_id).delete()
-
-        db.session.commit()
+        #db.session.commit()
 
     @staticmethod
     def get_prods_by_id(trade_id):
@@ -714,12 +712,12 @@ class Notifications(db.Model):
     @staticmethod
     def delete_id(id):
         Notifications.query.filter_by(id=id).delete()
-        db.session.commit()
+        #db.session.commit()
 
     @staticmethod
     def delete_all(user):
         Notifications.query.filter_by(user_id=user).delete()
-        db.session.commit()
+        #db.session.commit()
 
     @staticmethod
     def list_by_user(user_id):
