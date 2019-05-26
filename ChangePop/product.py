@@ -267,6 +267,8 @@ def follow_product(id):
     product.followers_up()
 
     resp = api_resp(0, "info", "User" + ' (' + str(current_user.nick) + ') ' + "follows a product" + ' (' + str(id) + ') ')
+    product = Products.query.get(int(id))
+    product.followers_up()
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
@@ -282,6 +284,8 @@ def unfollow_product(id):
     product.followers_down()
 
     resp = api_resp(0, "info", "User" + ' (' + str(current_user.nick) + ') ' + "unfollows a product" + ' (' + str(id) + ') ')
+    product = Products.query.get(int(id))
+    product.followers_down()
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 

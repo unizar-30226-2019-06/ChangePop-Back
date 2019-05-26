@@ -157,9 +157,9 @@ def trade_close(id):
     if trade.user_sell != current_user.id:
         raise UserNotPermission(str(id), "Tis user (" + str(current_user.nick) + ") is not related with this trade")
 
-    resp = api_resp(0, "info", "Success delete of trade " + '(' + str(id) + ')')
-
     Trades.delete_id(id)
+
+    resp = api_resp(0, "info", "Success delete of trade " + '(' + str(id) + ')')
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
