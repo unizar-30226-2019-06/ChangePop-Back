@@ -93,6 +93,7 @@ def get_logged_user():
         "mail": str(user.mail),
         "phone": str(user.phone),
         "avatar": str(user.avatar),
+        "desc": str(user.desc),
         "fnac": str(user.fnac),
         "dni": str(user.dni),
         "place": str(user.place),
