@@ -314,7 +314,10 @@ def search_products():
     for prod in products:
         item = {
             "id": str(prod.id),
-            "title": str(prod.title)
+            "title": str(prod.title),
+            "price": float(prod.price),
+            "user_nick": str(Users.get_nick(prod.user_id)),
+            "visits": int(prod.visits)
         }
 
         products_list.append(item)
@@ -324,36 +327,31 @@ def search_products():
     return Response(json.dumps(json_users), status=200, content_type='application/json')
 
 
-@bp.route('/search/products', methods=['GET'])
+@bp.route('/search/products/adv', methods=['GET'])
 def search_products_advanced():
     if not request.is_json:
         raise JSONExceptionHandler()
 
     content = request.get_json()
 
-    product = Products.query.get(int(id))
+    title = content["title"]
+    price_min = float(content["price_min"])
+    price_max = float(content["price_max"])
+    place = str(content["place"])
+    desc = str(content["descript"])
+    category = str(content["category"])
 
-    if product is None:
-        raise ProductException(str(id), "Product not found")
-
-    if product.user_id != current_user.id:
-        raise UserNotPermission(str(current_user.id), "This user doesnt own this product" + str(id))
-
-
-
-    title_search = request.args.get('text')
-
-    if title_search is None:
-        raise Exception(str(title_search))
-
-    products = Products.search(title_search)
+    products = Products.search_adv(title, price_min, price_max, place, desc, category)
 
     products_list = []
 
     for prod in products:
         item = {
             "id": str(prod.id),
-            "title": str(prod.title)
+            "title": str(prod.title),
+            "price": float(prod.price),
+            "user_nick": str(Users.get_nick(prod.user_id)),
+            "visits": int(prod.visits)
         }
 
         products_list.append(item)

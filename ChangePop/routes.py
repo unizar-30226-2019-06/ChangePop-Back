@@ -124,7 +124,7 @@ def handle_sql_error(error):
 
     return Response(json.dumps(resp), status=400, content_type='application/json')
 
-
+'''
 @app.errorhandler(Exception)
 def handle_sql_error(error):
     resp = {
@@ -132,6 +132,6 @@ def handle_sql_error(error):
         "type": "error",
         "message": "Error without concrete exception: " + str(error)}
 
-    return Response(json.dumps(resp), status=400, content_type='application/json')
+    return Response(json.dumps(resp), status=400, content_type='application/json')'''
 
 #TODO Capturar expecion ValueError: time data '25-12-1999' does not match format '%Y-%m-%d'

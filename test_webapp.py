@@ -257,7 +257,7 @@ class ProductDataBase(unittest.TestCase):
 
     prod_data2 = json.dumps({
         "descript": "This product is wonderful",
-        "price": 0,
+        "price": 34,
         "categories": [
             "Moda"
         ],
@@ -360,6 +360,27 @@ class ProductDataBase(unittest.TestCase):
 
             r_json = self.app.get('/products/' + str(self.user_id)).get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful list by user
+
+    def test_list_search_product_adv(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/product', data=self.prod_data, content_type='application/json')
+            self.app.post('/product', data=self.prod_data2, content_type='application/json')
+
+            r_json = self.app.get('/products').get_json()
+            self.assertIn('Producto Molongo', str(r_json))  # Check successful list
+
+            prod_search = json.dumps({
+                "descript": "wonderful",
+                "price_max": 35,
+                "price_min": 33,
+                "category": "Moda",
+                "title": "Producto Molongo",
+                "place": "Zaragoza"
+            })
+            r_json = self.app.get('/search/products/adv', data=prod_search, content_type='application/json').get_json()
+            self.assertIn('Producto Molongo', str(r_json))  # Check successful search
 
     def test_follows_product(self):
         with warnings.catch_warnings():

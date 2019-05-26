@@ -1,5 +1,8 @@
 import datetime
 
+from sqlalchemy import and_
+from sqlalchemy.orm import aliased
+
 from ChangePop import db
 from ChangePop import login
 from flask_login import UserMixin
@@ -130,7 +133,7 @@ class Users(UserMixin, db.Model):
                                          Products.main_img,
                                          Products.bid_date).join(Follows,
                                                                  Users).filter(my_id == Follows.user_id,
-                                                                                Products.id == Follows.product_id)
+                                                                               Products.id == Follows.product_id)
 
         return products_list
 
@@ -274,6 +277,33 @@ class Products(db.Model):
         return list
 
     @staticmethod
+    def search_adv(title, price_min, price_max, place, desc, category):
+        list = db.session.query(Products.id.label('id'),
+                                Products.title.label('title'),
+                                Products.price.label('price'),
+                                Products.descript.label('descript'),
+                                Products.user_id.label('user_id'),
+                                Products.visits.label('visits'),
+                                Products.place.label('place'), CatProducts.cat_name).filter(CatProducts.product_id == Products.id)
+
+        if price_min is not None:
+            list = list.filter(Products.price >= price_min)
+        if price_max is not None:
+            list = list.filter(Products.price <= price_max)
+        if title is not None:
+            list = list.filter(Products.title.like('%' + title + '%'))
+        if desc is not None:
+            list = list.filter(Products.descript.like('%' + desc + '%'))
+        if place is not None:
+            list = list.filter(Products.place.like('%' + place + '%'))
+        if category is not None:
+            list = list.filter(CatProducts.cat_name == category)
+
+        list = list.distinct(Products.id).all()
+
+        return list
+
+    @staticmethod
     def new_product(user_id, title, descript, price, place, main_img):
         p = Products(user_id=user_id,
                      title=title,
@@ -321,7 +351,7 @@ class Products(db.Model):
         self.visits = self.visits + 1
 
     def __repr__(self):
-        return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
+        return '{},{},{},{},{}'.format(self.id, self.title, self.user_id, self.visits, self.user_id)
 
 
 class Images(db.Model):
@@ -412,9 +442,9 @@ class Payments(db.Model):
     @staticmethod
     def add(amount, iban, product_id, boost_date):
         pays = Payments(product_id=product_id,
-                   amount=amount,
-                   iban=iban,
-                   boost_date=boost_date)
+                        amount=amount,
+                        iban=iban,
+                        boost_date=boost_date)
 
         db.session.add(pays)
         db.session.commit()
@@ -483,7 +513,7 @@ class Interests(db.Model):
 
     @staticmethod
     def add_interest(cat_name, user_id):
-        c = Interests.query.get(cat_name,user_id)
+        c = Interests.query.get(cat_name, user_id)
         if c is None:
             c = Interests(cat_name=cat_name, user_id=user_id)
             db.session.add(c)
