@@ -182,6 +182,9 @@ class UserDataBase(unittest.TestCase):
             r_json = self.app.delete('/user/' + str(user_id)).get_json()
             self.assertIn('deleted', str(r_json))  # Check delete user info
 
+            r_json = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()  # Login to set the session
+            self.assertIn('not found', str(r_json))  # Check get user info
+
     def test_ban_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
