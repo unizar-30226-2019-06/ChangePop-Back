@@ -8,10 +8,12 @@ from config import TestingConfig, Config
 
 class HomeViewTest(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         self.app = webapp.app.test_client()
         self.app.testing = True
 
+    #@unittest.skip
     def test_home_page(self):
         home = self.app.get('/')
         self.assertIn('Home Page', str(home.data))
@@ -84,11 +86,13 @@ class UserDataBase(unittest.TestCase):
         "token": "2sf78gsf68hsf5asfh68afh68a58fha68f",
         "pass_hash": "s32uh5423j5h23jh52jh35"
     })
-
+    
+    #@unittest.skip
     def setUp(self):
         self.app = webapp.app.test_client()
         self.app.testing = True
 
+    #@unittest.skip
     def test_add_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -105,6 +109,7 @@ class UserDataBase(unittest.TestCase):
             self.app.post('/login', data=self.user_login, content_type='application/json')
             self.app.delete('/user')
 
+    #@unittest.skip
     def test_session_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -126,6 +131,7 @@ class UserDataBase(unittest.TestCase):
             self.app.post('/login', data=self.user_login, content_type='application/json')
             self.app.delete('/user')
 
+    #@unittest.skip
     def test_update_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -144,6 +150,7 @@ class UserDataBase(unittest.TestCase):
 
             self.app.delete('/user')
 
+    #@unittest.skip
     def test_delete_user(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -158,6 +165,7 @@ class UserDataBase(unittest.TestCase):
             r = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()
             self.assertIn("User not found", str(r))  # Check unsuccessful login
 
+    #@unittest.skip
     def test_mod_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -185,6 +193,7 @@ class UserDataBase(unittest.TestCase):
             r_json = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()  # Login to set the session
             self.assertIn('not found', str(r_json))  # Check get user info
 
+    #@unittest.skip
     def test_ban_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -216,6 +225,7 @@ class UserDataBase(unittest.TestCase):
             self.app.delete('/user/' + str(ban_user_id))
             self.app.delete('/user/' + str(mod_user_id))
 
+    #@unittest.skip
     def test_list_search_users(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -295,6 +305,7 @@ class ProductDataBase(unittest.TestCase):
         "place": "Madrid"
     })
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -308,6 +319,7 @@ class ProductDataBase(unittest.TestCase):
                     "message"]
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
+    #@unittest.skip
     def test_add_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -319,6 +331,7 @@ class ProductDataBase(unittest.TestCase):
             check = self.app.get('/product/' + str(product_id))
             self.assertIn('Zaragoza', str(check.get_json()["place"]))  # Check get info
 
+    #@unittest.skip
     def test_update_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -338,6 +351,7 @@ class ProductDataBase(unittest.TestCase):
             self.assertNotIn('123af3', str(check.get_json()))  # Check get info
 
 
+    #@unittest.skip
     def test_delete_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -353,6 +367,7 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/product/' + str(product_id)).get_json()
             self.assertIn('not found', str(r_json))  # Check successful deletion
 
+    #@unittest.skip
     def test_list_search_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -369,6 +384,7 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/products/' + str(self.user_id)).get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful list by user
 
+    #@unittest.skip
     def test_list_search_product_adv(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -390,6 +406,7 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/search/products/adv', data=prod_search, content_type='application/json').get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful search
 
+    #@unittest.skip
     def test_follows_product(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -409,6 +426,7 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/user/follows').get_json()
             self.assertNotIn('Producto Molongo', str(r_json)) # Check the unfollows
 
+    #@unittest.skip
     def test_ban_products(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -427,6 +445,7 @@ class ProductDataBase(unittest.TestCase):
 
             self.assertIn('banned', str(r_json))  # Check successful ban
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -436,6 +455,7 @@ class ProductDataBase(unittest.TestCase):
 
 class ProductsBids(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -453,6 +473,7 @@ class ProductsBids(unittest.TestCase):
                 self.app.post('/product', data=ProductDataBase.prod_data, content_type='application/json').get_json()[
                     "message"]
 
+    #@unittest.skip
     def test_open_close_bid(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -472,6 +493,7 @@ class ProductsBids(unittest.TestCase):
                                   content_type='application/json').get_json()
             self.assertIn('finished', str(r_json))  # Check successful bid down
 
+    #@unittest.skip
     def test_bid_prod(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -486,6 +508,7 @@ class ProductsBids(unittest.TestCase):
             r_json = self.app.get('/bid/' + str(self.product_id)).get_json()
             self.assertIn('999.99', str(r_json))  # Check bid with the bid
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -495,6 +518,7 @@ class ProductsBids(unittest.TestCase):
 
 class TradesProducts(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -518,6 +542,7 @@ class TradesProducts(unittest.TestCase):
                     "message"]
             self.app.get('/logout')
 
+    #@unittest.skip
     def test_trades(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -572,6 +597,7 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
             self.assertIn('Success confirm and close', str(r_json))  # Check get info
 
+    #@unittest.skip
     def test_trades_delete(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -625,6 +651,7 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.get('/trades').get_json()
             self.assertNotIn('22.9', str(r_json))  # Check get info
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -638,6 +665,7 @@ class TradesProducts(unittest.TestCase):
 
 class CommentsAndMessages(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -654,6 +682,7 @@ class CommentsAndMessages(unittest.TestCase):
                 self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
                     "message"]
 
+    #@unittest.skip
     def test_comments(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -671,6 +700,7 @@ class CommentsAndMessages(unittest.TestCase):
             r_json = self.app.get('/comments/' + str(self.seller_id)).get_json()
             self.assertIn('ESRES UN CRACK', str(r_json))  # Check successful get
 
+    #@unittest.skip
     def test_messages(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -710,6 +740,7 @@ class CommentsAndMessages(unittest.TestCase):
             r_json = self.app.get('/msgs/' + str(trade_id)).get_json()
             self.assertIn('HELLO HERE!', str(r_json))  # Check successful get
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -722,6 +753,7 @@ class CommentsAndMessages(unittest.TestCase):
 
 class Notifications(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -735,6 +767,7 @@ class Notifications(unittest.TestCase):
                     "message"]
             self.app.put('/user/' + str(self.user_id) + '/mod')
 
+    #@unittest.skip
     def test_delete_all_notifications(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -774,6 +807,7 @@ class Notifications(unittest.TestCase):
             r_json = self.app.get('/notifications').get_json()
             self.assertIn('0', str(r_json))  # Check successful get 0 elements
 
+    #@unittest.skip
     def test_create_get_notification(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -793,6 +827,7 @@ class Notifications(unittest.TestCase):
             r_json = self.app.get('/notifications').get_json()
             self.assertIn('Otra cosa', str(r_json))  # Check successful get
 
+    #@unittest.skip
     def test_follow_notify(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -826,6 +861,7 @@ class Notifications(unittest.TestCase):
             self.app.delete('/user/' + str(user_2)).get_json()
 
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -835,6 +871,7 @@ class Notifications(unittest.TestCase):
 
 class UploadFiles(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -847,6 +884,7 @@ class UploadFiles(unittest.TestCase):
                 self.app.post('/user', data=UserDataBase.user_data, content_type='application/json').get_json()[
                     "message"]
 
+    #@unittest.skip
     def test_upload(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -869,6 +907,7 @@ class UploadFiles(unittest.TestCase):
             file = file_url.split('/')[2]
             os.remove("./images/" + file)
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -878,6 +917,7 @@ class UploadFiles(unittest.TestCase):
 
 class Reports(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -891,6 +931,7 @@ class Reports(unittest.TestCase):
                     "message"]
             self.app.put('/user/' + str(self.user_id) + '/mod')
 
+    #@unittest.skip
     def test_new_report(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -913,6 +954,7 @@ class Reports(unittest.TestCase):
             r_json = self.app.post('/report', data=json_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful upload
 
+    #@unittest.skip
     def test_get_reports(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -928,6 +970,7 @@ class Reports(unittest.TestCase):
             r_json = self.app.get('/reports').get_json()
             self.assertIn('Porque si y punto en boca', str(r_json))  # Check successful get
 
+    #@unittest.skip
     def test_delete_report(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -946,6 +989,7 @@ class Reports(unittest.TestCase):
             r_json = self.app.get('/reports').get_json()
             self.assertNotIn('Porque si y punto en boca', str(r_json))
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -955,6 +999,7 @@ class Reports(unittest.TestCase):
 
 class Interest(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -968,6 +1013,7 @@ class Interest(unittest.TestCase):
                     "message"]
             self.app.put('/user/' + str(self.user_id) + '/mod')
 
+    #@unittest.skip
     def test_delete_all_interests(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1003,6 +1049,7 @@ class Interest(unittest.TestCase):
             r_json = self.app.get('/categories/interest').get_json()
             self.assertIn('0', str(r_json))  # Check successful get 0 elements
 
+    #@unittest.skip
     def test_get_categories(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1012,6 +1059,7 @@ class Interest(unittest.TestCase):
             r_json = self.app.get('/categories').get_json()
             self.assertIn('Moda', str(r_json))  # Check successful upload
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1021,6 +1069,7 @@ class Interest(unittest.TestCase):
 
 class PaymentsTest(unittest.TestCase):
 
+    #@unittest.skip
     def setUp(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1044,6 +1093,7 @@ class PaymentsTest(unittest.TestCase):
                     "message"]
             self.app.get('/logout')
 
+    #@unittest.skip
     def test_new_pay(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1061,6 +1111,7 @@ class PaymentsTest(unittest.TestCase):
             r_json = self.app.post('/payment', data=json_data, content_type='application/json').get_json()
             self.assertIn('info', str(r_json))  # Check successful pay created
 
+    #@unittest.skip
     def test_delete_pay(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1090,6 +1141,7 @@ class PaymentsTest(unittest.TestCase):
                                   content_type='application/json').get_json()
             self.assertIn('not found', str(r_json))  # Check deleted offer
 
+    #@unittest.skip
     def test_list_pays(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -1112,6 +1164,7 @@ class PaymentsTest(unittest.TestCase):
             r_json = self.app.get('/payments').get_json()
             self.assertIn(iban, str(r_json))  # Check deleted offer
 
+    #@unittest.skip
     def tearDown(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
