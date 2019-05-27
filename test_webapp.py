@@ -103,7 +103,9 @@ class UserDataBase(unittest.TestCase):
             self.assertIn('666999222', str(check.get_json()))  # Check get info
 
             self.app.post('/login', data=self.user_login, content_type='application/json')
-            self.app.delete('/user')
+            r_json = self.app.delete('/user').get_json()
+            self.assertIn('delete', str(r_json))  # Check successful insertion
+
 
     def test_session_user(self):
         with warnings.catch_warnings():
@@ -156,7 +158,7 @@ class UserDataBase(unittest.TestCase):
             self.assertIn(str(id), msg)  # Check successful deletion
 
             r = self.app.post('/login', data=self.user_login, content_type='application/json').get_json()
-            self.assertIn("User not found", str(r))  # Check unsuccessful login
+            self.assertIn("not found", str(r))  # Check unsuccessful login
 
     def test_mod_users(self):
         with warnings.catch_warnings():
