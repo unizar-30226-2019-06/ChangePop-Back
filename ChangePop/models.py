@@ -197,11 +197,17 @@ class Users(UserMixin, db.Model):
 
     def follow_prod(self, id):
         f = Follows(user_id=self.id, product_id=id)
+        product = Products.query.get(int(id))
+        product.followers = product.followers + 1
+
         db.session.add(f)
         db.session.commit()
 
     def unfollow_prod(self, id):
         Follows.query.filter_by(user_id=self.id, product_id=id).delete()
+        product = Products.query.get(int(id))
+        product.followers = product.followers - 1
+
         db.session.commit()
 
     def set_password(self, password):
