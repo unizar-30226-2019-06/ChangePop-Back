@@ -793,6 +793,7 @@ class Notifications(unittest.TestCase):
             r_json = self.app.get('/notifications').get_json()
             self.assertIn('Otra cosa', str(r_json))  # Check successful get
 
+    @unittest.skip
     def test_follow_notify(self):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
