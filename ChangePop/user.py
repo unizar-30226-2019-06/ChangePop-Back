@@ -100,6 +100,7 @@ def get_logged_user():
         "is_mod": str(user.is_mod),
         "token": str(user.token),
         "ban_reason": str(user.ban_reason),
+        "ban_until": str(user.ban_until),
         "points": str(user.points)
     }
 
