@@ -522,7 +522,7 @@ class Interests(db.Model):
 
     @staticmethod
     def add_interest(cat_name, user_id):
-        c = Interests.query.filter_by(cat_name=cat_name, user_id=user_id)
+        c = Interests.query.get(cat_name, user_id)
         if c is None:
             c = Interests(cat_name=cat_name, user_id=user_id)
             db.session.add(c)
