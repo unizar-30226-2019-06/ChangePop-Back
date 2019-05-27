@@ -5,8 +5,8 @@ from flask import Blueprint, request, json, Response
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException
-from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users
-from ChangePop.utils import api_resp
+from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users, Follows
+from ChangePop.utils import api_resp, fix_str, push_notify
 
 bp = Blueprint('product', __name__)
 
@@ -38,6 +38,8 @@ def create_product():
     product_id = Products.new_product(user_id, title, descript, price, place, main_img)
 
     for cat in categories:
+        if len(cat) <= 1:
+            raise ProductException(title, "Invalid categorie: " + cat)
         Categories.add_cat(cat)
         CatProducts.add_prod(cat, product_id)
 
@@ -60,18 +62,21 @@ def get_prod_info(id):
     categories = CatProducts.get_cat_names_by_prod(id)
     cats = []
     for cat in categories:
-        cats.append(str(cat))
+        cats.append(fix_str(str(cat)))
+
+    product.increment_views()
 
     images = Images.get_images_by_prod(id)
     imgs = []
     for img in images:
-        imgs.append(str(img))
+        imgs.append(fix_str(str(img)))
 
     product_json = {
 
         "id": int(product.id),
         "descript": str(product.descript),
         "user_id": int(product.user_id),
+        "user_nick": str(Users.get_nick(product.user_id)),
         "price": float(product.price),
         "categories": cats,
         "title": str(product.title),
@@ -126,11 +131,23 @@ def update_prod_info(id):
     Images.delete_images_by_prod(id)
 
     for cat in categories:
+        if len(cat) <= 1:
+            raise ProductException(title, "Invalid categorie: " + cat)
         Categories.add_cat(cat)
         CatProducts.add_prod(cat, id)
 
     for photo in photo_urls:
         Images.add_photo(photo, id)
+
+    # Notificaiones
+    if product.price > price:
+        users_ids = Follows.get_users_follow_prod(product.id)
+        for user_id in users_ids:
+            push_notify(user_id, "El precio del producto ha bajado! :D", int(product.id))
+    elif product.price < price:
+        users_ids = Follows.get_users_follow_prod(product.id)
+        for user_id in users_ids:
+            push_notify(user_id, "El precio del producto ha subido :(", int(product.id))
 
     product.update_me(title, price, descript, bid, place, main_img)
 
@@ -169,12 +186,13 @@ def list_products():
         categories = CatProducts.get_cat_names_by_prod(prod.id)
         cats = []
         for cat in categories:
-            cats.append(str(cat))
+            cats.append(fix_str(str(cat)))
 
         item = {
             "id": int(prod.id),
             "descript": str(prod.descript),
             "user_id": int(prod.user_id),
+            "user_nick": str(Users.get_nick(prod.user_id)),
             "price": float(prod.price),
             "title": str(prod.title),
             "categories": cats,
@@ -205,17 +223,18 @@ def list_products_user(id):
         categories = CatProducts.get_cat_names_by_prod(prod.id)
         cats = []
         for cat in categories:
-            cats.append(str(cat))
+            cats.append(fix_str(str(cat)))
 
         images = Images.get_images_by_prod(id)
         imgs = []
         for img in images:
-            imgs.append(str(img))
+            imgs.append(fix_str(str(img)))
 
         item = {
             "id": int(prod.id),
             "descript": str(prod.descript),
             "user_id": int(prod.user_id),
+            "user_nick": str(Users.get_nick(prod.user_id)),
             "price": float(prod.price),
             "title": str(prod.title),
             "categories": cats,
@@ -243,6 +262,7 @@ def follow_product(id):
     # TODO doc
 
     current_user.follow_prod(id)
+
     resp = api_resp(0, "info", "User" + ' (' + str(current_user.nick) + ') ' + "follows a product" + ' (' + str(id) + ') ')
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
@@ -254,6 +274,7 @@ def unfollow_product(id):
     # TODO doc
 
     current_user.unfollow_prod(id)
+
     resp = api_resp(0, "info", "User" + ' (' + str(current_user.nick) + ') ' + "unfollows a product" + ' (' + str(id) + ') ')
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
@@ -295,7 +316,44 @@ def search_products():
     for prod in products:
         item = {
             "id": str(prod.id),
-            "title": str(prod.title)
+            "title": str(prod.title),
+            "price": float(prod.price),
+            "user_nick": str(Users.get_nick(prod.user_id)),
+            "visits": int(prod.visits)
+        }
+
+        products_list.append(item)
+
+    json_users = {"length": len(products_list), "list": products_list}
+
+    return Response(json.dumps(json_users), status=200, content_type='application/json')
+
+
+@bp.route('/search/products/adv', methods=['GET'])
+def search_products_advanced():
+    if not request.is_json:
+        raise JSONExceptionHandler()
+
+    content = request.get_json()
+
+    title = content["title"]
+    price_min = float(content["price_min"])
+    price_max = float(content["price_max"])
+    place = str(content["place"])
+    desc = str(content["descript"])
+    category = str(content["category"])
+
+    products = Products.search_adv(title, price_min, price_max, place, desc, category)
+
+    products_list = []
+
+    for prod in products:
+        item = {
+            "id": str(prod.id),
+            "title": str(prod.title),
+            "price": float(prod.price),
+            "user_nick": str(Users.get_nick(prod.user_id)),
+            "visits": int(prod.visits)
         }
 
         products_list.append(item)

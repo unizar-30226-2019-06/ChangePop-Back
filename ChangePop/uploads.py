@@ -10,25 +10,19 @@ from werkzeug.utils import secure_filename
 from ChangePop import app, ALLOWED_EXTENSIONS
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
 from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages, Notifications
-from ChangePop.utils import api_resp
+from ChangePop.utils import api_resp, random_string
 
 bp = Blueprint('uploads', __name__)
 
 
-def allowed_file(filename): # pragma: no cover
+def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def random_string(string_length=20): # pragma: no cover
-    """Generate a random string of fixed length """
-    letters = string.ascii_lowercase+"0123456789"
-    return ''.join(random.choice(letters) for i in range(string_length))
-
-
 @bp.route('/upload', methods=['POST'])
 @login_required
-def upload_file(): # pragma: no cover
+def upload_file():
 
     # check if the post request has the file part
     if 'file' not in request.files:
@@ -66,7 +60,9 @@ def upload_file_test(): # pragma: no cover
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "ok: "+ request.base_url+"/uploads/"+file.filename
+            url = request.base_url.split('/')
+            file_url = url[0] + '/' + url[2] + "/uploads/" + file.filename
+            return "ok: <a href=\"" + "/uploads/" + file.filename + "\">" + file_url + "</a>"
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -79,5 +75,5 @@ def upload_file_test(): # pragma: no cover
 
 
 @bp.route('/uploads/<path:filename>')
-def uploaded_file(filename): # pragma: no cover
+def uploaded_file(filename):
     return send_file('../'+app.config['UPLOAD_FOLDER']+'/' + filename)

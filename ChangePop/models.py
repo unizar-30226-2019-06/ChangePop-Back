@@ -1,5 +1,8 @@
 import datetime
 
+from sqlalchemy import and_
+from sqlalchemy.orm import aliased
+
 from ChangePop import db
 from ChangePop import login
 from flask_login import UserMixin
@@ -20,10 +23,16 @@ class Categories(db.Model):
     @staticmethod
     def add_cat(cat_name):
         c = Categories.query.get(cat_name)
-        if not (c is not None):
+        if c is None:
             c = Categories(cat_name=cat_name)
             db.session.add(c)
             db.session.commit()
+
+    @staticmethod
+    def list():
+        # TODO doc and more
+        list = Categories.query.all()
+        return list
 
     def __repr__(self):
         return '{}'.format(self.cat_name)
@@ -43,12 +52,14 @@ class Users(UserMixin, db.Model):
     phone = db.Column(db.Integer, unique=True, nullable=False)
     mail = db.Column(db.String(255), unique=True, index=True, nullable=False)
     is_mod = db.Column(db.Boolean, unique=False, nullable=False)
+    is_validated = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     dni = db.Column(db.String(255), unique=True, index=True, nullable=False)
     avatar = db.Column(db.String(255), unique=False, nullable=False)
     fnac = db.Column(db.Date, unique=False, nullable=False)
     place = db.Column(db.String(255), unique=False, nullable=False)
     pass_hash = db.Column(db.String(255), nullable=False)
     token = db.Column(db.String(255))
+    desc = db.Column(db.String, unique=False, nullable=True)
     time_token = db.Column(db.DateTime(timezone=True))
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
     ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
@@ -77,7 +88,7 @@ class Users(UserMixin, db.Model):
         return user.nick
 
     @staticmethod
-    def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail):
+    def new_user(nick, last_name, first_name, phone, dni, place, pass_hash, fnac, mail, token):
         # TODO doc
         u = Users(nick=nick,
                   last_name=last_name,
@@ -90,7 +101,9 @@ class Users(UserMixin, db.Model):
                   fnac=fnac,
                   is_mod=False,
                   mail=mail,
-                  avatar="http://127.0.0.1:5000/static/images/logo.jpg"
+                  avatar="./static/images/logo.jpg",
+                  is_validated=False,
+                  token=token
                   )
         u.set_password(pass_hash)
         db.session.add(u)
@@ -117,10 +130,10 @@ class Users(UserMixin, db.Model):
                                          Products.title,
                                          Products.descript,
                                          Products.price,
-                                         Products.main_img).join(Follows,
-                                                                 Users,
-                                                                 Images).filter(my_id == Follows.user_id,
-                                                                                Products.id == Follows.product_id)
+                                         Products.main_img,
+                                         Products.bid_date).join(Follows,
+                                                                 Users).filter(my_id == Follows.user_id,
+                                                                               Products.id == Follows.product_id)
 
         return products_list
 
@@ -130,7 +143,7 @@ class Users(UserMixin, db.Model):
 
         db.session.commit()
 
-    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod=None,
+    def update_me(self, nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, desc, is_mod=None,
                   ban_reason=None,
                   token=None, points=None, pass_hash=None):
         # TODO doc
@@ -143,6 +156,7 @@ class Users(UserMixin, db.Model):
         self.place = place
         self.mail = mail
         self.avatar = avatar
+        self.desc = desc
 
         if is_mod is not None:
             self.is_mod = is_mod
@@ -162,6 +176,14 @@ class Users(UserMixin, db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def set_token(self, token):
+        self.token = token
+        db.session.commit()
+
+    def validate_me(self):
+        self.is_validated = True
+        db.session.commit()
+
     def mod_me(self):
         # TODO doc
         self.is_mod = True
@@ -175,11 +197,18 @@ class Users(UserMixin, db.Model):
 
     def follow_prod(self, id):
         f = Follows(user_id=self.id, product_id=id)
+        product = Products.query.get(int(id))
+        product.followers = product.followers + 1
+
         db.session.add(f)
         db.session.commit()
 
     def unfollow_prod(self, id):
         Follows.query.filter_by(user_id=self.id, product_id=id).delete()
+        product = Products.query.get(int(id))
+        product.followers = product.followers - 1
+
+        db.session.commit()
 
     def set_password(self, password):
         """ This funcion set a password to a user after encrypt it
@@ -228,6 +257,7 @@ class Products(db.Model):
     images = db.relationship("Images", cascade="all, delete-orphan")
     follows = db.relationship("Follows", cascade="all, delete-orphan")
     reports = db.relationship("Reports", cascade="all, delete-orphan")
+    notifications = db.relationship("Notifications", cascade="all, delete-orphan")
 
     @staticmethod
     def list():
@@ -242,8 +272,41 @@ class Products(db.Model):
         return list
 
     @staticmethod
+    def get_title(id):
+        # TODO doc
+        prod = Products.query.get(id)
+        return prod.title
+
+    @staticmethod
     def search(title):
         list = Products.query.filter(Products.title.like('%' + title + '%')).all()
+        return list
+
+    @staticmethod
+    def search_adv(title, price_min, price_max, place, desc, category):
+        list = db.session.query(Products.id.label('id'),
+                                Products.title.label('title'),
+                                Products.price.label('price'),
+                                Products.descript.label('descript'),
+                                Products.user_id.label('user_id'),
+                                Products.visits.label('visits'),
+                                Products.place.label('place'), CatProducts.cat_name).filter(CatProducts.product_id == Products.id)
+
+        if price_min is not None:
+            list = list.filter(Products.price >= price_min)
+        if price_max is not None:
+            list = list.filter(Products.price <= price_max)
+        if title is not None:
+            list = list.filter(Products.title.like('%' + title + '%'))
+        if desc is not None:
+            list = list.filter(Products.descript.like('%' + desc + '%'))
+        if place is not None:
+            list = list.filter(Products.place.like('%' + place + '%'))
+        if category is not None:
+            list = list.filter(CatProducts.cat_name == category)
+
+        list = list.distinct(Products.id).all()
+
         return list
 
     @staticmethod
@@ -290,8 +353,20 @@ class Products(db.Model):
         self.bid_date = bid
         db.session.commit()
 
+    def increment_views(self):
+        self.visits = self.visits + 1
+        db.session.commit()
+
+    def followers_up(self):
+        self.followers = self.followers + 1
+        db.session.commit()
+
+    def followers_down(self):
+        self.followers = self.followers - 1
+        db.session.commit()
+
     def __repr__(self):
-        return '{},{},{},{}'.format(self.id, self.tittle, self.user_id)
+        return '{},{},{},{},{}'.format(self.id, self.title, self.user_id, self.visits, self.user_id)
 
 
 class Images(db.Model):
@@ -327,6 +402,30 @@ class Reports(db.Model):
     report_date = db.Column(db.DateTime(timezone=True), index=True, unique=False, nullable=True,
                             default=datetime.datetime.utcnow())
 
+    @staticmethod
+    def new_report(user_id, product_id, reason):
+        r = Reports(user_id=user_id, product_id=product_id, reason=reason)
+        db.session.add(r)
+        db.session.commit()
+        db.session.flush()
+
+        return r.id
+
+    @staticmethod
+    def list():
+        # TODO doc
+        list = Reports.query.all()
+        return list
+
+    def delete_me(self):
+        # TODO doc
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def delete_by_id(report_id):
+        Reports.query.get(report_id).delete_me()
+
     def __repr__(self):
         return '{},{},{},{}'.format(self.id, self.reason, self.user_id, self.product_id)
 
@@ -343,6 +442,30 @@ class Payments(db.Model):
 
     def __repr__(self):
         return '{},{},{}'.format(self.id, self.amount, self.product_id)
+
+    @staticmethod
+    def list():
+        # TODO doc
+        list = Payments.query.all()
+        return list
+
+    def delete_me(self):
+        # TODO doc
+        db.session.delete(self)
+        db.session.commit()
+
+    @staticmethod
+    def add(amount, iban, product_id, boost_date):
+        pays = Payments(product_id=product_id,
+                        amount=amount,
+                        iban=iban,
+                        boost_date=boost_date)
+
+        db.session.add(pays)
+        db.session.commit()
+        db.session.flush()
+
+        return pays.id
 
 
 class Comments(db.Model):
@@ -403,11 +526,37 @@ class Interests(db.Model):
     def __repr__(self):
         return '{},{}'.format(self.cat_name, self.user_id)
 
+    @staticmethod
+    def add_interest(cat_name, user_id):
+        c = Interests.query.filter_by(cat_name=cat_name, user_id=user_id)
+        if c is None:
+            c = Interests(cat_name=cat_name, user_id=user_id)
+            db.session.add(c)
+            db.session.commit()
+
+    @staticmethod
+    def interest_byUser(id):
+        list = Interests.query.filter_by(user_id=id)
+        return list
+
+    @staticmethod
+    def delete_all(user_id):
+        Interests.query.filter_by(user_id=user_id).delete()
+
+    @staticmethod
+    def delete_interest(cat, user_id):
+        Interests.query.filter_by(user_id=user_id, cat_name=cat).delete()
+
 
 class Follows(db.Model):
     __tablename__ = 'Follows'
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), primary_key=True)
+
+    @staticmethod
+    def get_users_follow_prod(product_id):
+        list = Follows.query.with_entities(Follows.user_id).filter_by(product_id=product_id)
+        return list
 
     def __repr__(self):
         return '{},{}'.format(self.product_id, self.user_id)
@@ -441,8 +590,8 @@ class Trades(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('Products.id'), nullable=False)
     user_sell = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     user_buy = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    closed_s = db.Column(db.Boolean, unique=False, nullable=False)
-    closed_b = db.Column(db.Boolean, unique=False, nullable=False)
+    closed_s = db.Column(db.Boolean, unique=False, nullable=False, default=False)
+    closed_b = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     price = db.Column(db.Float, unique=False, nullable=False)
     ts_create = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow())
     ts_edit = db.Column(db.DateTime(timezone=True), unique=False, nullable=False, default=datetime.datetime.utcnow(),
@@ -469,12 +618,25 @@ class Trades(db.Model):
         return t.id
 
     @staticmethod
+    def delete_id(id):
+        Trades.query.filter_by(id=id).delete()
+        db.session.commit()
+
+    @staticmethod
     def get_trades(user_id):
         items = Trades.query.filter((Trades.user_sell == str(user_id)) | (Trades.user_buy == str(user_id)))
         return items
 
     def set_price(self, price):
         self.price = price
+
+        db.session.commit()
+
+    def switch(self, who):
+        if who == 's':
+            self.closed_s = not self.closed_s
+        elif who == 'b':
+            self.closed_b = not self.closed_b
 
         db.session.commit()
 
@@ -546,6 +708,11 @@ class Notifications(db.Model):
         n = Notifications(user_id=user, product_id=product, category=category, text=text)
 
         db.session.add(n)
+        db.session.commit()
+
+    @staticmethod
+    def delete_id(id):
+        Notifications.query.filter_by(id=id).delete()
         db.session.commit()
 
     @staticmethod

@@ -10,7 +10,17 @@
 	
 	<p><img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Italian Trulli"></p>
 
-	<a href="./page">Ir a una pagina en el mismo directorio (./page)</a>
+	<a href="./test_upload">Test subir archivo</a>
 	<br>
-	<a href="./dir/index">Ir a una pagina en otro directorio (./dir/index)</a>
+	<a href="./test_request">Test peticion http</a>
+    <br>
+	<a href="./test_login">Test login</a>
+    <br>
+    <u>Test mail:</u>
+    <form action="/test_mail">
+      Mail:
+      <input type="text" name="mail" value="example@yopmail.com">
+      <input type="submit" value="Submit">
+    </form>
+
 {% endblock %}

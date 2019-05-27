@@ -1,9 +1,10 @@
-from flask import render_template, Response, json
+from flask import render_template, Response, json, send_file, request
 from sqlalchemy.exc import IntegrityError, DatabaseError
 from werkzeug.exceptions import BadRequest
 
-from ChangePop import app, user, product, bids, trade, commsg, notify, uploads
+from ChangePop import app, user, product, bids, trade, commsg, notify, uploads, reports, payment, category
 from ChangePop.exeptions import JSONExceptionHandler, UserException, NotLoggedIn, UserBanned, ProductException
+from ChangePop.utils import send_mail
 
 app.register_blueprint(user.bp)
 app.register_blueprint(product.bp)
@@ -12,11 +13,39 @@ app.register_blueprint(trade.bp)
 app.register_blueprint(commsg.bp)
 app.register_blueprint(notify.bp)
 app.register_blueprint(uploads.bp)
+app.register_blueprint(reports.bp)
+app.register_blueprint(category.bp)
+app.register_blueprint(payment.bp)
 
 
 @app.route('/')
 def show():
     return render_template('index.html')
+
+
+@app.route('/test_request') # pragma: no cover
+def show_test():
+    return render_template('test.html')
+
+
+@app.route('/test_login') # pragma: no cover
+def show_test_login():
+    return render_template('test_login.html')
+
+
+@app.route('/test_mail') # pragma: no cover
+def test_mail():
+    mail = request.args.get('mail')
+    subject = "Test"
+    text = "Dear passenger 1, welcome to Mailjet! May the delivery force be with you!"
+    html = "<h3>Dear passenger 1, welcome to <a href='https://www.mailjet.com/'>Mailjet</a>!</h3><br />May the delivery force be with you!"
+    send_mail(mail, mail, subject, text, html)
+    return "ok (creo xD)"
+
+
+@app.route('/<path:dirr>') # pragma: no cover
+def file_for_mailjet(dirr):
+    return send_file('static/' + dirr)
 
 
 @app.errorhandler(BadRequest)

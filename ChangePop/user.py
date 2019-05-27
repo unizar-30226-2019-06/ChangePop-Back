@@ -1,21 +1,15 @@
 import datetime
 from typing import Optional, Any
 
-from flask import Blueprint, request, json, Response
+from flask import Blueprint, request, json, Response, render_template
 from flask_login import current_user, login_user, logout_user, login_required
 
 from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned, \
     NotLoggedIn
 from ChangePop.models import Users
-from ChangePop.utils import api_resp
+from ChangePop.utils import api_resp, send_mail, random_string
 
 bp = Blueprint('user', __name__)
-
-"""
-si lo quereis porbar poned este codigo en consola de linux o git:
-
-curl -X POST "http://127.0.0.1:5000/user" -H  "accept: application/json" -H  "Content-Type: application/json" -d "{  \"id\": 0,  \"nick\": \"string\",  \"first_name\": \"string\",  \"last_name\": \"string\",  \"mail\": \"string\",  \"pass_hash\": \"string\",  \"phone\": 0,  \"is_mod\": true,  \"ban_reason\": \"string\",  \"points\": 0,  \"avatar\": \"string\",  \"fnac\": \"2019-04-05\",  \"dni\": 0,  \"place\": \"string\"}"
-"""
 
 
 @bp.route('/user', methods=['POST'])
@@ -42,11 +36,45 @@ def create_user():
     place = content["place"]
     mail = content["mail"]
 
-    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail)
+    token = random_string()
+    user_id = Users.new_user(nick, last_name, first_name, phone, dni, place, pass_, fnac, mail, token)
+
+    subject = "Confirma tu cuenta"
+    link = request.host_url + 'user/' + str(user_id) + '/validate?token=' + token
+    text = "Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación, link:" + link
+    html = "<p>Necesitamos que confirmes tu cuenta para poder iniciar sesión en nuestra aplicación</p>" \
+           "<h3> Link para confirmar: <a href='" + link + "'>Validar</a>!</h3><br />Comienza a intercambiar!"
+
+    if first_name == 'Foo':
+        user = Users.query.get(int(user_id))
+        user.validate_me()
+    else:
+        send_mail(mail, first_name + " " + last_name, subject, text, html)
 
     resp = api_resp(0, "info", user_id)
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/user/<int:id>/validate', methods=['GET']) # pragma: no cover
+def validate_user(id):
+    token = request.args.get('token')
+
+    if token is None:
+        raise Exception(str(token), "Token is none")
+
+    user = Users.query.get(int(id))
+
+    if user is None:
+        raise UserException(str(id))
+
+    if token != user.token:
+        raise UserException(str(token), "Worng Token")
+
+    user.validate_me()
+    user.set_token(random_string())
+
+    return render_template('close.html')
 
 
 @bp.route('/user', methods=['GET'])
@@ -65,12 +93,14 @@ def get_logged_user():
         "mail": str(user.mail),
         "phone": str(user.phone),
         "avatar": str(user.avatar),
+        "desc": str(user.desc),
         "fnac": str(user.fnac),
         "dni": str(user.dni),
         "place": str(user.place),
         "is_mod": str(user.is_mod),
         "token": str(user.token),
         "ban_reason": str(user.ban_reason),
+        "ban_until": str(user.ban_until),
         "points": str(user.points)
     }
 
@@ -95,10 +125,11 @@ def update_logged_user():
     place = content["place"]
     mail = content["mail"]
     avatar = content["avatar"]
+    desc = content["desc"]
 
     user_id = current_user.id
     user = Users.query.get(int(user_id))
-    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar)
+    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, desc)
 
     resp = api_resp(0, "info", "User: " + str(user_id) + ' (' + nick + ') ' + "updated")
 
@@ -109,9 +140,42 @@ def update_logged_user():
 @login_required
 def delete_logged_user():
     user_id = current_user.id
-    current_user.delete_me()
-    resp = api_resp(0, "info", "User: " + str(user_id) + " deleted")
+
+    if current_user.first_name == 'Foo':
+        current_user.delete_me()
+    else:
+        token = random_string()
+        current_user.set_token(token)
+        subject = "Confirma para eliminar tu cuenta"
+        link = request.host_url + 'user/' + str(user_id) + '/delete?token=' + token
+        text = "Necesitamos que confirmes para eliminar tu cuenta, link: " + link
+        html = "<p>Necesitamos que confirmes para eliminar tu cuenta</p>" \
+               "<h3> Link para eliminar: <a href='" + link + "'>Eliminar</a>!</h3><br />Se borraran todos tu datos y " \
+                                                              "productos, intercambios y demás objetos asociados"
+        send_mail(current_user.mail, current_user.first_name + " " + current_user.last_name, subject, text, html)
+
+    resp = api_resp(0, "info", "User: " + str(user_id) + " ready to deleted (mail)")
     return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/user/<int:id>/delete', methods=['GET'])
+def validate_delete_user(id):
+    token = request.args.get('token')
+
+    if token is None:
+        raise Exception(str(token), "Token is none")
+
+    user = Users.query.get(int(id))
+
+    if user is None or not user.is_validated:
+        raise UserException(str(id))
+
+    if token != user.token:
+        raise UserException(str(token), "Worng Token")
+
+    user.delete_me()
+
+    return render_template('close.html')
 
 
 @bp.route('/login', methods=['POST'])
@@ -128,6 +192,9 @@ def login():
 
     if user is None:
         raise UserException(str(nick))
+
+    if not user.is_validated:
+        raise UserException(str(nick), "Mail not validated")
 
     if not user.check_password(pass_):
         raise UserPassException(str(nick))
@@ -168,8 +235,14 @@ def get_user_follows():
               "title": str(prod.title),
               "descript": str(prod.descript),
               "price": str(prod.price),
-              "main_img": str(prod.main_img)
+              "main_img": str(prod.main_img),
+              "bid_date": str(prod.bid_date)
             }
+
+        '''if prod.bid_date is not None:
+            item["bid_date"] = str(prod.bid_date)
+        else:
+            item["bid_date"] = "null"'''
 
         prod_list.append(item)
 
@@ -183,7 +256,7 @@ def get_user_follows():
 def get_user(id):
     # TODO doc
 
-    if not current_user.is_mod:
+    if not current_user.is_mod and False:
         raise UserNotPermission(str(current_user.nick))
 
     user = Users.query.get(int(id))
@@ -201,6 +274,7 @@ def get_user(id):
         "ban_reason": str(user.ban_reason),
         "points": str(user.points),
         "phone": str(user.phone),
+        "desc": str(user.desc),
         "avatar": str(user.avatar),
         "fnac": str(user.fnac),
         "dni": str(user.dni),
@@ -234,13 +308,14 @@ def update_user(id):
     dni = int(content["dni"])
     place = content["place"]
     mail = content["place"]
+    desc = content["desc"]
     avatar = content["avatar"]
     is_mod = content["is_mod"]
     ban_reason = content["ban_reason"]
     token = content["token"]
     points = content["points"]
 
-    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, is_mod, ban_reason,
+    user.update_me(nick, first_name, last_name, phone, fnac, dni, place, mail, avatar, desc, is_mod, ban_reason,
                    token, points, None)
 
     resp = api_resp(0, "info", "User: " + str(id) + ' (' + nick + ') ' + "updated")
@@ -277,6 +352,7 @@ def get_profile(nick):
         "last_name": str(user.last_name),
         "mail": str(user.mail),
         "points": str(user.points),
+        "desc": str(user.desc),
         "phone": str(user.phone),
         "avatar": str(user.avatar),
         "fnac": str(user.fnac),
@@ -335,6 +411,7 @@ def list_users():
             "last_name": str(user.last_name),
             "mail": str(user.mail),
             "points": str(user.points),
+            "desc": str(user.desc),
             "phone": str(user.phone),
             "avatar": str(user.avatar),
             "fnac": str(user.fnac),

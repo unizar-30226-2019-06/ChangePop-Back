@@ -48,12 +48,15 @@ def get_notifications():
     for noti in notifications:
 
         product_id = str(noti.product_id) if noti.product_id is not None else "null"
+        product_name = str(Products.get_title(noti.product_id)) if noti.product_id is not None else "null"
         category = str(noti.category) if noti.category is not None else "null"
 
         item = {
             "id": str(noti.id),
             "user_id": str(noti.user_id),
+            "user_nick": str(Users.get_nick(noti.user_id)),
             "product_id": str(product_id),
+            "product_name": str(product_name),
             "category": str(category),
             "date": str(noti.date),
             "text": str(noti.text)
@@ -76,3 +79,14 @@ def delete_notifications():
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
+
+@bp.route('/notification/<int:id>', methods=['DELETE'])
+@login_required
+def delete_notification_id(id):
+    # TODO comprobar k la noty es del user loged
+
+    Notifications.delete_id(id)
+
+    resp = api_resp(0, "info", "Successful delete")
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')

@@ -20,3 +20,5 @@ flask_wtf
 #psycopg2==2.7.7
 django_heroku
 werkzeug
+flask_cors
+mailjet_rest
