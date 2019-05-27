@@ -287,6 +287,7 @@ def unfollow_product(id):
     product = Products.query.get(int(id))
     product.followers_down()
 
+
     return Response(json.dumps(resp), status=200, content_type='application/json')
 
 
