@@ -60,6 +60,8 @@ def get_trade(id):
         "seller_id": int(trade.user_sell),
         "buyer_id": int(trade.user_buy),
         "closed": bool(trade.closed_s and trade.closed_b),
+        "closed_s": bool(trade.closed_s),
+        "closed_b": bool(trade.closed_b),
         "price": float(trade.price),
         "last_edit": str(trade.ts_edit),
         "products_offer": prods
@@ -212,6 +214,8 @@ def get_list_trades():
             "seller_id": int(t.user_sell),
             "buyer_id": int(t.user_buy),
             "closed": bool(t.closed_s and t.closed_b),
+            "closed_s": bool(t.closed_s),
+            "closed_b": bool(t.closed_b),
             "price": float(t.price),
             "last_edit": str(t.ts_edit)
         }
