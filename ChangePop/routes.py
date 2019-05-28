@@ -39,8 +39,8 @@ def test_mail():
     subject = "Test"
     text = "Dear passenger 1, welcome to Mailjet! May the delivery force be with you!"
     html = "<h3>Dear passenger 1, welcome to <a href='https://www.mailjet.com/'>Mailjet</a>!</h3><br />May the delivery force be with you!"
-    send_mail(mail, mail, subject, text, html)
-    return "ok (creo xD)"
+    #send_mail(mail, mail, subject, text, html)
+    return "Desactivado, ya no va porque nos hakean xD"
 
 
 @app.route('/<path:dirr>') # pragma: no cover
