@@ -631,6 +631,12 @@ class TradesProducts(unittest.TestCase):
                                   content_type='application/json').get_json()
             self.assertIn('Successful offer update', str(r_json))  # Check update
 
+            json_data = json.dumps({
+                "body": "HELLO THERE!"
+            })
+            r_json = self.app.post('/msgs/' + str(trade_id), data=json_data, content_type='application/json').get_json()
+            self.assertIn('Message created', str(r_json))  # Check successful creation
+
             self.app.get('/logout')
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 

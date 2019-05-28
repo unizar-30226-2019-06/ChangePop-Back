@@ -619,7 +619,8 @@ class Trades(db.Model):
 
     @staticmethod
     def delete_id(id):
-        Trades.query.filter_by(id=id).delete()
+        t = Trades.query.get(id)
+        db.session.delete(t)
         db.session.commit()
 
     @staticmethod
