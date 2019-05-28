@@ -49,11 +49,9 @@ def get_report():
             "user_id": str(report.user_id),
             "user_nick": str(Users.get_nick(report.user_id)),
             "reason": str(report.reason),
-            "date": str(report.report_date)
+            "date": str(report.report_date),
+            "product_id": str(report.product_id)
         }
-
-        if report.product_id is not None:
-            item["product_id"] = str(report.product_id)
 
         reports_list.append(item)
 
