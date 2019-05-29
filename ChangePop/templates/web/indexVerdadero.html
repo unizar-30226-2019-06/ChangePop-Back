@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="icon" href="../../favicon.ico">-->
+
+    <title>Jumbotron Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../static/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/style.css" rel="stylesheet">
+    <script type="text/javascript" src="httpGet.js"></script> 
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="../static/assets/js/ie-emulation-modes-warning.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script >
+      
+      var urlObtenerAnuncios = "http://kelpa-api.herokuapp.com/products"
+             //Necesario para parsear el json
+             var jsonAnuncios = JSON.parse(httpGet(urlObtenerAnuncios));
+             var anuncios = jsonAnuncios.list;
+      var url="https://kelpa-api.herokuapp.com/login"
+      
+     function conectarse(){
+      var params = {
+        nick : document.getElementById("user").value,
+        pass : document.getElementById("pass").value,
+        remember : true
+      }
+
+        post(url,params,function(){
+          var urlUser = "https://kelpa-api.herokuapp.com/profile/"+document.getElementById("user").value;
+          sessionStorage.setItem('usuarioLogeado', httpGet(urlUser) );
+          window.location = "index.html";
+        }, function(){
+          alert("Usuario o contraseña incorrecto");
+        });
+      };
+    </script>     
+
+  </head>
+
+  <body>
+  
+    <div id="Login" class="modal fade">
+      <div class="modal-dialog" style="height:40% top bottom">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+              aria-label="Close">&times;</button>
+            <h4 class="modal-title">Hola de nuevo!</h4>
+          </div>
+          <div class="modal-body">
+              <div class="input-append">
+                <div>
+                  <p>Usuario</p>
+                  <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="user" required>
+
+                  <p>Contraseña</p>
+                  <input type="password" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="pass" required>
+                </div>
+                  <button type="button" class="btn btn-success" onclick="conectarse();" >Connection</button>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <div class="row">
+              <div class="col-md-6">
+                <p style="font-size: 18px"align="left">¿No estás registrado?</p>
+              </div>
+              <div class="col-md-6">
+                <button type="button" class="btn btn-primary" data-dismiss="modal"  data-toggle="modal" data-target="#Registro">Crear cuenta</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="Registro" class="modal fade">
+        <div class="modal-dialog" style="height:40% top bottom">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                aria-label="Close">&times;</button>
+              <h4 class="modal-title">Bienvenido!</h4>
+            </div>
+            <div class="modal-body">
+                <div class="input-append">
+                  <div>
+                    <p>Nombre</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="nombre" required>
+  
+                    <p>Apellidos</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="apellido" required>
+
+                    <p>Usuario</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="user" required>
+
+                    <p>Contraseña</p>
+                    <input type="password" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="pass" required>
+
+                    <p>DNI</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="dni" required>
+  
+                    <p>Localidad</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="loc" required>
+
+                    <p>Teléfono</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="tel" required>
+  
+                    <p>Mail</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="mail" required>
+
+                    <p>Fecha de nacimiento</p>
+                    <input type="date" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%" id="fnac" required>
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" onclick="registro()">Registrarse</button>
+            </div>
+            <script>
+              function registro(){
+                var data = JSON.stringify({"nick": document.getElementById("user").value, "first_name": document.getElementById("nombre").value, "last_name": document.getElementById("apellido").value, "mail": document.getElementById("mail").value, "pass": document.getElementById("pass").value, "phone": document.getElementById("tel").value, "fnac": document.getElementById("fnac").value, "dni": document.getElementById("dni").value, "place": document.getElementById("loc").value});
+                console.log(data);
+              }
+            </script>
+          </div>
+        </div>
+      </div>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="display: none" id="no_reg_var">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#"><img src="../static/logo.jpg" width="55px" /></a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <form  method="get" class="navbar-form navbar-left" action="busquedaTexto.html">
+            <div class="form-group">
+              <input name="texto" type="text" class="form-control" placeholder="Buscar">
+            </div>
+            <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+          </form>
+
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#Login" data-toggle="modal" role="button"><span
+                  class="glyphicon glyphicon-log-in"></span>Conectarse</a></li>
+
+            <li><a href="#Registro" data-toggle="modal" role="button"><span 
+                class="glyphicon glyphicon-user"></span>Registrarse</a></li>
+          </ul>
+
+          <!-- Modal / Ventana / Overlay en HTML -->
+
+        </div>
+      </div>
+    </nav>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" style="display: none" id="reg_var">
+        <div class="container">
+          
+          <div class="collapse navbar-collapse" id="myNavbar">
+              <div class="navbar-header">
+                  <a class="navbar-brand" href="index.html"><img  src="/static/logo.jpg" width="55px" /></a>
+                </div>
+                <form method="get" class="navbar-form navbar-left" action="busquedaTexto.html">
+                   <form  method="get" class="navbar-form navbar-left" action="busquedaTexto.html">
+            <div class="form-group">
+              <input name="texto" type="text" class="form-control" placeholder="Buscar">
+            </div>
+            <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+          </form>
+                  <form class="navbar-form navbar-left" method="get" action="crearAnuncio.html">
+                        <button type="submit" class="btn btn-success">Subir producto</button>
+                    </form>
+            <ul class="nav navbar-nav navbar-right" id="in_line" >
+                
+                    <div class="dropdown"> 
+                            <a data-toggle="dropdown" style="color:rgb(0, 0, 0);" >
+                                <span style="color:white;font-weight:bold" id="nom" >Pedrito</span>
+                            <img id="icono"  class='img-circle' height="42" width="42"  > </img>
+                                <ul class="dropdown-menu">
+                                    <li><a href="chat.html">Mensajes <span class="glyphicon glyphicon-envelope"></span> <span class="badge">10</span></li>
+                                   <li><a href="miCarrito.html">Mi carrito  <span class="glyphicon glyphicon-shopping-cart my-cart-icon"></span> <span class="badge">10</span></li>
+                                   <li><a  id='usuario' href="perfil_vendedor.html">Mi perfil <span class="glyphicon glyphicon-user"></span></a></li>
+                                 <li><a href="editarUsuario.html">Editar perfil <span class="glyphicon glyphicon-cog"></span></a></li>
+                                  <li><a href="index.html" onclick="logout()">Desconectarse <span class="glyphicon glyphicon-off"></span></a></li>
+                                  <script>
+                                    function logout(){
+                                      sessionStorage.removeItem("usuarioLogeado");
+                                    }
+                                  </script>
+                                  
+                               </ul>
+                        </div>
+                    </a>
+                    
+                
+                    </div>
+                    
+            </ul>
+          </div>
+        </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+        <div class="container">
+          <h1>Filtro avanzado :</h1> 
+              <p class="lead"></p>
+  
+                  <form method="post" action="contact.php" enctype="multipart/form-data" class="form-horizontal">
+                  <fieldset>
+  
+                  <div class="row">
+                  <div class="form-group">
+                      <label class="col-md-2 control-label">¿Qué buscas ?</label>  
+                      <div class="col-md-3">
+                      <input id="busqueda" name="busqueda" class="form-control input-md" required="" type="text">
+                      </div>
+                      <label class="col-md-2 control-label">¿Dondé ?</label>  
+                      <div class="col-md-3">
+                      <input id="lugar" name="lugar" class="form-control input-md" required="" type="text">
+                      </div>
+                      </div>
+                      </div>
+                      <br>
+  
+                      <div class="row">
+                      <div class="form-group">
+                      <label class="col-md-2 control-label">Precio Min :</label>  
+                      <div class="col-md-1">
+                          <input id="busqueda" name="busqueda" class="form-control input-md" required="" type="number">
+                      </div>
+                      <label class="col-md-1 control-label">Max :</label>  
+                      <div class="col-md-1">
+                          <input id="lugar" name="lugar" class="form-control input-md" required="" type="number">
+                      </div>
+                      
+                      <label class="col-md-2 control-label">Categoría :</label>  
+                      <div class="col-md-1">
+                          <select name="categoria" id="categoria">
+                              <script> 
+                                  var urlCategorias = "http://kelpa-api.herokuapp.com/categories"
+                                  var jsonCategorias = JSON.parse(httpGet(urlCategorias));
+                                  for (i in jsonCategorias.list) {
+                                      
+                                      document.write('<option value="todas">'+ jsonCategorias.list[i].toString()+'</option>');
+                                  }   
+                              </script>
+                            </select>
+                          
+                      </div>
+                      
+                  </div>
+                  </div>
+                  <br>
+                      <button class="col-md-offset-5 btn btn-info" type="submit"><span class="glyphicon glyphicon-ok-sign"></span> Buscar!</button>
+                  </fieldset>
+                  </form>
+  
+        </div>
+      </div>
+  <!--PRODUCTOS A LA VENTA-->
+      <div class="container">
+          <h2>SE VENDE</h2>
+          <div class="row">
+  
+              <script>
+                function pujar(id){
+                  var params = {
+                    "bid": document.getElementById("price").value
+                  };
+                  var urlBid="https://kelpa-api.herokuapp.com/bid/"+id;
+                  post(urlBid,params,function(){
+                      alert("Pujar porocesada con exito");
+                    }, function(){
+                      alert("No se ha podido realizar la puja");
+                    });
+                  };
+
+                  function negociar(seller_id, product_id){
+                    var urlTrade="https://kelpa-api.herokuapp.com/trade";
+                    var params = {
+                      "seller_id": seller_id,
+                      "buyer_id": usuarioLog.id,
+                      "product_id": product_id
+                    };
+                    post(urlTrade,params,function(){
+                      window.location = "chat.html";
+                    }, function(){
+                      alert("No se ha podido reslizar la operacion");
+                    });
+                  };
+                
+                     var j =0;
+                      for (i in anuncios) {
+                          if(j%4==0)
+                          {
+                                   document.write('<div class="row" style="margin:0px; border: solid 2px white;">');
+                          }
+                          document.write('<a href="anuncio.html?idAnuncio=' + anuncios[i].id   + ' " class="anuncio">  <div class="col-md-3 " style="border-left: solid 2px white;  height:100%; "> '  );
+                          document.write('<h2>'+ anuncios[i].title + '</h2>'   );
+                          document.write('<img src="'+  anuncios[i].main_img  + '" style="border: solid 2px white; width:100%; max-width:250px; height:auto; ">');
+                          document.write('</br>');
+                          document.write(' <em>Precio <strong>' + anuncios[i].price   + '€</strong> - Fecha publicación:' +   anuncios[i].publish_date  + 
+                          '<span class="glyphicon glyphicon-map-marker " style="color:green;font-size: 20px" >'+ anuncios[i].place +'</span> </em>');
+                          document.write(' <p>'+ anuncios[i].descript  + '</p> ');
+                          document.write('<div class="row">');
+                          if(sessionStorage.getItem('usuarioLogeado') != null){
+                            document.write('<a class="glyphicon glyphicon-comment" href="#" role="button" onclick="negociar()">Negociar </a> <a>&nbsp;</a>');
+                            document.write(' <a class="glyphicon glyphicon-heart" href="#" role="button">Favoritos</a>');
+                          }
+                          document.write('</div>');
+                          if(anuncios[i].bid_date.localeCompare("None") != 0 && sessionStorage.getItem('usuarioLogeado') != null){
+                            document.write('<div class="form-group"> <input type="number" class="form-control width100" id="precio" >' + 
+                                                '<span class="input-group-btn">' +
+                                                '<button class="btn btn-primary" onclick="pujar(anuncios[i].id)">Pujar</button>'+
+                                                '</span></div>');
+                            document.getElementById("precio").value=anuncios[i].price+1;
+                            document.getElementById("precio").min=anuncios[i].price+1;
+                          }    
+                          document.write('</div> </a>');
+                          
+                          if((j+1)%4==0)
+                          {
+                                   document.write('</div>');
+                          }
+                          j++;
+                       }          
+                       if((j-2)%4==0)
+                       {
+                                  document.write('</div>');
+                       }
+                  
+                
+              
+              </script>
+              
+      </div>  
+  
+      </div> <!-- /container -->
+      <script>
+        if(sessionStorage.getItem('usuarioLogeado') == null){
+          document.getElementById("no_reg_var").style.display='block';
+          document.getElementById("reg_var").style.display='none';
+        }else{
+          var usuarioLog = JSON.parse(sessionStorage.getItem('usuarioLogeado'));
+          document.getElementById("icono").src = usuarioLog.avatar ;
+          document.getElementById("nom").innerHTML = usuarioLog.nick ;
+          document.getElementById("usuario").href =  "perfil_vendedor.html?nick=" + usuarioLog.nick ;
+          document.getElementById("reg_var").style.display='block';
+          document.getElementById("no_reg_var").style.display='none';
+        }
+        
+      </script>
+      <!-- Bootstrap core JavaScript
+      ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script>window.jQuery || document.write('<script src="..static/assets/js/vendor/jquery.min.js"><\/script>')</script>
+      <script src="../static/dist/js/bootstrap.min.js"></script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="..static/assets/js/ie10-viewport-bug-workaround.js"></script>
+    </body>
+  </html>
+  

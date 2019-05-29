@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>The XMLHttpRequest Object</h2>
+<button type="button" onclick="loadDoc('https://kelpa-api.herokuapp.com/login')">Login User (pepe)</button>
+<button type="button" onclick="my_info('https://kelpa-api.herokuapp.com/user')">Get logged userinfo</button>
+
+<div id="demo"></div>
+<div id="demo2"></div>
+
+<script>
+
+function loadDoc(url) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("demo").innerHTML = this.responseText;
+    }
+  };  
+  xhttp.open("POST", url, true);
+  xhttp.setRequestHeader("Content-type", "application/json");
+  var data = JSON.stringify({
+    "nick": "pepe",
+    "pass": "pepe99",
+    "remember": true
+	});
+  xhttp.send(data);
+}
+
+function my_info(url) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState) {
+      document.getElementById("demo2").innerHTML = this.responseText;
+    }
+  };  
+  xhttp.open("GET", url, true);
+  xhttp.send();
+}
+
+</script>
+
+</body>
+</html>

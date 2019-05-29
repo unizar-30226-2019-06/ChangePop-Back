@@ -15,6 +15,7 @@ branches:
   - master
   - develop
   - develop-problems
+  - develop-web
 deploy:
   - provider: heroku
     api_key:
