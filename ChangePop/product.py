@@ -96,6 +96,7 @@ def get_prod_info(id):
         "publish_date": str(product.publish_date),
         "main_img": str(product.main_img),
         "photo_urls": imgs,
+        "sold": str(product.is_removed),
         "place": str(product.place),
         "ban_reason": str(product.ban_reason)
 
@@ -255,6 +256,7 @@ def list_products_user(id):
             "publish_date": str(prod.publish_date),
             "main_img": str(prod.main_img),
             "place": str(prod.place),
+            "sold": str(prod.is_removed),
             "ban_reason": str(prod.ban_reason)
         }
 
@@ -319,6 +321,7 @@ def search_products():
         raise Exception(str(title_search))
 
     products = Products.search(title_search)
+    print(products)
 
     products_list = []
 

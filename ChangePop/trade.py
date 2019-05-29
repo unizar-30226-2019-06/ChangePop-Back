@@ -196,6 +196,8 @@ def trade_confirm(id):
         raise UserNotPermission(str(id), "Tis user (" + str(current_user.nick) + ") is not related with this trade")
 
     if trade.closed_s and trade.closed_b:
+        product = Products.query.get(trade.product_id)
+        product.sold_me()
         resp = api_resp(0, "info", "Success confirm and close for trade " + '(' + str(id) + ')')
 
     return Response(json.dumps(resp), status=200, content_type='application/json')

@@ -597,6 +597,13 @@ class TradesProducts(unittest.TestCase):
             r_json = self.app.put('/trade/' + str(trade_id) + '/confirm').get_json()
             self.assertIn('Success confirm and close', str(r_json))  # Check get info
 
+            # See sold from seller
+            r_json = self.app.get('/products/' + str(self.seller_id)).get_json()
+            self.assertIn('\'sold\': \'True\'', str(r_json))  # Check get info
+
+            r_json = self.app.get('/products').get_json()
+            self.assertNotIn('Producto Molongo', str(r_json))  # Check get info
+
     #@unittest.skip
     def test_trades_delete(self):
         with warnings.catch_warnings():

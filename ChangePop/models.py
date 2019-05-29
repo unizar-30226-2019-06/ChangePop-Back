@@ -267,7 +267,7 @@ class Products(db.Model):
     @staticmethod
     def list():
         # TODO doc
-        list = Products.query.all()
+        list = Products.query.filter_by(is_removed=False, ban_reason=None)
         return list
 
     @staticmethod
@@ -284,8 +284,10 @@ class Products(db.Model):
 
     @staticmethod
     def search(title):
-        list = Products.query.filter(Products.title.like('%' + title + '%')).all()
-        return list
+        list = Products.query.filter(Products.title.like('%' + title + '%'))
+        list = list.filter(Products.is_removed == False)
+        list = list.filter(Products.ban_reason == None)
+        return list.all()
 
     @staticmethod
     def search_adv(title, price_min, price_max, place, desc, category):
@@ -310,6 +312,8 @@ class Products(db.Model):
         if category is not None:
             list = list.filter(CatProducts.cat_name == category)
 
+        list = list.filter(Products.is_removed == False)
+        list = list.filter(Products.ban_reason == None)
         list = list.distinct(Products.id).all()
 
         return list
@@ -331,6 +335,10 @@ class Products(db.Model):
         db.session.flush()
 
         return p.id
+
+    def sold_me(self):
+        self.is_removed = True
+        db.session.commit()
 
     def update_me(self, title, price, descript, bid, place, main_img):
         # TODO doc
