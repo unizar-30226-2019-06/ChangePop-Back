@@ -16,7 +16,7 @@ class HomeViewTest(unittest.TestCase):
     #@unittest.skip
     def test_home_page(self):
         home = self.app.get('/')
-        self.assertIn('heroku', str(home.data))
+        self.assertIn('Home Page', str(home.data))
 
 
 class UserDataBase(unittest.TestCase):
