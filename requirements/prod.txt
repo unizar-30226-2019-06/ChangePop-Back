@@ -21,5 +21,4 @@ flask_wtf
 django_heroku
 werkzeug
 flask_cors
-flask_api
 mailjet_rest
