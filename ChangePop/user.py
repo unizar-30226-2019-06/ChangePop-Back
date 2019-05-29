@@ -265,6 +265,7 @@ def get_user(id):
 
     if user is None:
         raise UserException(str(id), "User not found")
+    #
 
     user_json = {
         "id": str(user.id),
