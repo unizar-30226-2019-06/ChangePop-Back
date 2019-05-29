@@ -321,7 +321,6 @@ def search_products():
         raise Exception(str(title_search))
 
     products = Products.search(title_search)
-    print(products)
 
     products_list = []
 
@@ -341,7 +340,7 @@ def search_products():
     return Response(json.dumps(json_users), status=200, content_type='application/json')
 
 
-@bp.route('/search/products/adv', methods=['GET'])
+@bp.route('/search/products/adv', methods=['POST'])
 def search_products_advanced():
     if not request.is_json:
         raise JSONExceptionHandler()

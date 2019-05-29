@@ -18,7 +18,7 @@ UPLOAD_FOLDER = 'images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__, instance_relative_config=True, static_folder='static')
-CORS(app, supports_credentials=True, origins=['https://changepop-fw.herokuapp.com', '127.0.0.1:5000'])
+CORS(app, supports_credentials=True, origins=['https://changepop-fw.herokuapp.com', '127.0.0.1:5000', '*'])
 app.config.from_object(Config)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SESSION_COOKIE_SECURE'] = False

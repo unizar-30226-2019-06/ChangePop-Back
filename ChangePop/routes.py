@@ -18,10 +18,6 @@ app.register_blueprint(category.bp)
 app.register_blueprint(payment.bp)
 
 
-@app.route('/<path:dir>')
-def show_web(dir):
-    return render_template(dir)
-
 @app.route('/')
 def show():
     return render_template('index.html')

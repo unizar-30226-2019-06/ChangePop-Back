@@ -403,7 +403,7 @@ class ProductDataBase(unittest.TestCase):
                 "title": "Producto Molongo",
                 "place": "Zaragoza"
             })
-            r_json = self.app.get('/search/products/adv', data=prod_search, content_type='application/json').get_json()
+            r_json = self.app.post('/search/products/adv', data=prod_search, content_type='application/json').get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful search
 
     #@unittest.skip
