@@ -10,6 +10,8 @@ from ChangePop.utils import api_resp, fix_str, push_notify
 
 bp = Blueprint('product', __name__)
 
+CORS(bp)
+
 
 @bp.route('/product', methods=['POST'])
 @login_required

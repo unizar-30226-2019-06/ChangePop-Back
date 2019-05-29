@@ -9,6 +9,8 @@ from ChangePop.utils import api_resp
 
 bp = Blueprint('reports', __name__)
 
+CORS(bp)
+
 
 @bp.route('/report', methods=['POST'])
 @login_required

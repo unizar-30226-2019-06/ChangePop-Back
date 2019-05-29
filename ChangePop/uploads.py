@@ -14,6 +14,8 @@ from ChangePop.utils import api_resp, random_string
 
 bp = Blueprint('uploads', __name__)
 
+CORS(bp)
+
 
 def allowed_file(filename):
     return '.' in filename and \

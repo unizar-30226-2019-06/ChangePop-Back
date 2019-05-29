@@ -18,11 +18,11 @@ UPLOAD_FOLDER = 'images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__, instance_relative_config=True, static_folder='static')
-CORS(app)
+CORS(app, supports_credentials=True)
 app.config.from_object(Config)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-#app.config['SESSION_COOKIE_SECURE'] = False
-#app.config['REMEMBER_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['REMEMBER_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.config['REMEMBER_COOKIE_HTTPONLY'] = False
 

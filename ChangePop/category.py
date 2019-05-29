@@ -9,6 +9,8 @@ from ChangePop.utils import api_resp
 
 bp = Blueprint('category', __name__)
 
+CORS(bp)
+
 '''
 @bp.route('/category', methods=['POST'])
 @login_required

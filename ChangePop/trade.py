@@ -10,6 +10,8 @@ from ChangePop.utils import api_resp
 
 bp = Blueprint('trade', __name__)
 
+CORS(bp)
+
 
 @bp.route('/trade', methods=['POST'])
 @login_required

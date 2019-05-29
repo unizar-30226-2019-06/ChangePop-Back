@@ -9,6 +9,8 @@ from ChangePop.utils import api_resp
 
 bp = Blueprint('bids', __name__)
 
+CORS(bp)
+
 
 @bp.route('/product/<int:id>/bidup', methods=['PUT'])
 @login_required

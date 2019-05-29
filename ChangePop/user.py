@@ -2,6 +2,7 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response, render_template
+from flask_cors import CORS
 from flask_login import current_user, login_user, logout_user, login_required
 
 from ChangePop.exeptions import JSONExceptionHandler, UserException, UserPassException, UserNotPermission, UserBanned, \
@@ -11,6 +12,7 @@ from ChangePop.utils import api_resp, send_mail, random_string
 
 bp = Blueprint('user', __name__)
 
+CORS(bp)
 
 @bp.route('/user', methods=['POST'])
 def create_user():

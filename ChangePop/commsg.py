@@ -9,6 +9,8 @@ from ChangePop.utils import api_resp
 
 bp = Blueprint('commsg', __name__)
 
+CORS(bp)
+
 
 @bp.route('/comment/<int:id>', methods=['POST'])
 @login_required

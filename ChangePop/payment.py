@@ -10,6 +10,8 @@ from ChangePop.utils import api_resp
 
 bp = Blueprint('payment', __name__)
 
+CORS(bp)
+
 
 @bp.route('/payment', methods=['POST'])
 @login_required

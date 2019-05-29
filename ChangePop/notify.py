@@ -9,6 +9,8 @@ from ChangePop.utils import api_resp
 
 bp = Blueprint('notify', __name__)
 
+CORS(bp)
+
 
 @bp.route('/notification', methods=['POST'])
 @login_required
