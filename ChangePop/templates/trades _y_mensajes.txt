@@ -1,0 +1,59 @@
+/trades{
+    "length": 2,
+    "list": [
+        {
+            "buyer_id": 81,
+            "closed": false,
+            "id": 342,
+            "last_edit": "2019-05-27 00:46:50.761494+00:00",
+            "price": 5000,
+            "product_id": 2509,
+            "product_title": "Prueba usuario Aa Anuci",
+            "seller_id": 725
+        },
+        {
+            "buyer_id": 81,
+            "closed": false,
+            "id": 343,
+            "last_edit": "2019-05-27 00:46:50.761494+00:00",
+            "price": 5000,
+            "product_id": 2510,
+            "product_title": "Prueba usuario Aa Anuci",
+            "seller_id": 725
+        }
+    ]
+}
+
+
+
+/msgs/343 {
+    "length": 5,
+    "list": [
+        {
+            "body": "Hey hola me interesas.",
+            "date": "2019-05-27 00:46:50.782675+00:00",
+            "nick": "pepe"
+        },
+        {
+            "body": "No el producto,sino tu .Tu me interesas BAKA",
+            "date": "2019-05-27 00:46:50.766942+00:00",
+            "nick": "pepe"
+        },
+        {
+            "body": "Con que ignorandome eh??.Report :) ",
+            "date": "2019-05-27 00:46:50.782675+00:00",
+            "nick": "pepe"
+        },
+        {
+            "body": "LOL dat flamer",
+            "date": "2019-05-27 00:46:50.766942+00:00",
+            "nick": "Aa"
+        },
+        {
+            "body": "Report tu tambien",
+            "date": "2019-05-27 00:46:50.766942+00:00",
+            "nick": "Aa"
+        }
+    ]
+
+}

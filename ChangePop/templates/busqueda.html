@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- <link rel="icon" href="../../favicon.ico">-->
+
+    <title>Jumbotron Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../static/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/style.css" rel="stylesheet">
+    <script type="text/javascript" src="httpGet.js"></script> 
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="../static/assets/js/ie-emulation-modes-warning.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" ></script>
+    <script >
+	var busqueda = getParameterByName("busqueda"); 
+	var lugar = getParameterByName("lugar"); 
+	var mini = getParameterByName("mini"); 
+	var maxi = getParameterByName("maxi"); 
+	var categoria = getParameterByName("categoria"); 
+      var urlObtenerAnuncios = 'http://kelpa-api.herokuapp.com/search/products/adv';
+	/*var parametro = {
+    "title": busqueda,
+    "price_min": mini,
+    "price_max": maxi,
+    "descript": busqueda,
+    "category": categoria,
+    "place": lugar
+};*/
+var parametro = {
+    "title": "Aa",
+    "price_min": 1000,
+    "price_max": 6000,
+    "descript": "Aa",
+    "category": "Moda",
+    "place": "Zaragoza"
+};
+	
+function formatParams( params ){
+  return Object
+        .keys(params)
+        .map(function(key){
+          return key+"="+encodeURIComponent(params[key])
+        })
+        .join("&")
+}
+console.log(formatParams(parametro));
+function getLoginj(url,params) {
+       $.ajax({
+  data: formatParams(params),
+  url: url,
+  type: "get", //send it through get method
+  success: function(response) {
+    console.log(response.text);
+  console.log("It works");  
+  },
+  error: function(xhr) {
+    console.log("NOOO");
+    console.log(xhr);
+  }
+});
+ }
+
+             //Necesario para parsear el json
+	/*	             getLoginj(urlObtenerAnuncios, parametro);
+		             getLogin(urlObtenerAnuncios, parametro);
+             var jsonAnuncios = JSON.parse(httpGet(urlObtenerAnuncios, parametro));*/
+var jsonAnuncios = JSON.parse('{"length": 2,"list": [{"id": "2509","price": 5000,"title": "Prueba usuario Aa Anuci","user_nick": "Aa","visits": 30},{"id": "2510","price": 5000,"title": "Prueba usuario Aa Anuci","user_nick": "Aa","visits": 70}]}');
+	     
+             var anuncios = jsonAnuncios.list;
+      var url="https://kelpa-api.herokuapp.com/login"
+      var params = {
+        nick : "Aa",
+        pass : "aaaaaa",
+        remember : true
+      }
+     function conectarse(){
+        post(url,params,function(){
+          window.location = "bienvenidaConectado.html";
+        });
+      };
+    </script>     
+
+  </head>
+
+  <body>
+  
+    <div id="Login" class="modal fade">
+      <div class="modal-dialog" style="height:40% top bottom">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+              aria-label="Close">&times;</button>
+            <h4 class="modal-title">Hola de nuevo!</h4>
+          </div>
+          <div class="modal-body">
+              <div class="input-append">
+                <div>
+                  <p>Usuario</p>
+                  <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+
+                  <p>Contraseña</p>
+                  <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+                </div>
+                  <button type="button" class="btn btn-success" onclick="conectarse();" >Connection</button>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <div class="row">
+              <div class="col-md-6">
+                <p style="font-size: 18px"align="left">¿No estás registrado?</p>
+              </div>
+              <div class="col-md-6">
+                <button type="button" class="btn btn-primary" data-dismiss="modal"  data-toggle="modal" data-target="#Registro">Crear cuenta</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="Registro" class="modal fade">
+        <div class="modal-dialog" style="height:40% top bottom">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                aria-label="Close">&times;</button>
+              <h4 class="modal-title">Bienvenido!</h4>
+            </div>
+            <div class="modal-body">
+                <div class="input-append">
+                  <div>
+                    <p>Nombre</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+  
+                    <p>Apellidos</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+
+                    <p>Usuario</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+
+                    <p>DNI</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+  
+                    <p>Localidas</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+
+                    <p>Teléfono</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+  
+                    <p>Mail</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+
+                    <p>Fecha de nacimiento</p>
+                    <input type="text" class="span2 search-query top bottom"style="width: 70%; margin-bottom: 5%">
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success">Conectar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#"><img src="../static/logo.jpg" width="55px" /></a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <form class="navbar-form navbar-left" action="/action_page.php">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Search">
+            </div>
+            <button type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
+          </form>
+
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#Login" data-toggle="modal" role="button"><span
+                  class="glyphicon glyphicon-log-in"></span>Conectarse</a></li>
+
+            <li><a href="#Registro" data-toggle="modal" role="button"><span 
+                class="glyphicon glyphicon-user"></span>Registrarse</a></li>
+          </ul>
+
+          <!-- Modal / Ventana / Overlay en HTML -->
+
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+        <div class="container">
+          <h1>Filtro avanzado :</h1> 
+              <p class="lead"></p>
+  
+                  <form method="get" action="busqueda.html" enctype="multipart/form-data" class="form-horizontal">
+                  <fieldset>
+  
+                  <div class="row">
+                  <div class="form-group">
+                      <label class="col-md-2 control-label">¿Qué buscas ?</label>  
+                      <div class="col-md-3">
+                      <input id="busqueda" name="busqueda" class="form-control input-md" required="" type="text">
+                      </div>
+                      <label class="col-md-2 control-label">¿Dondé ?</label>  
+                      <div class="col-md-3">
+                      <input id="lugar" name="lugar" class="form-control input-md" required="" type="text">
+                      </div>
+                      </div>
+                      </div>
+                      <br>
+  
+                      <div class="row">
+                      <div class="form-group">
+                      <label class="col-md-2 control-label">Precio Min :</label>  
+                      <div class="col-md-1">
+                          <input id="mini" name="mini" class="form-control input-md" required="" type="number">
+                      </div>
+                      <label class="col-md-1 control-label">Max :</label>  
+                      <div class="col-md-1">
+                          <input id="maxi" name="maxi" class="form-control input-md" required="" type="number">
+                      </div>
+                      
+                      <label class="col-md-2 control-label">Categoría :</label>  
+                      <div class="col-md-1">
+                          <select name="categoria" id="categoria">
+                              <script> 
+                                  var urlCategorias = "http://kelpa-api.herokuapp.com/categories"
+                                  var jsonCategorias = JSON.parse(httpGet(urlCategorias));
+                                  for (i in jsonCategorias.list) {
+                                      
+                                      document.write('<option value="'+ jsonCategorias.list[i].toString()+'">'+ jsonCategorias.list[i].toString()+'</option>');
+                                  }   
+                              </script>
+                            </select>
+                          
+                      </div>
+                      
+                  </div>
+                  </div>
+                  <br>
+                      <button class="col-md-offset-5 btn btn-info" type="submit"><span class="glyphicon glyphicon-ok-sign"></span> Buscar!</button>
+                  </fieldset>
+                  </form>
+  
+        </div>
+      </div>
+  <!--PRODUCTOS A LA VENTA-->
+      <div class="container">
+          <h2>Resultados de la busqueda : </h2><br /><br />
+          <div class="row">
+  
+              <script>
+                      for (i in anuncios) {
+                                   document.write('<div class="row" style="margin:0px; border: solid 2px white;">');
+                          document.write('<a href="anuncio.html?idAnuncio=' + anuncios[i].id + '"><h1 style="color:blue;">' + anuncios[i].title + '');
+                          document.write(' - ' + anuncios[i].price + '€</h1></a>');
+                          document.write('de <em>' + anuncios[i].user_nick + '</em>');
+                          document.write('<br />Numero de visita : ' + anuncios[i].visits + ' - <a href="anuncio.html?idAnuncio=' + anuncios[i].id + '">Ver</a>');
+                                   document.write('</div><br /><br/>');
+                       }          
+                  
+                
+              
+              </script>
+              
+      </div>        
+  
+      </div> <!-- /container -->
+      <script src="../static/assets/js/ie-emulation-modes-warning.js"></script>
+      <script src="../static/jquery.mycart-master/js/bootstrap.min.js"></script>
+      <script src="../static/jquery.mycart-master/js/jquery-2.2.3.min.js"></script>
+      <script src="../static/jquery.mycart-master/js/jquery.mycart.js"></script>
+      <script>
+        
+        
+          </script>
+      <!-- Bootstrap core JavaScript
+      ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <script>window.jQuery || document.write('<script src="..static/assets/js/vendor/jquery.min.js"><\/script>')</script>
+      <script src="../static/dist/js/bootstrap.min.js"></script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="..static/assets/js/ie10-viewport-bug-workaround.js"></script>
+    </body>
+  </html>
+  

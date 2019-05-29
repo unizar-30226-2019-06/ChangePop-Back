@@ -18,17 +18,13 @@ app.register_blueprint(category.bp)
 app.register_blueprint(payment.bp)
 
 
-@app.route('/web/<path:dir>')
+@app.route('/<path:dir>')
 def show_web(dir):
-    return render_template('web/' + dir)
-
-@app.route('/web')
-def show_web_index():
-    return render_template('web/indexVerdadero.html')
+    return render_template(dir)
 
 @app.route('/')
 def show():
-    return render_template('index.html')
+    return render_template('indexVerdadero.html')
 
 
 @app.route('/test_request') # pragma: no cover

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+          <script type="text/javascript" src="httpGet.js"></script>       
+           <script >
+             var url="http://kelpa-api.herokuapp.com/login"
+             var params = {
+               nick : "Aa",
+               pass : "aaaaaa",
+               remember : true
+             }
+            
+             console.log('Itworks');
+ 
+           </script>     
+           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" ></script>
+           <script>
+           
+           $.ajax({
+            type: 'post',
+            url: url,
+            Accept: 'application/json',
+            credentials: 'same-origin',
+            data: JSON.stringify(params),
+            contentType: "application/json; charset=utf-8",
+          
+            success: function (data) {
+               console.log(data);
+               window.location = "prueba2.html";
+            }
+
+
+            
+        });
+        
+
+
+            
+           
+          </script> 
+            </head>
+            <body>
+                
+            </body>
+</html>
