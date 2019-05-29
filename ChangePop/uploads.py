@@ -4,6 +4,7 @@ import random
 import string
 
 from flask import Blueprint, request, json, Response, send_from_directory, send_file
+from flask_cors import CORS
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 

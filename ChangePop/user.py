@@ -12,7 +12,7 @@ from ChangePop.utils import api_resp, send_mail, random_string
 
 bp = Blueprint('user', __name__)
 
-CORS(bp)
+CORS(bp, supports_credentials=True)
 
 @bp.route('/user', methods=['POST'])
 def create_user():
