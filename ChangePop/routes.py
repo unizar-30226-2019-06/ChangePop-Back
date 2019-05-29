@@ -24,7 +24,7 @@ def show_web(dir):
 
 @app.route('/')
 def show():
-    return render_template('indexVerdadero.html')
+    return render_template('index.html')
 
 
 @app.route('/test_request') # pragma: no cover

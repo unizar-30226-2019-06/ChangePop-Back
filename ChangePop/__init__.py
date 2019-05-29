@@ -13,11 +13,12 @@ from flask_script import Manager
 from flask_login import LoginManager
 from flask_wtf import CsrfProtect
 from flask_cors import CORS
+from flask_api import FlaskAPI
 
 UPLOAD_FOLDER = 'images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
-app = Flask(__name__, instance_relative_config=True, static_folder='static')
+app = FlaskAPI(__name__, instance_relative_config=True, static_folder='static')
 CORS(app, supports_credentials=True, origins=["https://changepop-fw.herokuapp.com", "http://127.0.0.1:5000", "https://127.0.0.1:5000"])
 app.config.from_object(Config)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
