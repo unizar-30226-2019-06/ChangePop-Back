@@ -5,11 +5,11 @@ install:
 - pip install codecov
 script:
 #- python -m unittest discover
-- coverage erase
-- coverage run --source=ChangePop test_webapp.py
-- coverage html
+#- coverage erase
+#- coverage run --source=ChangePop test_webapp.py
+#- coverage html
 after_success:
-- codecov
+#- codecov
 branches:
   only:
   - master
