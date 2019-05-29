@@ -16,7 +16,7 @@ class HomeViewTest(unittest.TestCase):
     #@unittest.skip
     def test_home_page(self):
         home = self.app.get('/')
-        self.assertIn('Home Page', str(home.data))
+        self.assertIn('heroku', str(home.data))
 
 
 class UserDataBase(unittest.TestCase):
@@ -701,10 +701,38 @@ class CommentsAndMessages(unittest.TestCase):
             })
             r_json = self.app.post('/comment/' + str(self.seller_id), data=json_data,
                                    content_type='application/json').get_json()
-            self.assertIn('comment created', str(r_json))  # Check successful creation
+            self.assertIn('info', str(r_json))  # Check successful creation
 
             r_json = self.app.get('/comments/' + str(self.seller_id)).get_json()
             self.assertIn('ESRES UN CRACK', str(r_json))  # Check successful get
+
+    # @unittest.skip
+    def test_delete_comment(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "body": "ESRES UN CRACK",
+                "points": "3",
+            })
+            comment_id = self.app.post('/comment/' + str(self.seller_id), data=json_data,
+                                   content_type='application/json').get_json()["message"]
+
+            r_json = self.app.get('/comments/' + str(self.seller_id)).get_json()
+            self.assertIn('ESRES UN CRACK', str(r_json))  # Check successful get
+
+            self.app.post('/logout')
+
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            r_json = self.app.delete('/comment/' + str(comment_id) + "/del", data=json_data,
+                                       content_type='application/json').get_json()
+            self.assertIn('deleted', str(r_json))  # Check successful get
+
+            r_json = self.app.get('/comments/' + str(self.seller_id)).get_json()
+            self.assertNotIn('ESRES UN CRACK', str(r_json))  # Check successful get
 
     #@unittest.skip
     def test_messages(self):
@@ -866,6 +894,82 @@ class Notifications(unittest.TestCase):
 
             self.app.delete('/user/' + str(user_2)).get_json()
 
+    # @unittest.skip
+    def test_pay_notify(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            user_2 = \
+                self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
+                    "message"]
+
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            r_json = self.app.post('/product', data=ProductDataBase.prod_data,
+                                   content_type='application/json').get_json()
+            product_id = r_json["message"]
+
+            # add interest
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "list": ["Moda", "Complementos"]
+            })
+            self.app.post('/categories/interest', data=json_data, content_type='application/json')
+
+            # Pay
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+            iban = "ES809999123125412535"
+            json_data = json.dumps({
+                "amount": 9.99,
+                "iban": iban,
+                "boost_date": "1999-12-24",
+                "product_id": int(product_id)
+            })
+            r_json = self.app.post('/payment', data=json_data, content_type='application/json').get_json()
+            self.assertIn('info', str(r_json))  # Check successful pay created
+
+            # Check
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            r_json = self.app.get('/notifications').get_json()
+            self.assertIn('categoria', str(r_json))  # Check successful get
+
+            self.app.delete('/user/' + str(user_2)).get_json()
+
+    # @unittest.skip
+    def test_product_notify(self):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+            user_2 = \
+                self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json').get_json()[
+                    "message"]
+
+            # add interest
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+
+            json_data = json.dumps({
+                "list": ["Moda", "Complementos"]
+            })
+            self.app.post('/categories/interest', data=json_data, content_type='application/json')
+
+            # New product
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            self.app.post('/product', data=ProductDataBase.prod_data,
+                                   content_type='application/json')
+
+            # Check
+            self.app.get('/logout')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
+            r_json = self.app.get('/notifications').get_json()
+            self.assertIn('categoria', str(r_json))  # Check successful get
+
+            self.app.delete('/user/' + str(user_2)).get_json()
 
     #@unittest.skip
     def tearDown(self):
@@ -1027,27 +1131,13 @@ class Interest(unittest.TestCase):
             self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
             json_data = json.dumps({
-                "user_id": self.user_id,
-                "product_id": 0,
-                "category": "null",
-                "text": "Nuevo producto en categoria e interés"
-
-            })
-            self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
-
-            json_data = json.dumps({
-                "list": ["moda"]
-
+                "list": ["Moda", "Deporte"]
             })
             r_json = self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
+            self.assertIn("Interest pushed", str(r_json))  # Check successful get 0 elements
 
-            json_data = json.dumps({
-                "list":["electronica"]
-            })
-
-            self.app.post('/categories/interest', data=json_data, content_type='application/json').get_json()
-
-            self.app.get('/categories/interest').get_json()
+            r_json = self.app.get('/categories/interest').get_json()
+            self.assertIn("Moda", str(r_json))  # Check successful get 0 elements
 
             r_json = self.app.delete('/categories/interest', data=json_data, content_type='application/json' ).get_json()
             self.assertIn('Successful delete', str(r_json))  # Check successful

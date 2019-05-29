@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException
-from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users, Follows
+from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users, Follows, Interests
 from ChangePop.utils import api_resp, fix_str, push_notify
 
 bp = Blueprint('product', __name__)
@@ -48,6 +48,12 @@ def create_product():
 
     for photo in photo_urls:
         Images.add_photo(photo, product_id)
+
+    # Notificaciones
+    for cat in CatProducts.get_cat_names_by_prod(product_id):
+        users_ids = Interests.get_users_interest_cat(cat)
+        for user_id in users_ids:
+            push_notify(user_id, "Nuevo producto en una categoria que te interesa", int(product_id), cat)
 
     resp = api_resp(0, "info", str(product_id))
 

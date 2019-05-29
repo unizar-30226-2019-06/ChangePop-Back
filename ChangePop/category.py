@@ -70,10 +70,12 @@ def new_interest():
 
     content = request.get_json()
     categories_list = content["list"]
-    user=current_user.id
+    user = current_user.id
 
     for cat in categories_list:
-        Interests.add_interest(cat,user)
+        if not Categories.exist(cat):
+            ProductException(cat, "Invalid categorie: " + cat)
+        Interests.add_interest(cat, user)
 
     resp = api_resp(0, "info", "Interest pushed")
 
@@ -88,7 +90,7 @@ def delete_interest():
 
     content = request.get_json()
     categories_list = content["list"]
-    user=current_user.id
+    user = current_user.id
 
     for cat in categories_list:
         Interests.delete_interest(cat,user)

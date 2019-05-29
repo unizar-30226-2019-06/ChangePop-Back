@@ -29,6 +29,11 @@ class Categories(db.Model):
             db.session.commit()
 
     @staticmethod
+    def exist(cat):
+        c = Categories.query.get(cat)
+        return c is not None
+
+    @staticmethod
     def list():
         # TODO doc and more
         list = Categories.query.all()
@@ -483,6 +488,16 @@ class Comments(db.Model):
 
         db.session.add(c)
         db.session.commit()
+        db.session.flush()
+
+        return c.id
+
+    @staticmethod
+    def delete_comment(id):
+        c = Comments.query.get(id)
+
+        db.session.delete(c)
+        db.session.commit()
 
     @staticmethod
     def list_by_user(id):
@@ -528,24 +543,29 @@ class Interests(db.Model):
 
     @staticmethod
     def add_interest(cat_name, user_id):
-        c = Interests.query.filter_by(cat_name=cat_name, user_id=user_id)
-        if c is None:
-            c = Interests(cat_name=cat_name, user_id=user_id)
-            db.session.add(c)
-            db.session.commit()
+        c = Interests(cat_name=cat_name, user_id=user_id)
+        db.session.add(c)
+        db.session.commit()
+
+    @staticmethod
+    def get_users_interest_cat(cat_name):
+        list = Interests.query.with_entities(Interests.user_id).filter_by(cat_name=cat_name)
+        return list
 
     @staticmethod
     def interest_byUser(id):
-        list = Interests.query.filter_by(user_id=id)
+        list = Interests.query.filter_by(user_id=id).all()
         return list
 
     @staticmethod
     def delete_all(user_id):
         Interests.query.filter_by(user_id=user_id).delete()
+        db.session.commit()
 
     @staticmethod
     def delete_interest(cat, user_id):
         Interests.query.filter_by(user_id=user_id, cat_name=cat).delete()
+        db.session.commit()
 
 
 class Follows(db.Model):

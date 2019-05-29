@@ -5,18 +5,19 @@ install:
 - pip install codecov
 script:
 #- python -m unittest discover
-#- coverage erase
-#- coverage run --source=ChangePop test_webapp.py
-#- coverage html
+- coverage erase
+- coverage run --source=ChangePop test_webapp.py
+- coverage html
   - ls
 after_success:
-#- codecov
+- codecov
   - ls
 branches:
   only:
   - master
   - develop
   - develop-problems
+  - develop-api
   - develop-web
 deploy:
   - provider: heroku
