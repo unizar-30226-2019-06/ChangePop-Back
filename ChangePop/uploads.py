@@ -4,6 +4,7 @@ import random
 import string
 
 from flask import Blueprint, request, json, Response, send_from_directory, send_file
+from flask_cors import CORS
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
@@ -13,6 +14,8 @@ from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages, 
 from ChangePop.utils import api_resp, random_string
 
 bp = Blueprint('uploads', __name__)
+
+CORS(bp)
 
 
 def allowed_file(filename):

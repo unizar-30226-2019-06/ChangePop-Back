@@ -19,6 +19,7 @@ function loadDoc(url) {
     }
   };  
   xhttp.open("POST", url, true);
+  xhttp.withCredentials = true;
   xhttp.setRequestHeader("Content-type", "application/json");
   var data = JSON.stringify({
     "nick": "pepe",

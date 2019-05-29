@@ -1,0 +1,140 @@
+main
+{
+
+  margin: 0 70px;
+  padding-top: 20px;
+  padding-bottom : 90px;
+  min-height: 100vh;
+
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+	background: url('bg.png') no-repeat #30A8CC;
+	background-repeat: no-repeat;
+	background-attachment:fixed;
+  	-webkit-background-size: cover; /* pour anciens Chrome et Safari */
+	background-size: cover;
+
+}
+body {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  background-color: rgba(150, 150, 245, 0.3);
+  min-height: 100vh;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  line-height: 60px; 
+  background-color: #f5f5f5;
+}
+
+
+body > .container {
+  padding: 20px 15px 0;
+  background-color: rgba(230, 240, 245, 0.9);
+    min-height: 70vh;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.glyphicon.glyphicon-heart {
+  font-size:20px;
+}
+
+.glyphicon.glyphicon-comment {
+  font-size:20px;
+}
+
+
+.navbar
+{
+
+  background-image:linear-gradient(#233, #146);
+}
+
+.jumbotron
+{
+    padding-top: 25px; 
+    background-color: rgba(230, 220, 255, 0.9);
+}
+
+.anuncio
+{
+    color:black;
+}
+
+.top {
+  border-top-left-radius:40px;
+  border-top-right-radius:40px;
+}
+.bottom {
+  border-bottom-left-radius:40px;
+  border-bottom-right-radius:40px;
+}
+
+/* Chat containers */
+.container_chat {
+  border: 2px solid #dedede;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+  margin-left:15%;
+  width: 70%;
+}
+
+/* Darker chat container */
+.darker {
+  border-color: #ccc;
+  background-color: #ddd;
+}
+
+/* Clear floats */
+.container_chat::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Style images */
+.container_chat img {
+  float: left;
+  max-width: 60px;
+  width: 100%;
+  margin-right: 20px;
+  border-radius: 50%;
+}
+
+/* Style the right image */
+.container_chat img.right {
+  float: right;
+  margin-left: 20px;
+  margin-right:0;
+}
+
+/* Style time text */
+.time-right {
+  float: right;
+  color: #aaa;
+}
+
+/* Style time text */
+.time-left {
+  float: left;
+  color: #999;
+}
+
+hr
+{
+	border: none;
+	border-bottom: 1px solid #151;
+}
+

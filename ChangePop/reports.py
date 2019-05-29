@@ -1,6 +1,7 @@
 import datetime
 
 from flask import Blueprint, request, json, Response
+from flask_cors import CORS
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException
@@ -8,6 +9,8 @@ from ChangePop.models import Products, Bids, Reports, Users
 from ChangePop.utils import api_resp
 
 bp = Blueprint('reports', __name__)
+
+CORS(bp)
 
 
 @bp.route('/report', methods=['POST'])
@@ -49,11 +52,9 @@ def get_report():
             "user_id": str(report.user_id),
             "user_nick": str(Users.get_nick(report.user_id)),
             "reason": str(report.reason),
-            "date": str(report.report_date)
+            "date": str(report.report_date),
+            "product_id": str(report.product_id)
         }
-
-        if report.product_id is not None:
-            item["product_id"] = str(report.product_id)
 
         reports_list.append(item)
 

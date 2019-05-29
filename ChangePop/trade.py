@@ -2,6 +2,7 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
+from flask_cors import CORS
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
@@ -9,6 +10,8 @@ from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Us
 from ChangePop.utils import api_resp
 
 bp = Blueprint('trade', __name__)
+
+CORS(bp)
 
 
 @bp.route('/trade', methods=['POST'])
@@ -60,6 +63,8 @@ def get_trade(id):
         "seller_id": int(trade.user_sell),
         "buyer_id": int(trade.user_buy),
         "closed": bool(trade.closed_s and trade.closed_b),
+        "closed_s": bool(trade.closed_s),
+        "closed_b": bool(trade.closed_b),
         "price": float(trade.price),
         "last_edit": str(trade.ts_edit),
         "products_offer": prods
@@ -212,6 +217,8 @@ def get_list_trades():
             "seller_id": int(t.user_sell),
             "buyer_id": int(t.user_buy),
             "closed": bool(t.closed_s and t.closed_b),
+            "closed_s": bool(t.closed_s),
+            "closed_b": bool(t.closed_b),
             "price": float(t.price),
             "last_edit": str(t.ts_edit)
         }

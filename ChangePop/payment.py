@@ -2,13 +2,17 @@ import datetime
 from typing import Optional, Any
 
 from flask import Blueprint, request, json, Response
+from flask_cors import CORS
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
-from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users, Trades, TradesOffers, Payments
-from ChangePop.utils import api_resp
+from ChangePop.models import Products, Categories, CatProducts, Images, Bids, Users, Trades, TradesOffers, Payments, \
+    Interests
+from ChangePop.utils import api_resp, push_notify
 
 bp = Blueprint('payment', __name__)
+
+CORS(bp)
 
 
 @bp.route('/payment', methods=['POST'])
@@ -30,6 +34,12 @@ def create_payment():
         raise ProductException(str(id), "Product not found")
 
     payment_id = Payments.add(amount, iban, product_id, boost_date)
+
+    # Notificaciones
+    for cat in CatProducts.get_cat_names_by_prod(product_id):
+        users_ids = Interests.get_users_interest_cat(cat)
+        for user_id in users_ids:
+            push_notify(user_id, "Nuevo producto en una categoria que te interesa", int(product_id), cat)
 
     resp = api_resp(0, "info", str(payment_id))
 

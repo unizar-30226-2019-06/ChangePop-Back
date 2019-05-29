@@ -1,13 +1,16 @@
 import datetime
 
 from flask import Blueprint, request, json, Response
+from flask_cors import CORS
 from flask_login import login_required, current_user
 
-from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
+from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException, UserException
 from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages
 from ChangePop.utils import api_resp
 
 bp = Blueprint('commsg', __name__)
+
+CORS(bp)
 
 
 @bp.route('/comment/<int:id>', methods=['POST'])
@@ -22,11 +25,28 @@ def new_comment_user(id):
     body = content["body"]
     points = int(content["points"])
 
-    Comments.add_comment(id, current_user.id, body)
+    cmmnt_id = Comments.add_comment(id, current_user.id, body)
     user = Users.query.get(id)
     user.point_me(points)
 
-    resp = api_resp(0, "info", "New comment created")
+    resp = api_resp(0, "info", str(cmmnt_id))
+
+    return Response(json.dumps(resp), status=200, content_type='application/json')
+
+
+@bp.route('/comment/<int:id>/del', methods=['DELETE'])
+@login_required
+def delete_comment_user(id):
+
+    if not current_user.is_mod:
+        raise UserNotPermission(str(current_user.nick))
+
+    if Comments.query.get(id) is None:
+        raise UserException(str(id), "Comment not found")
+
+    Comments.delete_comment(id)
+
+    resp = api_resp(0, "info", "Comment (" + str(id) + ")deleted")
 
     return Response(json.dumps(resp), status=200, content_type='application/json')
 

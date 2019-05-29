@@ -8,13 +8,17 @@ script:
 - coverage erase
 - coverage run --source=ChangePop test_webapp.py
 - coverage html
+- ls
 after_success:
 - codecov
+- ls
 branches:
   only:
   - master
   - develop
   - develop-problems
+  - develop-api
+  - develop-web
 deploy:
   - provider: heroku
     api_key:

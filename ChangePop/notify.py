@@ -1,6 +1,7 @@
 import datetime
 
 from flask import Blueprint, request, json, Response
+from flask_cors import CORS
 from flask_login import login_required, current_user
 
 from ChangePop.exeptions import JSONExceptionHandler, UserNotPermission, ProductException, TradeException
@@ -8,6 +9,8 @@ from ChangePop.models import Products, Bids, Comments, Users, Trades, Messages, 
 from ChangePop.utils import api_resp
 
 bp = Blueprint('notify', __name__)
+
+CORS(bp)
 
 
 @bp.route('/notification', methods=['POST'])
