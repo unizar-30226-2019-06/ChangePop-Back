@@ -8,10 +8,10 @@ script:
 - coverage erase
 - coverage run --source=ChangePop test_webapp.py
 - coverage html
-  - ls
+- ls
 after_success:
 - codecov
-  - ls
+- ls
 branches:
   only:
   - master
