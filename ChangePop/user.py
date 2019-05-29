@@ -12,7 +12,7 @@ from ChangePop.utils import api_resp, send_mail, random_string
 
 bp = Blueprint('user', __name__)
 
-CORS(bp, supports_credentials=True, origins=['changepop-fw.herokuapp.com', 'localhost'])
+CORS(bp, supports_credentials=True, origins=['https://changepop-fw.herokuapp.com', '127.0.0.1:5000'])
 
 @bp.route('/user', methods=['POST'])
 def create_user():
