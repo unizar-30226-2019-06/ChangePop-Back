@@ -11,7 +11,7 @@ from ChangePop.utils import api_resp, fix_str, push_notify
 
 bp = Blueprint('product', __name__)
 
-CORS(bp)
+CORS(bp, supports_credentials=True, origins="*")
 
 
 @bp.route('/product', methods=['POST'])
