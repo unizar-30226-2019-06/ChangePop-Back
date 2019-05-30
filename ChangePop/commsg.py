@@ -62,7 +62,8 @@ def get_comments_user(id):
 
         item = {
             "nick": str(Users.get_nick(com.user_from)),
-            "body": str(com.body)
+            "body": str(com.body),
+            "id": str(com.id)
         }
 
         comments_list.append(item)
