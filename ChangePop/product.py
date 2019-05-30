@@ -125,7 +125,7 @@ def update_prod_info(id):
     title = content["title"]
     price = float(content["price"])
     descript = content["descript"]
-    bid = datetime.datetime.strptime(content["bid_date"], "%Y-%m-%d %H:%M:%S")
+    bid = datetime.datetime.strptime(content["bid_date"], "%Y-%m-%d %H:%M:%S") if 'bid_date' in content else None
     categories = content["categories"]
     photo_urls = content["photo_urls"]
     place = content["place"]

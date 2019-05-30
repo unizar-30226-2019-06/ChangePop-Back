@@ -28,7 +28,7 @@ class UserDataBase(unittest.TestCase):
         "last_name": "Bar",
         "mail": "alice1@yopmail.com",
         "pass": "pass",
-        "phone": "666999222",
+        "phone": "616949232",
         "is_mod": False,
         "ban_reason": "Razon expulsion",
         "points": 0,
@@ -74,7 +74,7 @@ class UserDataBase(unittest.TestCase):
         "last_name": "BarBar",
         "mail": "mail@email.com",
         "pass": "pass",
-        "phone": "666999222",
+        "phone": "616949232",
         "is_mod": True,
         "ban_reason": "Razon expulsion",
         "points": 0,
@@ -104,7 +104,7 @@ class UserDataBase(unittest.TestCase):
             self.__class__.tmp_user_id = user_id
 
             check = self.app.get('/profile/Alice')
-            self.assertIn('666999222', str(check.get_json()))  # Check get info
+            self.assertIn('616949232', str(check.get_json()))  # Check get info
 
             self.app.post('/login', data=self.user_login, content_type='application/json')
             self.app.delete('/user')
@@ -401,12 +401,12 @@ class ProductDataBase(unittest.TestCase):
             self.app.post('/product', data=self.prod_data, content_type='application/json')
             self.app.post('/product', data=self.prod_data2, content_type='application/json')
 
-            r_json = self.app.get('/products').get_json()
-            self.assertIn('Producto Molongo', str(r_json))  # Check successful list
-
             self.app.get('/logout')
             self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json')
             self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
+            r_json = self.app.get('/products').get_json()
+            self.assertIn('Producto Molongo', str(r_json))  # Check successful list
 
             prod_search = json.dumps({
                 "descript": "wonderful",
