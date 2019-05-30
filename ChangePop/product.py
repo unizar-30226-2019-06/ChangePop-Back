@@ -347,12 +347,12 @@ def search_products_advanced():
 
     content = request.get_json()
 
-    title = content["title"]
-    price_min = float(content["price_min"])
-    price_max = float(content["price_max"])
-    place = str(content["place"])
-    desc = str(content["descript"])
-    category = str(content["category"])
+    title = content["title"] if content["title"] is not None else None
+    price_min = float(content["price_min"]) if content["price_min"] is not None else None
+    price_max = float(content["price_max"]) if content["price_max"] is not None else None
+    place = str(content["place"]) if content["place"] is not None else None
+    desc = str(content["descript"]) if content["descript"] is not None else None
+    category = str(content["category"]) if content["category"] is not None else None
 
     products = Products.search_adv(title, price_min, price_max, place, desc, category)
 
