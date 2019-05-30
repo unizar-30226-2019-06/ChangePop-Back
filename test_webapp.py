@@ -406,6 +406,13 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.post('/search/products/adv', data=prod_search, content_type='application/json').get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful search
 
+            prod_search = json.dumps({
+                "price_max": 35,
+                "price_min": 33
+            })
+            r_json = self.app.post('/search/products/adv', data=prod_search, content_type='application/json').get_json()
+            self.assertIn('Producto Molongo', str(r_json))  # Check successful search
+
     #@unittest.skip
     def test_follows_product(self):
         with warnings.catch_warnings():

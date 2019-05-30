@@ -11,7 +11,7 @@ from ChangePop.utils import api_resp, fix_str, push_notify
 
 bp = Blueprint('product', __name__)
 
-CORS(bp)
+CORS(bp, supports_credentials=True, origins=['https://changepop-fw.herokuapp.com', '127.0.0.1:5000'])
 
 
 @bp.route('/product', methods=['POST'])
@@ -347,12 +347,12 @@ def search_products_advanced():
 
     content = request.get_json()
 
-    title = content["title"] if content["title"] is not None else None
-    price_min = float(content["price_min"]) if content["price_min"] is not None else None
-    price_max = float(content["price_max"]) if content["price_max"] is not None else None
-    place = str(content["place"]) if content["place"] is not None else None
-    desc = str(content["descript"]) if content["descript"] is not None else None
-    category = str(content["category"]) if content["category"] is not None else None
+    title = content["title"] if 'title' in content else None
+    price_min = float(content["price_min"]) if 'price_min' in content else None
+    price_max = float(content["price_max"]) if 'price_max' in content else None
+    place = str(content["place"]) if 'place' in content else None
+    desc = str(content["descript"]) if 'descript' in content else None
+    category = str(content["category"]) if 'category' in content else None
 
     products = Products.search_adv(title, price_min, price_max, place, desc, category)
 

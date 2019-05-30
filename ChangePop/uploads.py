@@ -15,7 +15,7 @@ from ChangePop.utils import api_resp, random_string
 
 bp = Blueprint('uploads', __name__)
 
-CORS(bp)
+CORS(bp, supports_credentials=True, origins=['https://changepop-fw.herokuapp.com', '127.0.0.1:5000'])
 
 
 def allowed_file(filename):
