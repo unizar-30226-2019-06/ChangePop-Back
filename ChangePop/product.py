@@ -330,6 +330,7 @@ def search_products():
             "title": str(prod.title),
             "price": float(prod.price),
             "user_nick": str(Users.get_nick(prod.user_id)),
+            "bid_date": str(prod.bid_date),
             "visits": int(prod.visits)
         }
 
@@ -364,6 +365,7 @@ def search_products_advanced():
             "title": str(prod.title),
             "price": float(prod.price),
             "user_nick": str(Users.get_nick(prod.user_id)),
+            "bid_date": str(prod.bid_date),
             "visits": int(prod.visits)
         }
 
