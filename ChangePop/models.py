@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import and_
+from sqlalchemy import and_, desc
 from sqlalchemy.orm import aliased
 
 from ChangePop import db
@@ -267,13 +267,13 @@ class Products(db.Model):
     @staticmethod
     def list():
         # TODO doc
-        list = Products.query.filter_by(is_removed=False, ban_reason=None)
+        list = Products.query.filter_by(is_removed=False, ban_reason=None).order_by(desc(Products.boost_date))
         return list
 
     @staticmethod
     def list_by_id(id):
         # TODO doc
-        list = Products.query.filter_by(user_id=id)
+        list = Products.query.filter_by(user_id=id).order_by(desc(Products.boost_date))
         return list
 
     @staticmethod
@@ -284,13 +284,13 @@ class Products(db.Model):
 
     @staticmethod
     def search(title):
-        list = Products.query.filter(Products.title.like('%' + title + '%'))
+        list = Products.query.filter(Products.title.like('%' + title + '%')).order_by(desc(Products.boost_date))
         list = list.filter(Products.is_removed == False)
         list = list.filter(Products.ban_reason == None)
         return list.all()
 
     @staticmethod
-    def search_adv(title, price_min, price_max, place, desc, category):
+    def search_adv(title, price_min, price_max, place, descc, category):
         list = db.session.query(Products.id.label('id'),
                                 Products.title.label('title'),
                                 Products.price.label('price'),
@@ -299,6 +299,7 @@ class Products(db.Model):
                                 Products.visits.label('visits'),
                                 Products.place.label('place'),
                                 Products.bid_date.label('bid_date'),
+                                Products.main_img.label('main_img'),
                                 CatProducts.cat_name).filter(CatProducts.product_id == Products.id)
 
         if price_min is not None:
@@ -307,18 +308,18 @@ class Products(db.Model):
             list = list.filter(Products.price <= price_max)
         if title is not None:
             list = list.filter(Products.title.like('%' + title + '%'))
-        if desc is not None:
-            list = list.filter(Products.descript.like('%' + desc + '%'))
+        if descc is not None:
+            list = list.filter(Products.descript.like('%' + descc + '%'))
         if place is not None:
             list = list.filter(Products.place.like('%' + place + '%'))
         if category is not None:
             list = list.filter(CatProducts.cat_name == category)
 
         list = list.filter(Products.is_removed == False)
-        list = list.filter(Products.ban_reason == None)
-        list = list.distinct(Products.id).all()
+        list = list.filter(Products.ban_reason == None).order_by(desc(Products.boost_date))
+        list = list.distinct(Products.id, Products.boost_date)
 
-        return list
+        return list.all()
 
     @staticmethod
     def new_product(user_id, title, descript, price, place, main_img):
@@ -475,6 +476,9 @@ class Payments(db.Model):
                         amount=amount,
                         iban=iban,
                         boost_date=boost_date)
+
+        p = Products.query.get(product_id)
+        p.boost_date = boost_date
 
         db.session.add(pays)
         db.session.commit()
