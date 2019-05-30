@@ -34,8 +34,8 @@ def fix_str(string):
 
 def send_mail(mail,name,subject,textPart,htmlPart): # pragma: no cover
 
-    api_key = "288ca9ac426b3e41809ee9c8a429a974"
-    api_secret = "1f29a950828de1e093e7c8d4b74bd5ab"
+    api_key = os.environ.get('MAIL_API')
+    api_secret = os.environ.get('MAIL_KEY')
     mailjet = Client(auth=(api_key, api_secret), version='v3.1')
     data = {
       'Messages': [
