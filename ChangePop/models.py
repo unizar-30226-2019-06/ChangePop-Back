@@ -297,7 +297,9 @@ class Products(db.Model):
                                 Products.descript.label('descript'),
                                 Products.user_id.label('user_id'),
                                 Products.visits.label('visits'),
-                                Products.place.label('place'), CatProducts.cat_name).filter(CatProducts.product_id == Products.id)
+                                Products.place.label('place'),
+                                Products.bid_date.label('bid_date'),
+                                CatProducts.cat_name).filter(CatProducts.product_id == Products.id)
 
         if price_min is not None:
             list = list.filter(Products.price >= price_min)
