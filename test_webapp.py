@@ -34,7 +34,7 @@ class UserDataBase(unittest.TestCase):
         "points": 0,
         "avatar": "http://images.com/235gadfg",
         "fnac": "2019-04-07",
-        "dni": "123456789",
+        "dni": "123456784",
         "place": "Madrid",
         "desc": "Hi I am the fuking Alice",
         "token": "2sf78gsf68hsf5asfh68afh68a58fha68f"
@@ -80,7 +80,7 @@ class UserDataBase(unittest.TestCase):
         "points": 0,
         "avatar": "http://images.com/235gadfg",
         "fnac": "2019-04-07",
-        "dni": "123456789",
+        "dni": "123456784",
         "place": "Madrid",
         "desc": "Hi I am the fuking Alice updated",
         "token": "2sf78gsf68hsf5asfh68afh68a58fha68f",
@@ -269,7 +269,7 @@ class ProductDataBase(unittest.TestCase):
     })
 
     prod_data2 = json.dumps({
-        "descript": "This product is wonderful",
+        "descript": "This product is wonderful uno",
         "price": 34,
         "categories": [
             "Moda"
@@ -375,14 +375,23 @@ class ProductDataBase(unittest.TestCase):
             self.app.post('/product', data=self.prod_data, content_type='application/json')
             self.app.post('/product', data=self.prod_data2, content_type='application/json')
 
+            self.app.get('/logout')
+            self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json')
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
             r_json = self.app.get('/products').get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful list
 
             r_json = self.app.get('/search/products?text=Molongo').get_json()
-            self.assertIn('Producto Molongo', str(r_json))  # Check successful search
+            self.assertIn('Producto Molongo\'', str(r_json))  # Check successful search
+            self.assertIn('Producto Molongo2', str(r_json))  # Check successful search
 
             r_json = self.app.get('/products/' + str(self.user_id)).get_json()
-            self.assertIn('Producto Molongo', str(r_json))  # Check successful list by user
+            self.assertIn('Producto Molongo\'', str(r_json))  # Check successful list by user
+            self.assertIn('Producto Molongo2', str(r_json))  # Check successful search
+
+            self.app.delete('/user')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
     #@unittest.skip
     def test_list_search_product_adv(self):
@@ -395,6 +404,10 @@ class ProductDataBase(unittest.TestCase):
             r_json = self.app.get('/products').get_json()
             self.assertIn('Producto Molongo', str(r_json))  # Check successful list
 
+            self.app.get('/logout')
+            self.app.post('/user', data=UserDataBase.user_data2, content_type='application/json')
+            self.app.post('/login', data=UserDataBase.user2_login, content_type='application/json')
+
             prod_search = json.dumps({
                 "descript": "wonderful",
                 "price_max": 35,
@@ -404,14 +417,18 @@ class ProductDataBase(unittest.TestCase):
                 "place": "Zaragoza"
             })
             r_json = self.app.post('/search/products/adv', data=prod_search, content_type='application/json').get_json()
-            self.assertIn('Producto Molongo', str(r_json))  # Check successful search
+            self.assertIn('Producto Molongo2', str(r_json))  # Check successful search
 
             prod_search = json.dumps({
                 "price_max": 35,
                 "price_min": 33
             })
             r_json = self.app.post('/search/products/adv', data=prod_search, content_type='application/json').get_json()
-            self.assertIn('Producto Molongo', str(r_json))  # Check successful search
+            self.assertIn('Producto Molongo2', str(r_json))  # Check successful search
+            self.assertNotIn('This product is wonderful uno', str(r_json))  # Check successful search
+
+            self.app.delete('/user')
+            self.app.post('/login', data=UserDataBase.user_login, content_type='application/json')
 
     #@unittest.skip
     def test_follows_product(self):

@@ -265,10 +265,13 @@ class Products(db.Model):
     notifications = db.relationship("Notifications", cascade="all, delete-orphan")
 
     @staticmethod
-    def list():
+    def list(user_id):
         # TODO doc
-        list = Products.query.filter_by(is_removed=False, ban_reason=None).order_by(desc(Products.boost_date))
-        return list
+        list = Products.query.filter(Products.is_removed == False)
+        list = list.filter(Products.ban_reason == None)
+        #if user_id is not None:
+        #    list = list.filter(Products.user_id != user_id)
+        return list.order_by(desc(Products.boost_date)).all()
 
     @staticmethod
     def list_by_id(id):
@@ -283,14 +286,16 @@ class Products(db.Model):
         return prod.title
 
     @staticmethod
-    def search(title):
+    def search(user_id, title):
         list = Products.query.filter(Products.title.like('%' + title + '%')).order_by(desc(Products.boost_date))
+        if user_id is not None:
+            list = list.filter(Products.user_id != user_id)
         list = list.filter(Products.is_removed == False)
         list = list.filter(Products.ban_reason == None)
         return list.all()
 
     @staticmethod
-    def search_adv(title, price_min, price_max, place, descc, category):
+    def search_adv(user_id, title, price_min, price_max, place, descc, category):
         list = db.session.query(Products.id.label('id'),
                                 Products.title.label('title'),
                                 Products.price.label('price'),
@@ -302,6 +307,8 @@ class Products(db.Model):
                                 Products.main_img.label('main_img'),
                                 CatProducts.cat_name).filter(CatProducts.product_id == Products.id)
 
+        #if user_id is not None:
+         #   list = list.filter(Products.user_id != user_id)
         if price_min is not None:
             list = list.filter(Products.price >= price_min)
         if price_max is not None:

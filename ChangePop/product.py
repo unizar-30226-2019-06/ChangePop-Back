@@ -187,7 +187,10 @@ def delete_product(id):
 @bp.route('/products', methods=['GET'])
 def list_products():
     # TODO doc
-    products = Products.list()
+
+    user_id = current_user.id if current_user.id is not None else None
+
+    products = Products.list(user_id)
 
     products_list = []
 
@@ -320,7 +323,9 @@ def search_products():
     if title_search is None:
         raise Exception(str(title_search))
 
-    products = Products.search(title_search)
+    user_id = current_user.id if current_user.id is not None else None
+
+    products = Products.search(user_id, title_search)
 
     products_list = []
 
@@ -356,7 +361,9 @@ def search_products_advanced():
     desc = str(content["descript"]) if 'descript' in content else None
     category = str(content["category"]) if 'category' in content else None
 
-    products = Products.search_adv(title, price_min, price_max, place, desc, category)
+    user_id = current_user.id if current_user.id is not None else None
+
+    products = Products.search_adv(user_id, title, price_min, price_max, place, desc, category)
 
     products_list = []
 
